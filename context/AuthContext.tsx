@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 
@@ -22,17 +21,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     const initAuth = () => {
-      const token = localStorage.getItem('noor_token');
-      const user = localStorage.getItem('noor_user');
-      
-      if (token && user) {
-        setState({
-          token,
-          user: JSON.parse(user),
-          isAuthenticated: true,
-          loading: false,
-        });
-      } else {
+      try {
+        const token = localStorage.getItem('noor_token');
+        const userStr = localStorage.getItem('noor_user');
+        
+        if (token && userStr && userStr !== "undefined") {
+          const userData = JSON.parse(userStr);
+          setState({
+            token,
+            user: userData,
+            isAuthenticated: true,
+            loading: false,
+          });
+        } else {
+          setState(prev => ({ ...prev, loading: false }));
+        }
+      } catch (err) {
+        console.error("Auth initialization failed, clearing storage", err);
+        localStorage.removeItem('noor_token');
+        localStorage.removeItem('noor_user');
         setState(prev => ({ ...prev, loading: false }));
       }
     };
@@ -50,7 +57,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         balance: 500,
         currency: 'PKR',
         completedTasks: 2,
-        referralCount: 0, // Default to 0 to show lock for new demo logins
+        referralCount: 0,
         role: email.includes('admin') ? ('admin' as const) : ('user' as const),
         status: 'active' as const
       }
@@ -102,7 +109,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       balance: 2450,
       currency: 'PKR',
       completedTasks: 12,
-      referralCount: 0, // Starts with 0 to demonstrate the lock
+      referralCount: 0,
       role: 'user',
       status: 'active'
     };

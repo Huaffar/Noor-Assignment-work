@@ -18,6 +18,11 @@ export const getAdminDashboardStats = async () => {
       { name: 'Active', value: 8500, color: '#e11d48' },
       { name: 'Banned', value: 1200, color: '#475569' },
       { name: 'New', value: 2800, color: '#f43f5e' }
+    ],
+    planPerformance: [
+      { id: 'p1', name: 'Starter', activeUsers: 4500, tasksDone: 12000, revenue: 4500000 },
+      { id: 'p2', name: 'Standard', activeUsers: 3200, tasksDone: 25000, revenue: 6400000 },
+      { id: 'p3', name: 'Gold Pro', activeUsers: 1800, tasksDone: 45000, revenue: 6300000 }
     ]
   };
 };
@@ -32,25 +37,22 @@ export const logAdminAction = async (admin: any, action: string, targetId: strin
     details,
     timestamp: new Date().toISOString()
   };
-  console.log("AUDIT LOG CREATED:", logEntry);
-  // In real app, save to AuditLog collection
   return logEntry;
 };
 
 export const softDeleteEntity = async (entityType: string, id: string, admin: any) => {
-  console.log(`Soft deleting ${entityType} with ID: ${id}`);
   await logAdminAction(admin, `SOFT_DELETE_${entityType.toUpperCase()}`, id, `Entity moved to trash bin.`);
   return { success: true, message: "Moved to Recycle Bin" };
 };
 
+// Added restoreEntity to fix the import error in Trash.tsx
 export const restoreEntity = async (entityType: string, id: string, admin: any) => {
-  console.log(`Restoring ${entityType} with ID: ${id}`);
   await logAdminAction(admin, `RESTORE_${entityType.toUpperCase()}`, id, `Entity restored from trash bin.`);
-  return { success: true, message: "Entity restored successfully" };
+  return { success: true, message: "Restored successfully" };
 };
 
+// Added permanentDeleteEntity to fix the import error in Trash.tsx
 export const permanentDeleteEntity = async (entityType: string, id: string, admin: any) => {
-  console.log(`PERMANENTLY deleting ${entityType} with ID: ${id}`);
-  await logAdminAction(admin, `PERMANENT_DELETE`, id, `Entity purged from database.`);
-  return { success: true, message: "Deleted forever" };
+  await logAdminAction(admin, `PERMANENT_DELETE_${entityType.toUpperCase()}`, id, `Entity permanently removed from database.`);
+  return { success: true, message: "Permanently deleted" };
 };
