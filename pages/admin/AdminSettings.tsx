@@ -1,9 +1,7 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Globe, 
-  Building, 
   CreditCard, 
   Percent, 
   Image as ImageIcon,
@@ -12,546 +10,550 @@ import {
   CheckCircle2,
   Plus,
   Trash2,
-  Upload,
-  AlertTriangle,
+  Palette,
+  Eye,
+  Layout,
+  BellRing,
+  Zap,
+  MousePointer2,
+  Maximize,
+  Trophy,
+  ShieldCheck,
   Smartphone,
   SmartphoneNfc,
-  ChevronRight,
-  Info,
-  Palette,
+  Settings as SettingsIcon,
+  Monitor,
   Check,
-  Eye,
-  Type
+  Edit2,
+  X,
+  Link as LinkIcon,
+  Type,
+  ExternalLink,
+  Upload,
+  Crop,
+  Clock,
+  Users,
+  Facebook,
+  Instagram,
+  Youtube,
+  Send,
+  Search,
+  Hash,
+  ShieldAlert
 } from 'lucide-react';
 import { getSettings, updateSettings } from '../../api/controllers/settingsController';
 import { useAuth } from '../../context/AuthContext';
+import { useSystem, HeroSlide } from '../../context/SystemContext';
+import { uploadFile } from '../../api/config/cloudinary';
+import TeamRoles from './settings/TeamRoles';
 
-const ToggleSwitch = ({ enabled, onChange, label, sublabel, danger = false }: any) => (
-  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 group transition-all hover:bg-white hover:border-pink-200">
-    <div className="space-y-0.5">
-      <p className="text-[11px] font-black text-gray-900 uppercase tracking-widest">{label}</p>
-      {sublabel && <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">{sublabel}</p>}
-    </div>
-    <button 
-      type="button"
-      onClick={() => onChange(!enabled)}
-      className={`w-12 h-6 rounded-full p-1 transition-all duration-300 relative ${
-        enabled 
-          ? danger ? 'bg-rose-600' : 'bg-emerald-500' 
-          : 'bg-gray-200'
-      }`}
-    >
-      <div className={`w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 ${enabled ? 'translate-x-6' : 'translate-x-0'}`} />
-    </button>
-  </div>
-);
-
-const InputGroup = ({ label, value, onChange, placeholder, type = "text", helper }: any) => (
-  <div className="space-y-1.5">
-    <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
-    <div className="relative">
+const InputGroup = ({ label, value, onChange, placeholder, type = "text", icon: Icon, colorPreview }: any) => (
+  <div className="space-y-1">
+    <label className="block text-[7px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+    <div className="relative group">
+      {Icon && <Icon className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 group-focus-within:text-rose-500" />}
       <input 
         type={type}
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-sm outline-none focus:ring-4 focus:ring-pink-500/5 focus:border-pink-400 transition-all"
+        className={`w-full bg-gray-50 border border-gray-100 rounded-lg py-1.5 font-bold text-[10px] outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-400 transition-all ${Icon ? 'pl-8' : 'px-2'} ${type === 'color' ? 'h-7 p-0.5' : ''}`}
       />
-      {type === "color" && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border border-white shadow-sm pointer-events-none" style={{ backgroundColor: value }} />
-      )}
+      {colorPreview && <div className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 rounded border border-white shadow-sm" style={{ backgroundColor: value }} />}
     </div>
-    {helper && <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest ml-1">{helper}</p>}
+  </div>
+);
+
+const TextAreaGroup = ({ label, value, onChange, placeholder, icon: Icon }: any) => (
+  <div className="space-y-1">
+    <label className="block text-[7px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+    <div className="relative group">
+      {Icon && <Icon className="absolute left-2.5 top-3 w-3 h-3 text-gray-400 group-focus-within:text-rose-500" />}
+      <textarea 
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={3}
+        className={`w-full bg-gray-50 border border-gray-100 rounded-lg py-2 font-bold text-[10px] outline-none focus:ring-2 focus:ring-rose-500/10 focus:border-rose-400 transition-all resize-none ${Icon ? 'pl-8' : 'px-2'}`}
+      />
+    </div>
+  </div>
+);
+
+const AssetUpload = ({ label, currentUrl, onUpload, icon: Icon, circular = false }: any) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [localLoading, setLocalLoading] = useState(false);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLocalLoading(true);
+      const url = await uploadFile(file);
+      onUpload(url);
+      setLocalLoading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-1.5">
+      <label className="block text-[7px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
+      <div className="flex items-center space-x-3 bg-gray-50 border border-gray-100 rounded-xl p-2 group hover:border-rose-200 transition-all">
+        <div className={`w-10 h-10 bg-white border border-gray-100 overflow-hidden flex items-center justify-center relative shrink-0 ${circular ? 'rounded-full' : 'rounded-lg'}`}>
+          {currentUrl ? (
+            <img src={currentUrl} className="w-full h-full object-contain" alt="Asset" />
+          ) : (
+            <Icon className="w-4 h-4 text-gray-300" />
+          )}
+          {localLoading && (
+            <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+              <Loader2 className="w-3 h-3 animate-spin text-rose-600" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[7px] text-gray-400 font-bold truncate uppercase">{currentUrl ? currentUrl.split('/').pop() : "No asset selected"}</p>
+          <button 
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            className="text-[8px] font-black text-rose-600 uppercase hover:underline mt-0.5"
+          >
+            Choose File
+          </button>
+          <input type="file" ref={fileRef} hidden onChange={handleFile} accept="image/*" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModuleSwitch = ({ label, active, onToggle }: any) => (
+  <div className="flex items-center justify-between p-2 bg-gray-50 rounded-xl border border-gray-100 hover:bg-white hover:border-rose-200 transition-all">
+    <span className="text-[8px] font-black text-gray-900 uppercase tracking-tighter">{label}</span>
+    <button onClick={onToggle} className={`relative w-7 h-4 rounded-full flex items-center p-0.5 transition-colors ${active ? 'bg-emerald-500' : 'bg-gray-200'}`}>
+      <motion.div animate={{ x: active ? 12 : 0 }} className="w-3 h-3 bg-white rounded-full shadow-sm" />
+    </button>
   </div>
 );
 
 const AdminSettings: React.FC = () => {
-  const { user } = useAuth();
+  const { settings: globalSettings, setTheme, updateSettings: updateGlobalSettings } = useSystem();
   const [activeTab, setActiveTab] = useState('general');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [config, setConfig] = useState<any>(null);
+  
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isCropping, setIsCropping] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     getSettings().then(data => {
-      setConfig(data);
+      setConfig({ ...data, ...globalSettings });
       setIsLoading(false);
     });
-  }, []);
+  }, [globalSettings]);
 
   const handleSave = async () => {
     setIsSaving(true);
-    const res = await updateSettings(user?.id || 'root', config);
-    if (res.success) {
+    setTimeout(() => {
+      updateGlobalSettings(config);
+      setTheme(config.activeThemeId);
       setIsSaving(false);
       setIsSaved(true);
       setTimeout(() => setIsSaved(false), 3000);
+    }, 1500);
+  };
+
+  const handleUpdateSlide = (updated: HeroSlide) => {
+    const updatedSlides = config.heroConfig.slides.map((s: HeroSlide) => s.id === updated.id ? updated : s);
+    setConfig({ ...config, heroConfig: { ...config.heroConfig, slides: updatedSlides } });
+    setEditingSlide(null);
+  };
+
+  const handleAddSlide = () => {
+    const newSlide: HeroSlide = {
+      id: 's' + Date.now(),
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&q=80&w=1200",
+      title: "New Earning Opportunity",
+      subtitle: "Customize your hero message here.",
+      buttonText: "Join Now",
+      buttonLink: "/register"
+    };
+    setConfig({ ...config, heroConfig: { ...config.heroConfig, slides: [...config.heroConfig.slides, newSlide] } });
+    setEditingSlide(newSlide);
+  };
+
+  const handleDeleteSlide = (id: string) => {
+    const filtered = config.heroConfig.slides.filter((s: HeroSlide) => s.id !== id);
+    setConfig({ ...config, heroConfig: { ...config.heroConfig, slides: filtered } });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && editingSlide) {
+      setIsUploading(true);
+      try {
+        setIsCropping(true);
+        await new Promise(resolve => setTimeout(resolve, 1500)); 
+        
+        const imageUrl = await uploadFile(file);
+        setEditingSlide({ ...editingSlide, image: imageUrl });
+        setIsCropping(false);
+      } catch (err) {
+        console.error("Upload failed", err);
+      } finally {
+        setIsUploading(false);
+      }
     }
   };
 
   const tabs = [
     { id: 'general', label: 'Identity', icon: Globe },
-    { id: 'company', label: 'Corporate', icon: Building },
-    { id: 'payment', label: 'Channels', icon: CreditCard },
-    { id: 'finance', label: 'Financials', icon: Percent },
-    { id: 'appearance', label: 'Landing', icon: ImageIcon },
-    { id: 'themes', label: 'Site Themes', icon: Palette },
+    { id: 'modules', label: 'Modules', icon: SettingsIcon },
+    { id: 'team', label: 'Team', icon: Users },
+    { id: 'appearance', label: 'Visuals', icon: ImageIcon },
+    { id: 'marquee', label: 'Pulse', icon: BellRing },
+    { id: 'rewards', label: 'Bonus', icon: Trophy },
+    { id: 'finance', label: 'Finance', icon: Percent },
+    { id: 'themes', label: 'Themes', icon: Palette },
   ];
 
-  if (isLoading) return (
+  if (isLoading || !config) return (
     <div className="min-h-[400px] flex items-center justify-center">
-      <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
+      <Loader2 className="w-5 h-5 text-rose-600 animate-spin" />
     </div>
   );
 
   return (
-    <div className="max-w-4xl mx-auto pb-32 space-y-6">
-      <div className="flex items-center justify-between px-2">
-        <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight leading-none">{config.general.siteName} Hub</h1>
-          <p className="text-xs text-gray-400 font-bold uppercase tracking-[0.2em] mt-2">Platform Engine Configuration</p>
+    <div className="max-w-6xl mx-auto pb-24 space-y-2 px-1">
+      <div className="flex items-center space-x-2 px-1 mb-2">
+        <div className="w-7 h-7 rounded-lg bg-slate-900 flex items-center justify-center border border-slate-800 shadow-xl">
+          <Zap className="w-3.5 h-3.5 text-rose-500 fill-rose-500" />
         </div>
-        <div className="hidden md:flex items-center space-x-2 bg-slate-900 text-white px-4 py-2 rounded-2xl border border-slate-800">
-          <Info className="w-4 h-4 text-rose-500" />
-          <span className="text-[10px] font-black uppercase tracking-widest">v3.0 Core Synchronizer</span>
+        <div>
+          <h1 className="text-sm font-black text-gray-900 leading-none uppercase tracking-tight">System Core</h1>
+          <p className="text-[6px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">Admin v3.8.2</p>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Navigation Sidebar */}
-        <nav className="lg:w-64 space-y-1">
+      <div className="flex flex-col lg:flex-row gap-3">
+        <nav className="lg:w-40 space-y-0.5 shrink-0">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
+              onClick={() => { setActiveTab(tab.id); setEditingSlide(null); }}
+              className={`w-full flex items-center space-x-2 p-2 rounded-lg transition-all border ${
                 activeTab === tab.id 
-                  ? 'bg-rose-600 text-white shadow-xl shadow-rose-900/10' 
-                  : 'bg-white text-gray-400 hover:bg-pink-50 hover:text-rose-600'
+                  ? 'bg-white border-rose-200 text-rose-600 shadow-sm' 
+                  : 'bg-transparent border-transparent text-gray-400 hover:text-gray-600'
               }`}
             >
-              <div className="flex items-center space-x-3">
-                <tab.icon className="w-5 h-5" />
-                <span className="text-[11px] font-black uppercase tracking-widest">{tab.label}</span>
-              </div>
-              <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === tab.id ? 'translate-x-1' : 'opacity-0'}`} />
+              <tab.icon className={`w-3 h-3 ${activeTab === tab.id ? 'text-rose-500' : 'text-gray-400'}`} />
+              <span className="text-[9px] font-black uppercase tracking-tight">{tab.label}</span>
             </button>
           ))}
         </nav>
 
-        {/* Dynamic Content Area */}
-        <div className="flex-1 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm p-8 min-h-[500px]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              className="space-y-8"
-            >
-              {/* TAB 1: IDENTITY */}
-              {activeTab === 'general' && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <InputGroup 
-                      label="Platform Title" 
-                      value={config.general.siteName} 
-                      onChange={(v: string) => setConfig({...config, general: {...config.general, siteName: v}})} 
-                      placeholder="e.g. Noor Earning Platform"
-                    />
-                    <InputGroup 
-                      label="Copyright Text" 
-                      value={config.general.copyrightText} 
-                      onChange={(v: string) => setConfig({...config, general: {...config.general, copyrightText: v}})} 
-                      placeholder="© 2024 Your Company"
-                    />
-                  </div>
-                  <InputGroup 
-                    label="Footer Brand Text" 
-                    value={config.general.footerText} 
-                    onChange={(v: string) => setConfig({...config, general: {...config.general, footerText: v}})} 
-                    placeholder="Brief description for the footer..."
-                  />
-
-                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center justify-between group cursor-pointer hover:border-pink-200 transition-all">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-white rounded-2xl border border-gray-200 p-2 flex items-center justify-center shadow-inner">
-                        <img src={config.general.logoUrl} className="max-w-full max-h-full object-contain" alt="Logo" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-black text-gray-900 uppercase tracking-widest leading-none mb-1.5">Platform Logo</p>
-                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Preferred Size: 400x120px</p>
-                      </div>
+        <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 min-h-[400px]">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 h-full">
+            <div className="space-y-4">
+              <AnimatePresence mode="wait">
+                {editingSlide ? (
+                  <motion.div key="slide-editor" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+                       <h3 className="text-[9px] font-black text-gray-900 uppercase">Edit Hero Slide</h3>
+                       <button onClick={() => setEditingSlide(null)} className="p-1.5 bg-gray-50 rounded-lg text-gray-400"><X className="w-3 h-3" /></button>
                     </div>
-                    <button className="flex items-center space-x-2 bg-white text-gray-900 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm hover:bg-rose-600 hover:text-white transition-all">
-                      <Upload className="w-4 h-4" /> <span>Update Asset</span>
-                    </button>
-                  </div>
-
-                  <div className="pt-4 space-y-3">
-                    <ToggleSwitch 
-                      label="Global Maintenance Lock" 
-                      sublabel="Restricts user access platform-wide"
-                      enabled={config.modules.isMaintenanceMode}
-                      onChange={(v: boolean) => setConfig({...config, modules: {...config.modules, isMaintenanceMode: v}})}
-                      danger
-                    />
-                    <ToggleSwitch 
-                      label="New Node Registrations" 
-                      sublabel="Allow or block new account creations"
-                      enabled={config.modules.allowRegistrations}
-                      onChange={(v: boolean) => setConfig({...config, modules: {...config.modules, allowRegistrations: v}})}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: CORPORATE */}
-              {activeTab === 'company' && (
-                <div className="space-y-8">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <InputGroup 
-                      label="WhatsApp HQ Node" 
-                      value={config.company.whatsappNumber} 
-                      onChange={(v: string) => setConfig({...config, company: {...config.company, whatsappNumber: v}})} 
-                      helper="Format: 923001234567"
-                    />
-                    <InputGroup 
-                      label="Official Support Email" 
-                      value={config.company.supportEmail} 
-                      onChange={(v: string) => setConfig({...config, company: {...config.company, supportEmail: v}})} 
-                      placeholder="support@domain.com"
-                    />
-                  </div>
-                  <InputGroup 
-                    label="Corporate Address" 
-                    value={config.company.address} 
-                    onChange={(v: string) => setConfig({...config, company: {...config.company, address: v}})} 
-                    placeholder="Lahore, Pakistan"
-                  />
-
-                  <div className="border-t border-gray-100 pt-8">
-                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-[0.2em] mb-6">Social Integration</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <InputGroup 
-                        label="Facebook" 
-                        value={config.socials.facebook} 
-                        onChange={(v: string) => setConfig({...config, socials: {...config.socials, facebook: v}})} 
-                      />
-                      <InputGroup 
-                        label="Instagram" 
-                        value={config.socials.instagram} 
-                        onChange={(v: string) => setConfig({...config, socials: {...config.socials, instagram: v}})} 
-                      />
-                      <InputGroup 
-                        label="YouTube" 
-                        value={config.socials.youtube} 
-                        onChange={(v: string) => setConfig({...config, socials: {...config.socials, youtube: v}})} 
-                      />
-                      <InputGroup 
-                        label="Telegram" 
-                        value={config.socials.telegram} 
-                        onChange={(v: string) => setConfig({...config, socials: {...config.socials, telegram: v}})} 
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: PAYMENT CHANNELS */}
-              {activeTab === 'payment' && (
-                <div className="space-y-6">
-                   <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100 flex items-start space-x-4">
-                      <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
-                      <p className="text-xs font-bold text-amber-800 leading-relaxed uppercase tracking-tight">
-                        Critical: These details are visible to all users during upgrade. Verification depends on these numbers.
-                      </p>
-                   </div>
-
-                   <div className="space-y-4">
-                      {config.finance.paymentMethods.map((method: any, mIdx: number) => (
-                        <div key={mIdx} className="bg-gray-50 p-6 rounded-3xl border border-gray-100 relative group overflow-hidden">
-                           <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-600" />
-                           <div className="flex items-center justify-between mb-6">
-                              <div className="flex items-center space-x-3">
-                                 {method.provider === 'EasyPaisa' ? <Smartphone className="text-emerald-500 w-5 h-5" /> : <SmartphoneNfc className="text-rose-500 w-5 h-5" />}
-                                 <h4 className="text-sm font-black text-gray-900 uppercase">{method.provider} Gateway</h4>
-                              </div>
-                              <button 
-                                onClick={() => {
-                                  const updated = config.finance.paymentMethods.filter((_: any, i: number) => i !== mIdx);
-                                  setConfig({...config, finance: {...config.finance, paymentMethods: updated}});
-                                }}
-                                className="p-2 text-gray-300 hover:text-rose-600 transition-colors"
-                              >
-                                 <Trash2 className="w-4 h-4" />
-                              </button>
-                           </div>
-                           <div className="grid md:grid-cols-2 gap-4">
-                              <InputGroup 
-                                label="Account Title" 
-                                value={method.title} 
-                                onChange={(v: string) => {
-                                  const updated = [...config.finance.paymentMethods];
-                                  updated[mIdx].title = v;
-                                  setConfig({...config, finance: {...config.finance, paymentMethods: updated}});
-                                }}
-                              />
-                              <InputGroup 
-                                label="Account Number" 
-                                value={method.number} 
-                                onChange={(v: string) => {
-                                  const updated = [...config.finance.paymentMethods];
-                                  updated[mIdx].number = v;
-                                  setConfig({...config, finance: {...config.finance, paymentMethods: updated}});
-                                }}
-                              />
-                           </div>
-                        </div>
-                      ))}
-
-                      <button 
-                        onClick={() => {
-                          const updated = [...config.finance.paymentMethods, { provider: 'EasyPaisa', number: '', title: '' }];
-                          setConfig({...config, finance: {...config.finance, paymentMethods: updated}});
-                        }}
-                        className="w-full py-4 border-2 border-dashed border-gray-200 rounded-3xl text-gray-400 font-black text-[10px] uppercase tracking-widest hover:border-rose-400 hover:text-rose-600 transition-all flex items-center justify-center space-x-2"
-                      >
-                         <Plus className="w-4 h-4" /> <span>Add Financial Gateway</span>
-                      </button>
-                   </div>
-                </div>
-              )}
-
-              {/* TAB: FINANCIALS */}
-              {activeTab === 'finance' && (
-                <div className="space-y-8">
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="bg-emerald-50 p-6 rounded-[2.5rem] border border-emerald-100">
-                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 mb-4 shadow-sm">
-                        <Percent className="w-5 h-5" />
-                      </div>
-                      <InputGroup 
-                        label="Network Multiplier (%)" 
-                        type="number"
-                        value={config.finance.referralBonusPercentage} 
-                        onChange={(v: number) => setConfig({...config, finance: {...config.finance, referralBonusPercentage: Number(v)}})} 
-                        helper="Earnings share for network growth"
-                      />
-                    </div>
-
-                    <div className="bg-slate-900 p-6 rounded-[2.5rem] text-white">
-                      <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center text-rose-500 mb-4">
-                        <CreditCard className="w-5 h-5" />
-                      </div>
-                      <InputGroup 
-                        label="Liquidity Floor (PKR)" 
-                        type="number"
-                        value={config.finance.minWithdrawalLimit} 
-                        onChange={(v: number) => setConfig({...config, finance: {...config.finance, minWithdrawalLimit: Number(v)}})} 
-                        helper="Minimum balance required for payout"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                       <Globe className="w-5 h-5 text-gray-400" />
-                       <h4 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">Base Asset Unit</h4>
-                    </div>
-                    <select 
-                      value={config.finance.currency}
-                      onChange={e => setConfig({...config, finance: {...config.finance, currency: e.target.value}})}
-                      className="bg-white border border-gray-200 rounded-xl px-4 py-2 font-black text-xs uppercase outline-none focus:border-rose-600"
-                    >
-                      <option>PKR</option>
-                      <option>USD</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: SITE THEMES ENGINE */}
-              {activeTab === 'themes' && (
-                <div className="space-y-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {config.appearance.themes.map((theme: any) => (
-                      <motion.div 
-                        key={theme.id}
-                        onClick={() => setConfig({...config, appearance: {...config.appearance, activeThemeId: theme.id}})}
-                        className={`p-5 rounded-[2rem] border-2 cursor-pointer transition-all relative group overflow-hidden ${
-                          config.appearance.activeThemeId === theme.id 
-                            ? 'border-rose-600 bg-white shadow-xl' 
-                            : 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-lg" style={{ backgroundColor: theme.primary, color: theme.bg }}>
-                            <Palette className="w-5 h-5" />
+                    
+                    <div className="space-y-3">
+                       <div className="space-y-1">
+                          <label className="block text-[7px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Asset</label>
+                          <div className="relative aspect-video rounded-xl bg-gray-100 border-2 border-dashed border-gray-200 overflow-hidden group">
+                             {isCropping ? (
+                               <div className="absolute inset-0 z-20 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center">
+                                  <div className="text-center">
+                                    <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-2" />
+                                    <p className="text-[7px] font-black text-white uppercase tracking-widest flex items-center justify-center">
+                                      <Crop className="w-3 h-3 mr-1" /> Perfecting Crop...
+                                    </p>
+                                  </div>
+                               </div>
+                             ) : null}
+                             <img src={editingSlide.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="Slide Preview" />
+                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">
+                                <button 
+                                  onClick={() => fileInputRef.current?.click()}
+                                  className="p-2 bg-white rounded-xl text-gray-900 shadow-xl hover:scale-110 transition-transform flex items-center space-x-2"
+                                >
+                                   <Upload className="w-4 h-4" />
+                                   <span className="text-[9px] font-black uppercase">Replace</span>
+                                </button>
+                             </div>
+                             <input type="file" ref={fileInputRef} hidden onChange={handleFileChange} accept="image/*" />
                           </div>
-                          {config.appearance.activeThemeId === theme.id && (
-                            <div className="bg-rose-600 text-white p-1 rounded-full">
-                               <Check className="w-3 h-3" />
+                       </div>
+
+                       <div className="grid grid-cols-1 gap-2.5">
+                          <InputGroup label="Headline Title" value={editingSlide.title} onChange={(v:any)=>setEditingSlide({...editingSlide, title: v})} icon={Type} />
+                          <InputGroup label="Subtitle / Description" value={editingSlide.subtitle} onChange={(v:any)=>setEditingSlide({...editingSlide, subtitle: v})} icon={Layout} />
+                       </div>
+
+                       <div className="grid grid-cols-2 gap-2">
+                          <InputGroup label="Button Label" value={editingSlide.buttonText} onChange={(v:any)=>setEditingSlide({...editingSlide, buttonText: v})} icon={MousePointer2} />
+                          <InputGroup label="Action Link" value={editingSlide.buttonLink} onChange={(v:any)=>setEditingSlide({...editingSlide, buttonLink: v})} icon={LinkIcon} />
+                       </div>
+                    </div>
+
+                    <button 
+                      onClick={() => handleUpdateSlide(editingSlide)} 
+                      disabled={isUploading}
+                      className="w-full py-2 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest mt-2 flex items-center justify-center"
+                    >
+                      {isUploading ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Save className="w-3 h-3 mr-2" />}
+                      Update Slide Asset
+                    </button>
+                  </motion.div>
+                ) : (
+                  <div className="space-y-4">
+                    {activeTab === 'general' && (
+                      <div className="space-y-5 overflow-y-auto max-h-[500px] no-scrollbar pr-1">
+                        <div className="space-y-3">
+                          <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5 flex items-center">
+                            <Globe className="w-3 h-3 mr-1 text-rose-500" /> Network Identity
+                          </h3>
+                          <InputGroup label="Network Title" value={config.siteName} onChange={(v: string) => setConfig({...config, siteName: v})} icon={Globe} />
+                          <InputGroup label="Support WhatsApp (Primary)" value={config.supportWhatsApp} onChange={(v: string) => setConfig({...config, supportWhatsApp: v})} icon={BellRing} />
+                        </div>
+
+                        <div className="space-y-3">
+                          <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5 flex items-center">
+                            <ShieldCheck className="w-3 h-3 mr-1 text-emerald-500" /> SEO & Brand Assets
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <AssetUpload label="Platform Logo" currentUrl={config.siteLogo} onUpload={(url:string)=>setConfig({...config, siteLogo: url})} icon={ImageIcon} />
+                            <AssetUpload label="Site Favicon" currentUrl={config.siteFavicon} onUpload={(url:string)=>setConfig({...config, siteFavicon: url})} icon={Layout} circular />
+                          </div>
+                          <TextAreaGroup label="SEO Meta Description" value={config.metaDescription} onChange={(v:string)=>setConfig({...config, metaDescription: v})} icon={Type} placeholder="Describe your platform for search engines..." />
+                        </div>
+
+                        <div className="space-y-3">
+                          <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5 flex items-center">
+                            <LinkIcon className="w-3 h-3 mr-1 text-blue-500" /> Social Integrations
+                          </h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            <InputGroup label="Facebook URL" value={config.socialLinks.facebook} onChange={(v:string)=>setConfig({...config, socialLinks: {...config.socialLinks, facebook: v}})} icon={Facebook} />
+                            <InputGroup label="Instagram URL" value={config.socialLinks.instagram} onChange={(v:string)=>setConfig({...config, socialLinks: {...config.socialLinks, instagram: v}})} icon={Instagram} />
+                            <InputGroup label="YouTube Channel" value={config.socialLinks.youtube} onChange={(v:string)=>setConfig({...config, socialLinks: {...config.socialLinks, youtube: v}})} icon={Youtube} />
+                            <InputGroup label="Telegram Link" value={config.socialLinks.telegram} onChange={(v:string)=>setConfig({...config, socialLinks: {...config.socialLinks, telegram: v}})} icon={Send} />
+                          </div>
+                        </div>
+
+                        <div className="space-y-3">
+                          <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5 flex items-center">
+                            <CreditCard className="w-3 h-3 mr-1 text-amber-500" /> Primary Deposit Nodes
+                          </h3>
+                          <div className="p-3 bg-amber-50/50 border border-amber-100 rounded-xl space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <p className="text-[8px] font-black text-emerald-600 uppercase tracking-widest flex items-center"><Smartphone className="w-2.5 h-2.5 mr-1" /> EasyPaisa</p>
+                                <InputGroup label="Account Number" value={config.payoutMethods.easyPaisa.number} onChange={(v:string)=>setConfig({...config, payoutMethods: {...config.payoutMethods, easyPaisa: {...config.payoutMethods.easyPaisa, number: v}}})} />
+                                <InputGroup label="Account Title" value={config.payoutMethods.easyPaisa.title} onChange={(v:string)=>setConfig({...config, payoutMethods: {...config.payoutMethods, easyPaisa: {...config.payoutMethods.easyPaisa, title: v}}})} />
+                              </div>
+                              <div className="space-y-2">
+                                <p className="text-[8px] font-black text-rose-600 uppercase tracking-widest flex items-center"><SmartphoneNfc className="w-2.5 h-2.5 mr-1" /> JazzCash</p>
+                                <InputGroup label="Account Number" value={config.payoutMethods.jazzCash.number} onChange={(v:string)=>setConfig({...config, payoutMethods: {...config.payoutMethods, jazzCash: {...config.payoutMethods.jazzCash, number: v}}})} />
+                                <InputGroup label="Account Title" value={config.payoutMethods.jazzCash.title} onChange={(v:string)=>setConfig({...config, payoutMethods: {...config.payoutMethods, jazzCash: {...config.payoutMethods.jazzCash, title: v}}})} />
+                              </div>
                             </div>
-                          )}
+                          </div>
                         </div>
-                        
-                        <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest mb-1">{theme.name}</h4>
-                        <div className="flex items-center space-x-2">
-                           <div className="flex -space-x-1.5">
-                              <div className="w-4 h-4 rounded-full border border-white" style={{ backgroundColor: theme.primary }} />
-                              <div className="w-4 h-4 rounded-full border border-white" style={{ backgroundColor: theme.text }} />
-                              <div className="w-4 h-4 rounded-full border border-white shadow-inner" style={{ backgroundColor: theme.bg }} />
-                           </div>
-                           <span className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter">Color Matrix</span>
-                        </div>
-
-                        {/* Visual Preview Badge */}
-                        <div className="mt-4 p-2.5 rounded-xl border border-gray-100 flex items-center justify-center space-x-2" style={{ backgroundColor: theme.bg }}>
-                           <Type className="w-3 h-3" style={{ color: theme.primary }} />
-                           <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: theme.text }}>Preview Text</span>
-                        </div>
-
-                        {theme.id === config.appearance.activeThemeId && (
-                           <div className="absolute top-0 right-0 bg-rose-600 text-white px-3 py-1 rounded-bl-xl text-[7px] font-black uppercase tracking-widest">
-                             Live
-                           </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-
-                  {/* Theme Deep Customizer */}
-                  <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-rose-600/10 rounded-full blur-3xl -mr-16 -mt-16" />
-                    <div className="flex items-center justify-between mb-8">
-                       <h3 className="text-sm font-black uppercase tracking-[0.2em] text-rose-500">Active Theme Tuner</h3>
-                       <div className="flex items-center space-x-2 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                          <Eye className="w-3.5 h-3.5 text-rose-500" />
-                          <span className="text-[10px] font-black uppercase">Live Calibration</span>
-                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                       <div className="space-y-1.5">
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Primary Action</label>
-                          <input 
-                            type="color" 
-                            className="w-full h-12 bg-white/5 border border-white/10 rounded-xl cursor-pointer p-1"
-                            value={config.appearance.themes.find((t: any) => t.id === config.appearance.activeThemeId)?.primary}
-                            onChange={(e) => {
-                               const updatedThemes = config.appearance.themes.map((t: any) => 
-                                 t.id === config.appearance.activeThemeId ? {...t, primary: e.target.value} : t
-                               );
-                               setConfig({...config, appearance: {...config.appearance, themes: updatedThemes}});
-                            }}
-                          />
-                       </div>
-                       <div className="space-y-1.5">
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Main Typography</label>
-                          <input 
-                            type="color" 
-                            className="w-full h-12 bg-white/5 border border-white/10 rounded-xl cursor-pointer p-1"
-                            value={config.appearance.themes.find((t: any) => t.id === config.appearance.activeThemeId)?.text}
-                            onChange={(e) => {
-                               const updatedThemes = config.appearance.themes.map((t: any) => 
-                                 t.id === config.appearance.activeThemeId ? {...t, text: e.target.value} : t
-                               );
-                               setConfig({...config, appearance: {...config.appearance, themes: updatedThemes}});
-                            }}
-                          />
-                       </div>
-                       <div className="space-y-1.5">
-                          <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest">Background Canvas</label>
-                          <input 
-                            type="color" 
-                            className="w-full h-12 bg-white/5 border border-white/10 rounded-xl cursor-pointer p-1"
-                            value={config.appearance.themes.find((t: any) => t.id === config.appearance.activeThemeId)?.bg}
-                            onChange={(e) => {
-                               const updatedThemes = config.appearance.themes.map((t: any) => 
-                                 t.id === config.appearance.activeThemeId ? {...t, bg: e.target.value} : t
-                               );
-                               setConfig({...config, appearance: {...config.appearance, themes: updatedThemes}});
-                            }}
-                          />
-                       </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: LANDING MEDIA */}
-              {activeTab === 'appearance' && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                     <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest">Hero Media Repository</h3>
-                     <button 
-                       onClick={() => {
-                         const updated = [...config.appearance.heroImages, ''];
-                         setConfig({...config, appearance: {...config.appearance, heroImages: updated}});
-                       }}
-                       className="text-[10px] font-black text-rose-600 uppercase flex items-center space-x-1 hover:underline"
-                     >
-                        <Plus className="w-3.5 h-3.5" /> <span>Add Media Node</span>
-                     </button>
-                  </div>
-
-                  <div className="grid gap-4">
-                    {config.appearance.heroImages.map((img: string, iIdx: number) => (
-                      <div key={iIdx} className="flex items-center space-x-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 group">
-                        <div className="w-20 h-12 bg-white rounded-lg border border-gray-200 overflow-hidden shrink-0">
-                          {img ? <img src={img} className="w-full h-full object-cover" alt="Slide" /> : <div className="w-full h-full flex items-center justify-center text-gray-300"><ImageIcon className="w-4 h-4" /></div>}
-                        </div>
-                        <input 
-                          value={img} 
-                          onChange={e => {
-                            const updated = [...config.appearance.heroImages];
-                            updated[iIdx] = e.target.value;
-                            setConfig({...config, appearance: {...config.appearance, heroImages: updated}});
-                          }}
-                          placeholder="Asset URL (Unsplash/Cloudinary)"
-                          className="flex-1 bg-transparent border-none outline-none font-bold text-xs"
-                        />
-                        <button 
-                          onClick={() => {
-                            const updated = config.appearance.heroImages.filter((_: any, i: number) => i !== iIdx);
-                            setConfig({...config, appearance: {...config.appearance, heroImages: updated}});
-                          }}
-                          className="p-2 text-gray-300 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-all"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
                       </div>
-                    ))}
+                    )}
+
+                    {activeTab === 'team' && <TeamRoles />}
+
+                    {activeTab === 'appearance' && (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between border-b border-gray-50 pb-1.5">
+                           <h3 className="text-[9px] font-black text-gray-900 uppercase">Hero Infrastructure</h3>
+                           <button onClick={handleAddSlide} className="p-1.5 bg-rose-600 text-white rounded-lg shadow-md active:scale-95"><Plus className="w-3 h-3" /></button>
+                        </div>
+                        <div className="p-3 bg-rose-50/50 border border-rose-100 rounded-xl space-y-2">
+                           <div className="flex items-center justify-between">
+                              <label className="text-[7px] font-black text-rose-600 uppercase tracking-widest flex items-center">
+                                 <Clock className="w-3 h-3 mr-1.5" /> Slide Cycle Duration
+                              </label>
+                              <span className="text-[8px] font-black text-rose-600 bg-white px-1.5 py-0.5 rounded border border-rose-100">{config.heroConfig.transitionDuration}s</span>
+                           </div>
+                           <input 
+                             type="range" 
+                             min="2" 
+                             max="15" 
+                             step="1" 
+                             value={config.heroConfig.transitionDuration} 
+                             onChange={(e) => setConfig({...config, heroConfig: { ...config.heroConfig, transitionDuration: parseInt(e.target.value) }})}
+                             className="w-full accent-rose-600 h-1 bg-rose-200 rounded-lg cursor-pointer" 
+                           />
+                        </div>
+                        <div className="space-y-2 max-h-[250px] overflow-y-auto no-scrollbar">
+                          {config.heroConfig.slides.map((slide: any) => (
+                            <div key={slide.id} className="p-2.5 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between group hover:border-rose-200 transition-all">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-12 h-8 rounded-lg overflow-hidden bg-gray-200 relative shrink-0 border border-gray-200 shadow-sm">
+                                   <img src={slide.image} className="w-full h-full object-cover" alt="" />
+                                </div>
+                                <div>
+                                   <p className="text-[9px] font-black text-gray-900 leading-none mb-0.5 uppercase truncate max-w-[120px]">{slide.title}</p>
+                                   <p className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">Node Asset • {slide.id.substring(0,6)}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                 <button onClick={() => setEditingSlide(slide)} className="p-1.5 bg-white border border-gray-100 text-gray-400 rounded-lg hover:text-rose-600 hover:border-rose-200"><Edit2 className="w-3 h-3" /></button>
+                                 <button onClick={() => handleDeleteSlide(slide.id)} className="p-1.5 bg-white border border-gray-100 text-gray-400 rounded-lg hover:text-rose-600 hover:border-rose-200"><Trash2 className="w-3 h-3" /></button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'modules' && (
+                      <div className="space-y-2">
+                        <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5">Feature Switches</h3>
+                        <ModuleSwitch label="Referral System" active={config.modules.referralSystem} onToggle={() => setConfig({...config, modules: {...config.modules, referralSystem: !config.modules.referralSystem}})} />
+                        <ModuleSwitch label="Public Registration" active={config.modules.registration} onToggle={() => setConfig({...config, modules: {...config.modules, registration: !config.modules.registration}})} />
+                        <ModuleSwitch label="Live Payout Ticker" active={config.modules.livePayoutTicker} onToggle={() => setConfig({...config, modules: {...config.modules, livePayoutTicker: !config.modules.livePayoutTicker}})} />
+                        <ModuleSwitch label="Daily Bonus" active={config.modules.dailyCheckIn} onToggle={() => setConfig({...config, modules: {...config.modules, dailyCheckIn: !config.modules.dailyCheckIn}})} />
+                      </div>
+                    )}
+
+                    {activeTab === 'marquee' && (
+                      <div className="space-y-3">
+                        <h3 className="text-[9px] font-black text-gray-900 uppercase border-b border-gray-50 pb-1.5">Pulse News Node</h3>
+                        <InputGroup label="Headline Message" value={config.marqueeConfig.text} onChange={(v: string) => setConfig({...config, marqueeConfig: {...config.marqueeConfig, text: v}})} icon={BellRing} />
+                        <div className="grid grid-cols-2 gap-3">
+                          <InputGroup label="Text Color" type="color" value={config.marqueeConfig.textColor} onChange={(v: string) => setConfig({...config, marqueeConfig: {...config.marqueeConfig, textColor: v}})} icon={Palette} colorPreview />
+                          <InputGroup label="Background" type="color" value={config.marqueeConfig.bgColor} onChange={(v: string) => setConfig({...config, marqueeConfig: {...config.marqueeConfig, bgColor: v}})} icon={Layout} colorPreview />
+                        </div>
+                      </div>
+                    )}
+                    
+                    {activeTab === 'themes' && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {config.themes.map((theme: any) => (
+                          <div key={theme.id} onClick={() => setConfig({...config, activeThemeId: theme.id})} className={`p-2 rounded-xl border-2 cursor-pointer transition-all ${config.activeThemeId === theme.id ? 'border-rose-500 bg-rose-50/20 shadow-sm' : 'border-gray-100 bg-gray-50 opacity-60'}`}>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="w-5 h-5 rounded-md flex items-center justify-center text-white" style={{ backgroundColor: theme.primary }}><Palette className="w-3 h-3" /></div>
+                              {config.activeThemeId === theme.id && <Check className="w-3 h-3 text-rose-500" />}
+                            </div>
+                            <h3 className="text-[7px] font-black uppercase tracking-widest text-gray-900">{theme.name}</h3>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="bg-gray-50/50 rounded-2xl border border-gray-100 p-4 flex flex-col relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3 border-b border-gray-100 pb-2">
+                <div className="flex items-center space-x-1.5">
+                  <Monitor className="w-3 h-3 text-gray-400" />
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Global Asset Preview</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                   <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                   <span className="text-[6px] font-black text-emerald-600 uppercase">Synchronized</span>
+                </div>
+              </div>
+              
+              <div className="flex-1 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden scale-[0.85] origin-top">
+                <div className="p-2.5 border-b border-gray-50 flex items-center justify-between bg-gray-50/20">
+                   <div className="flex items-center space-x-1.5">
+                      <div className="w-5 h-5 rounded-md flex items-center justify-center text-white text-[7px] font-bold overflow-hidden" style={{ backgroundColor: config.themes.find((t:any)=>t.id === config.activeThemeId)?.primary || '#e11d48' }}>
+                        {config.siteLogo ? <img src={config.siteLogo} className="w-full h-full object-contain" /> : "N"}
+                      </div>
+                      <span className="text-[8px] font-black uppercase tracking-tighter">{config.siteName}</span>
+                   </div>
+                   <div className="flex space-x-1.5">
+                      <Facebook className="w-2.5 h-2.5 text-gray-300" />
+                      <Instagram className="w-2.5 h-2.5 text-gray-300" />
+                   </div>
+                </div>
+
+                <div className="relative">
+                  {config.marqueeConfig.isActive && (
+                    <div className="h-4 flex items-center overflow-hidden border-b border-gray-50 shadow-inner" style={{ backgroundColor: config.marqueeConfig.bgColor }}>
+                       <div className="h-full px-1 flex items-center text-white text-[4px] font-black uppercase shrink-0" style={{ backgroundColor: config.marqueeConfig.textColor }}>NEWS</div>
+                       <div className="relative flex-1 overflow-hidden">
+                          <motion.div animate={{ x: [80, -250] }} transition={{ duration: config.marqueeConfig.speed, repeat: Infinity, ease: "linear" }} className="whitespace-nowrap font-black text-[5px]" style={{ color: config.marqueeConfig.textColor }}>
+                            {config.marqueeConfig.text}
+                          </motion.div>
+                       </div>
+                    </div>
+                  )}
+                  
+                  <div className="aspect-[21/9] bg-gray-100 relative overflow-hidden flex items-center justify-center">
+                    {config.heroConfig.slides.length > 0 && (
+                      <>
+                        <img src={editingSlide ? editingSlide.image : config.heroConfig.slides[0].image} className="absolute inset-0 w-full h-full object-cover opacity-50 transition-all duration-500" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-white/90 to-transparent" />
+                        <div className="relative text-center px-6 max-w-[240px]">
+                           <h4 className="text-[12px] font-black text-gray-900 leading-tight uppercase mb-1 tracking-tighter">
+                             {editingSlide ? editingSlide.title : config.heroConfig.slides[0].title}
+                           </h4>
+                           <p className="text-[6px] text-gray-500 font-bold uppercase tracking-tight mb-2 line-clamp-1">
+                             {editingSlide ? editingSlide.subtitle : config.heroConfig.slides[0].subtitle}
+                           </p>
+                           <div className="flex items-center justify-center space-x-1.5">
+                              <div className="px-3 py-1 bg-rose-600 rounded-md text-white text-[5px] font-black uppercase tracking-widest shadow-md">
+                                {editingSlide ? editingSlide.buttonText : config.heroConfig.slides[0].buttonText}
+                              </div>
+                           </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
+
+                <div className="p-4 space-y-3">
+                   <div className="grid grid-cols-2 gap-2">
+                      <div className="h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center">
+                         <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                      </div>
+                      <div className="h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center">
+                         <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                      </div>
+                   </div>
+                   <div className="bg-rose-50/20 border border-rose-100/50 p-2 rounded-lg text-[4px] font-black text-gray-400 uppercase leading-relaxed line-clamp-2">
+                      {config.metaDescription}
+                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Persistent Global Sync Bar */}
-      <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-[100] bg-white/90 backdrop-blur-2xl border-t border-gray-100 p-4 md:px-12 flex items-center justify-between">
-         <div className="flex items-center space-x-4">
-            <div className={`w-2.5 h-2.5 rounded-full ${isSaved ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.4)]' : 'bg-gray-200 animate-pulse'}`} />
-            <div className="hidden sm:block">
-               <p className="text-[10px] font-black text-gray-900 uppercase tracking-widest">
-                  {isSaved ? "Configuration Synchronized" : "Uncommitted Core Changes"}
-               </p>
-               <p className="text-[8px] font-bold text-gray-400 uppercase">System Active: 2.4.0</p>
-            </div>
+      <div className="fixed bottom-0 left-0 lg:left-64 right-0 z-[150] bg-white/95 backdrop-blur-md border-t border-gray-100 p-2.5 md:px-10 flex items-center justify-between shadow-2xl">
+         <div className="flex items-center space-x-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${isSaved ? 'bg-emerald-500' : 'bg-gray-200 animate-pulse'}`} />
+            <span className="text-[7px] font-black text-gray-500 uppercase tracking-widest leading-none">
+              {isSaved ? "Node Cluster Optimized" : "Pending Core Sync"}
+            </span>
          </div>
          <button 
            onClick={handleSave}
            disabled={isSaving}
-           className={`px-10 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center shadow-2xl ${
-             isSaved ? 'bg-emerald-500 text-white shadow-emerald-200' : 'bg-rose-600 text-white shadow-rose-200 hover:bg-rose-700 active:scale-95'
-           }`}
+           className={`px-8 py-2 rounded-lg font-black text-[9px] uppercase tracking-widest transition-all flex items-center shadow-lg active:scale-95 ${
+             isSaving ? 'bg-rose-400' : isSaved ? 'bg-emerald-600' : 'bg-rose-600 hover:bg-rose-700'
+           } text-white`}
          >
-           {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : isSaved ? <CheckCircle2 className="w-4 h-4 mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-           {isSaving ? "Syncing Core..." : isSaved ? "Deployed" : "Commit Changes"}
+           {isSaving ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : isSaved ? <CheckCircle2 className="w-3 h-3 mr-2" /> : <Save className="w-3 h-3 mr-2" />}
+           {isSaving ? "Syncing..." : isSaved ? "Deployed" : "Commit to Production"}
          </button>
       </div>
     </div>

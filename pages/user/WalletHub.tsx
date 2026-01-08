@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, 
   ArrowUpRight, 
@@ -14,7 +15,8 @@ import {
   AlertCircle,
   Lock,
   TrendingUp,
-  Loader2
+  Loader2,
+  ShieldAlert
 } from 'lucide-react';
 import { useSystem } from '../../context/SystemContext';
 import { useAuth } from '../../context/AuthContext';
@@ -22,14 +24,16 @@ import { useAuth } from '../../context/AuthContext';
 const WalletHub: React.FC = () => {
   const { settings } = useSystem();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawStep, setWithdrawStep] = useState(1);
   const [withdrawData, setWithdrawData] = useState({ amount: '', method: 'EasyPaisa', account: '' });
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Referral Lock Condition
-  const isWithdrawalLocked = (user?.referralCount || 0) < 1;
+  // Referral & KYC Lock Conditions
+  const isReferralLocked = (user?.referralCount || 0) < 1;
+  const isKYCLocked = user?.kycStatus !== 'approved';
 
   const requests = [
     { id: 'W1', type: 'Withdrawal', amount: 2000, status: 'Completed', date: '2 days ago', method: 'EasyPaisa' },
@@ -39,8 +43,12 @@ const WalletHub: React.FC = () => {
 
   const handleWithdraw = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isKYCLocked) {
+      setError("Verify identity first.");
+      return;
+    }
+
     const amountNum = Number(withdrawData.amount);
-    
     if (amountNum < settings.minWithdrawal) {
       setError(`Min. Rs. ${settings.minWithdrawal}`);
       return;
@@ -68,13 +76,12 @@ const WalletHub: React.FC = () => {
           <h1 className="text-lg font-black text-gray-900 leading-none">Wallet</h1>
           <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Managed Earnings</p>
         </div>
-        <div className="bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-100 flex items-center space-x-1.5">
-           <TrendingUp className="w-3 h-3 text-rose-600" />
-           <span className="text-[7px] font-black text-rose-600 uppercase tracking-widest">Verified</span>
+        <div className={`px-2.5 py-1 rounded-lg border flex items-center space-x-1.5 ${isKYCLocked ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
+           {isKYCLocked ? <ShieldAlert className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
+           <span className="text-[7px] font-black uppercase tracking-widest">{isKYCLocked ? 'Unverified' : 'Verified'}</span>
         </div>
       </div>
 
-      {/* Modern Compact Balance Card */}
       <motion.div 
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -97,8 +104,29 @@ const WalletHub: React.FC = () => {
         </div>
       </motion.div>
 
-      {/* Withdrawal Lock Warning */}
-      {isWithdrawalLocked && (
+      {/* Identity Warning */}
+      {isKYCLocked && (
+        <motion.div 
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          onClick={() => navigate('/kyc')}
+          className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between group cursor-pointer"
+        >
+          <div className="flex items-center space-x-2.5">
+            <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center text-white shrink-0 shadow-lg shadow-rose-900/40">
+               <ShieldAlert className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-[9px] font-black text-white uppercase tracking-tight">Identity Scan Required</p>
+              <p className="text-[7px] font-bold text-gray-400 uppercase">Click to complete KYC</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-rose-500 transition-colors" />
+        </motion.div>
+      )}
+
+      {/* Referral Lock Warning */}
+      {isReferralLocked && (
         <motion.div 
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
@@ -113,7 +141,6 @@ const WalletHub: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Transaction History Section */}
       <div className="space-y-2">
         <div className="flex items-center justify-between px-2">
           <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Recent Activity</h3>
@@ -148,7 +175,6 @@ const WalletHub: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile-Optimized Withdrawal Modal */}
       <AnimatePresence>
         {isWithdrawModalOpen && (
           <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0">
@@ -168,7 +194,21 @@ const WalletHub: React.FC = () => {
                 </button>
               </div>
 
-              {withdrawStep === 1 ? (
+              {isKYCLocked ? (
+                <div className="text-center py-6 space-y-4">
+                  <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-rose-100">
+                    <ShieldAlert className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-black text-gray-900 leading-tight">Identity Required</h3>
+                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">Please complete your Biometric scan to unlock cash outs.</p>
+                  <button 
+                    onClick={() => navigate('/kyc')}
+                    className="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl"
+                  >
+                    Go to Identity Node
+                  </button>
+                </div>
+              ) : withdrawStep === 1 ? (
                 <div className="space-y-3">
                   <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-center">Select Destination</p>
                   <div className="grid grid-cols-2 gap-2">
@@ -226,7 +266,7 @@ const WalletHub: React.FC = () => {
 
                   <div className="flex gap-2 pt-1">
                     <button type="button" onClick={() => setWithdrawStep(1)} className="flex-1 py-3 bg-gray-100 text-gray-500 font-black rounded-xl text-[10px] uppercase">Back</button>
-                    {isWithdrawalLocked ? (
+                    {isReferralLocked ? (
                       <button disabled className="flex-[2] py-3 bg-gray-200 text-gray-400 font-black rounded-xl text-[10px] uppercase cursor-not-allowed">Locked</button>
                     ) : (
                       <button type="submit" disabled={isSubmitting} className="flex-[2] py-3 bg-rose-600 text-white font-black rounded-xl text-[10px] uppercase shadow-lg shadow-rose-100">

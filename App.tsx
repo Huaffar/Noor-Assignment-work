@@ -15,12 +15,16 @@ import PlanMarket from './pages/user/PlanMarket';
 import Referrals from './pages/user/Referrals';
 import MyRequests from './pages/user/MyRequests';
 import Support from './pages/user/Support';
+import KYC from './pages/user/KYC';
+import Invite from './pages/user/Invite';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ReviewTasks from './pages/admin/ReviewTasks';
 import ManagePlans from './pages/admin/ManagePlans';
 import WorkManager from './pages/admin/WorkManager';
 import UserManager from './pages/admin/UserManager';
 import AdminSettings from './pages/admin/AdminSettings';
+import ManageSupport from './pages/admin/ManageSupport';
+import KYCRequests from './pages/admin/KYCRequests';
 import PlanRequests from './pages/admin/requests/PlanRequests';
 import WithdrawalRequests from './pages/admin/requests/WithdrawalRequests';
 import AuditHistory from './pages/admin/AuditHistory';
@@ -141,6 +145,32 @@ const AppRoutes: React.FC = () => {
         />
 
         <Route 
+          path="/kyc" 
+          element={
+            isAuthenticated ? (
+              <UserLayout>
+                <KYC />
+              </UserLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+
+        <Route 
+          path="/invite" 
+          element={
+            isAuthenticated ? (
+              <UserLayout>
+                <Invite />
+              </UserLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+
+        <Route 
           path="/my-plan" 
           element={
             isAuthenticated ? (
@@ -225,6 +255,19 @@ const AppRoutes: React.FC = () => {
             isAuthenticated && user?.role === 'admin' ? (
               <UserLayout>
                 <ReviewTasks />
+              </UserLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+
+        <Route 
+          path="/admin/kyc" 
+          element={
+            isAuthenticated && user?.role === 'admin' ? (
+              <UserLayout>
+                <KYCRequests />
               </UserLayout>
             ) : (
               <Navigate to="/login" />
@@ -329,6 +372,19 @@ const AppRoutes: React.FC = () => {
             isAuthenticated && user?.role === 'admin' ? (
               <UserLayout>
                 <AdminSettings />
+              </UserLayout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          } 
+        />
+
+        <Route 
+          path="/admin/support" 
+          element={
+            isAuthenticated && user?.role === 'admin' ? (
+              <UserLayout>
+                <ManageSupport />
               </UserLayout>
             ) : (
               <Navigate to="/login" />

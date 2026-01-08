@@ -2,67 +2,71 @@
 import { uploadFile } from '../config/cloudinary';
 
 export const getSettings = async () => {
-  // Mocking the DB fetch with updated site name and theme engine
+  // Simulating fetching from Admin SystemSettings DB
   return {
-    general: {
-      siteName: "Noor Earning Platform",
-      logoUrl: "https://placehold.co/200x50/e11d48/white?text=NOOR",
-      footerText: "Pakistan's premium micro-task platform. Empowering thousands to earn daily.",
-      copyrightText: "© 2024 Noor Official. All rights reserved."
+    siteName: "Noor Earning Platform",
+    maintenanceMode: false,
+    minWithdrawal: 500,
+    supportWhatsApp: "923001234567",
+    activeThemeId: "pink",
+    themes: [
+      { id: "pink", name: "Royal Rose", primary: "#E11D48", text: "#1E293B", bg: "#FDF2F8", isDefault: true },
+      { id: "green", name: "Emerald Growth", primary: "#10B981", text: "#064E3B", bg: "#F0FDF4" },
+      { id: "black", name: "Slate Noir", primary: "#F43F5E", text: "#F8FAFC", bg: "#0F172A" },
+      { id: "blue", name: "Oceanic Blue", primary: "#2563EB", text: "#1E3A8A", bg: "#EFF6FF" },
+      { id: "yellow", name: "Amber Gold", primary: "#D97706", text: "#78350F", bg: "#FFFBEB" }
+    ],
+    heroConfig: {
+      transitionDuration: 6,
+      aspectRatio: 'full',
+      slides: [
+        {
+          id: 's1',
+          image: "https://images.unsplash.com/photo-1573163067521-024c04023ec2?auto=format&fit=crop&q=80&w=1920",
+          title: "Earn Money Daily from Home",
+          subtitle: "Join Pakistan's most trusted network and turn your free time into consistent PKR earnings.",
+          buttonText: "Start Earning",
+          buttonLink: "/register"
+        }
+      ]
     },
-    company: {
-      whatsappNumber: "923001234567",
-      supportEmail: "support@noorofficial.com",
-      address: "DHA Phase 5, Lahore, PK"
+    marqueeConfig: {
+      text: "Assalam-o-Alaikum! New assignments are live. Referral bonus has been increased to 15% for Gold Members. 🚀",
+      speed: 20,
+      fontSize: "text-[8px]",
+      textColor: "#E11D48",
+      bgColor: "#FFE4E6",
+      isActive: true,
+      scale: 1.0
     },
-    socials: {
-      facebook: "https://fb.com/noorofficial",
-      instagram: "https://insta.com/noorofficial",
-      youtube: "https://youtube.com/noorofficial",
-      telegram: "https://t.me/noorofficial"
+    streakConfig: {
+      isActive: true,
+      dailyReward: 5,
+      milestoneReward: 50
     },
     modules: {
-      isMaintenanceMode: false,
-      allowRegistrations: true,
-      enableReferralSystem: true
+      referralSystem: true,
+      registration: true,
+      dailyCheckIn: true,
+      livePayoutTicker: true
     },
-    finance: {
-      currency: "PKR",
-      referralBonusPercentage: 10,
-      minWithdrawalLimit: 500,
-      paymentMethods: [
-        { provider: "EasyPaisa", number: "03001234567", title: "Noor Official HQ" },
-        { provider: "JazzCash", number: "03017654321", title: "Finance Dept" }
-      ]
-    },
-    appearance: {
-      heroImages: [
-        "https://images.unsplash.com/photo-1573163067521-024c04023ec2?q=80&w=1920",
-        "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1920"
-      ],
-      activeThemeId: "pink",
-      themes: [
-        { id: "pink", name: "Royal Rose", primary: "#E11D48", text: "#1E293B", bg: "#FDF2F8", isDefault: true },
-        { id: "green", name: "Emerald Growth", primary: "#10B981", text: "#064E3B", bg: "#F0FDF4", isDefault: false },
-        { id: "black", name: "Slate Noir", primary: "#1E293B", text: "#F8FAFC", bg: "#0F172A", isDefault: false },
-        { id: "blue", name: "Oceanic Blue", primary: "#2563EB", text: "#1E3A8A", bg: "#EFF6FF", isDefault: false },
-        { id: "yellow", name: "Amber Gold", primary: "#D97706", text: "#78350F", bg: "#FFFBEB", isDefault: false }
-      ]
+    payoutMethods: {
+      easyPaisa: { number: "03001234567", title: "Noor Official HQ" },
+      jazzCash: { number: "03017654321", title: "Noor Official Finance" }
     }
   };
 };
 
 export const updateSettings = async (adminId: string, payload: any) => {
-  console.log(`Admin ${adminId} updating system core...`, payload);
-  await new Promise(resolve => setTimeout(resolve, 1200));
+  console.log(`[BACKEND] Admin ${adminId} triggered global configuration sync...`);
+  console.log(`[BACKEND] Sync Payload:`, payload);
+  
+  // Simulate network delay for production-like feel
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
   return {
     success: true,
-    message: "Global Configuration Synchronized",
+    message: "Platform Engine Synchronized Across All Nodes",
     updatedAt: new Date().toISOString()
   };
-};
-
-export const uploadLogo = async (file: any) => {
-  const url = await uploadFile(file);
-  return { success: true, url };
 };
