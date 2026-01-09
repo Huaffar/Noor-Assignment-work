@@ -19,7 +19,10 @@ export const registerUser = async (data: any) => {
     currency: 'PKR',
     role: 'user',
     status: 'active',
-    completedTasks: 0
+    completedTasks: 0,
+    currentPlan: 'None',
+    planStatus: 'none',
+    dailyLimit: 0
   };
 
   return {
@@ -32,7 +35,7 @@ export const registerUser = async (data: any) => {
 export const loginUser = async (credentials: any) => {
   const { email, password } = credentials;
   
-  // Simulate DB lookup
+  // Simulate DB lookup for demo users
   if (email === "demo@noorofficial.com") {
     return {
       success: true,
@@ -42,11 +45,34 @@ export const loginUser = async (credentials: any) => {
         name: 'Demo Worker',
         email: 'demo@noorofficial.com',
         whatsapp: '03001234567',
-        balance: 2450, // PKR
+        balance: 2450,
         currency: 'PKR',
         completedTasks: 12,
-        role: 'user',
-        status: 'active'
+        role: 'user', 
+        status: 'active',
+        currentPlan: 'Gold Package',
+        planStatus: 'active',
+        dailyLimit: 8
+      }
+    };
+  }
+
+  if (email === "admin@noorofficial.com") {
+    return {
+      success: true,
+      token: "mock_jwt_token_admin",
+      user: {
+        id: 'admin_root',
+        name: 'Admin Controller',
+        email: 'admin@noorofficial.com',
+        whatsapp: '03112233445',
+        balance: 999999,
+        currency: 'PKR',
+        role: 'admin', 
+        status: 'active',
+        currentPlan: 'System Root',
+        planStatus: 'active',
+        dailyLimit: 100
       }
     };
   }

@@ -1,8 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 
 interface AuthContextType extends AuthState {
-  login: (email: string, pass: string) => Promise<void>;
+  login: (email: string, pass: string) => Promise<User>;
   register: (data: any) => Promise<void>;
   logout: () => void;
   demoLogin: () => void;
@@ -20,12 +21,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
+    // Fast boot synchronization
     const initAuth = () => {
-      try {
-        const token = localStorage.getItem('noor_token');
-        const userStr = localStorage.getItem('noor_user');
-        
-        if (token && userStr && userStr !== "undefined") {
+      const token = localStorage.getItem('noor_token');
+      const userStr = localStorage.getItem('noor_user');
+      
+      if (token && userStr && userStr !== "undefined") {
+        try {
           const userData = JSON.parse(userStr);
           setState({
             token,
@@ -33,45 +35,53 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             isAuthenticated: true,
             loading: false,
           });
-        } else {
-          setState(prev => ({ ...prev, loading: false }));
+          return;
+        } catch (err) {
+          localStorage.removeItem('noor_token');
+          localStorage.removeItem('noor_user');
         }
-      } catch (err) {
-        console.error("Auth initialization failed, clearing storage", err);
-        localStorage.removeItem('noor_token');
-        localStorage.removeItem('noor_user');
-        setState(prev => ({ ...prev, loading: false }));
       }
+      setState(prev => ({ ...prev, loading: false }));
     };
     initAuth();
   }, []);
 
-  const login = async (email: string, pass: string) => {
-    const response = {
-      token: 'jwt_' + Math.random(),
-      user: {
-        id: 'u_123',
-        name: email.split('@')[0],
-        email,
-        whatsapp: '03001234567',
-        balance: 500,
-        currency: 'PKR',
-        completedTasks: 2,
-        referralCount: 0,
-        role: email.includes('admin') ? ('admin' as const) : ('user' as const),
-        status: 'active' as const
-      }
+  const login = async (email: string, pass: string): Promise<User> => {
+    // High-speed auth simulation
+    const role = (email === 'admin@noorofficial.com' || email.includes('admin')) ? 'admin' : 'user';
+    
+    const user: User = {
+      id: role === 'admin' ? 'admin_root' : 'u_123',
+      name: email.split('@')[0],
+      email,
+      whatsapp: '03001234567',
+      balance: role === 'admin' ? 999999 : 500,
+      currency: 'PKR',
+      completedTasks: role === 'admin' ? 0 : 2,
+      referralCount: role === 'admin' ? 50 : 0,
+      role: role as 'admin' | 'user',
+      status: 'active' as const,
+      checkInStreak: 0,
+      planStatus: role === 'admin' ? 'active' : 'none',
+      currentPlan: role === 'admin' ? 'System Admin' : 'None',
+      dailyLimit: role === 'admin' ? 100 : 0,
+      kycStatus: 'pending' as const,
+      totalEarned: role === 'admin' ? 0 : 500,
+      totalWithdrawn: 0
     };
     
-    localStorage.setItem('noor_token', response.token);
-    localStorage.setItem('noor_user', JSON.stringify(response.user));
+    const token = 'jwt_' + Math.random();
+    localStorage.setItem('noor_token', token);
+    localStorage.setItem('noor_user', JSON.stringify(user));
     
     setState({
-      token: response.token,
-      user: response.user,
+      token,
+      user,
       isAuthenticated: true,
       loading: false,
     });
+
+    return user;
   };
 
   const register = async (data: any) => {
@@ -85,7 +95,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         completedTasks: 0,
         referralCount: 0,
         role: 'user' as const,
-        status: 'active' as const
+        status: 'active' as const,
+        checkInStreak: 0,
+        planStatus: 'none' as const,
+        dailyLimit: 0,
+        kycStatus: 'pending' as const,
+        totalEarned: 0,
+        totalWithdrawn: 0
       }
     };
     
@@ -94,7 +110,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     setState({
       token: response.token,
-      user: response.user,
+      user: response.user as User,
       isAuthenticated: true,
       loading: false,
     });
@@ -111,12 +127,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       completedTasks: 12,
       referralCount: 0,
       role: 'user',
-      status: 'active'
+      status: 'active',
+      checkInStreak: 3,
+      planStatus: 'active',
+      currentPlan: 'Gold Package',
+      dailyLimit: 8,
+      kycStatus: 'approved' as const,
+      totalEarned: 8450,
+      totalWithdrawn: 5700
     };
-    const token = 'demo_token';
-    localStorage.setItem('noor_token', token);
+    localStorage.setItem('noor_token', 'demo_token');
     localStorage.setItem('noor_user', JSON.stringify(demoUser));
-    setState({ token, user: demoUser, isAuthenticated: true, loading: false });
+    setState({ token: 'demo_token', user: demoUser, isAuthenticated: true, loading: false });
   };
 
   const adminDemoLogin = () => {
@@ -130,12 +152,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       completedTasks: 0,
       referralCount: 50,
       role: 'admin',
-      status: 'active'
+      status: 'active',
+      checkInStreak: 0,
+      planStatus: 'active',
+      currentPlan: 'System Root',
+      dailyLimit: 100,
+      kycStatus: 'approved' as const,
+      totalEarned: 0,
+      totalWithdrawn: 0
     };
-    const token = 'admin_token';
-    localStorage.setItem('noor_token', token);
+    localStorage.setItem('noor_token', 'admin_token');
     localStorage.setItem('noor_user', JSON.stringify(adminUser));
-    setState({ token, user: adminUser, isAuthenticated: true, loading: false });
+    setState({ token: 'admin_token', user: adminUser, isAuthenticated: true, loading: false });
   };
 
   const logout = () => {

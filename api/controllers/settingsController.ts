@@ -1,24 +1,20 @@
-
 import { uploadFile } from '../config/cloudinary';
 
 export const getSettings = async () => {
-  // Simulating fetching from Admin SystemSettings DB
   return {
-    siteName: "Noor Earning Platform",
+    siteName: "Noor Official",
     maintenanceMode: false,
     minWithdrawal: 500,
+    withdrawalFee: 0,
+    ratePerPage: 240,
     supportWhatsApp: "923001234567",
     activeThemeId: "pink",
     themes: [
       { id: "pink", name: "Royal Rose", primary: "#E11D48", text: "#1E293B", bg: "#FDF2F8", isDefault: true },
-      { id: "green", name: "Emerald Growth", primary: "#10B981", text: "#064E3B", bg: "#F0FDF4" },
       { id: "black", name: "Slate Noir", primary: "#F43F5E", text: "#F8FAFC", bg: "#0F172A" },
-      { id: "blue", name: "Oceanic Blue", primary: "#2563EB", text: "#1E3A8A", bg: "#EFF6FF" },
-      { id: "yellow", name: "Amber Gold", primary: "#D97706", text: "#78350F", bg: "#FFFBEB" }
     ],
     heroConfig: {
       transitionDuration: 6,
-      aspectRatio: 'full',
       slides: [
         {
           id: 's1',
@@ -48,25 +44,26 @@ export const getSettings = async () => {
       referralSystem: true,
       registration: true,
       dailyCheckIn: true,
-      livePayoutTicker: true
+      livePayoutTicker: true,
+      kycRequired: false,
+      demoLogin: true
     },
     payoutMethods: {
       easyPaisa: { number: "03001234567", title: "Noor Official HQ" },
       jazzCash: { number: "03017654321", title: "Noor Official Finance" }
+    },
+    companySEO: {
+      description: "Earn daily PKR rewards by completing simple handwriting and digital assignments on Pakistan's premium task earning network."
     }
   };
 };
 
 export const updateSettings = async (adminId: string, payload: any) => {
-  console.log(`[BACKEND] Admin ${adminId} triggered global configuration sync...`);
-  console.log(`[BACKEND] Sync Payload:`, payload);
-  
-  // Simulate network delay for production-like feel
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
+  console.log(`[CORE_SYNC] Global Override initiated by ${adminId}`);
+  await new Promise(resolve => setTimeout(resolve, 800));
   return {
     success: true,
-    message: "Platform Engine Synchronized Across All Nodes",
+    message: "Network Logic Synchronized",
     updatedAt: new Date().toISOString()
   };
 };

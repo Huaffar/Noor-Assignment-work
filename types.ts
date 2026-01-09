@@ -13,6 +13,31 @@ export interface User {
   status: 'active' | 'banned';
   isDeleted?: boolean;
   deletedAt?: string;
+  kycStatus: 'pending' | 'submitted' | 'approved' | 'rejected';
+  // Plan Interlinking
+  currentPlan?: string | null;
+  planStatus: 'active' | 'expired' | 'none' | 'pending';
+  planStartDate?: string;
+  planExpiryDate?: string;
+  dailyLimit: number;
+  // Loyalty Fields
+  checkInStreak: number;
+  lastCheckInDate?: string;
+  wantsReminder?: boolean;
+  rewardHistory?: {
+    id: string;
+    amount: number;
+    date: string;
+    dayNum: number;
+  }[];
+  // Extended Stats for Admin Audit
+  totalEarned: number;
+  totalWithdrawn: number;
+  teamStats?: {
+    l1: number;
+    l2: number;
+    l3: number;
+  };
 }
 
 export interface Task {
@@ -27,15 +52,17 @@ export interface Task {
   deletedAt?: string;
 }
 
+export type PlanValidity = 'lifetime' | 'monthly' | 'yearly' | 'daily';
+
 export interface Plan {
   id: string;
   name: string;
-  investment: number;
-  dailyWork: number;
-  weeklySalary: number;
-  monthlySalary: number;
-  color: string;
-  isPopular?: boolean;
+  price: number;
+  dailyLimit: number;
+  validityType: PlanValidity;
+  validityValue: number; // e.g., 30 for monthly, 1 for daily, 0 for lifetime
+  badgeColor: string;
+  isRecommended?: boolean;
   isDeleted?: boolean;
   deletedAt?: string;
 }

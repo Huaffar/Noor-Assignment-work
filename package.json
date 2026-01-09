@@ -15,7 +15,12 @@
     "react-router-dom": "6.28.0",
     "framer-motion": "11.11.17",
     "recharts": "2.13.3",
-    "canvas-confetti": "1.9.3"
+    "canvas-confetti": "1.9.3",
+    "html2canvas": "1.4.1",
+    "react-easy-crop": "5.1.0",
+    "@capacitor/status-bar": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/app": "^8.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -3,48 +3,87 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Smartphone, 
-  Save, 
   CheckCircle2, 
-  Info,
-  SmartphoneNfc
+  SmartphoneNfc,
+  Building,
+  ShieldCheck,
+  Zap,
+  Loader2,
+  Banknote
 } from 'lucide-react';
 
 const PaymentMethods: React.FC = () => {
+  const [isSaving, setIsSaving] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 2000);
+    setIsSaving(true);
+    setTimeout(() => {
+      setIsSaving(false);
+      setIsSaved(true);
+      setTimeout(() => setIsSaved(false), 3000);
+    }, 1500);
   };
 
   return (
-    <div className="space-y-3">
-      <div className="bg-pink-50 border border-pink-100 p-3 rounded-xl flex items-start space-x-2">
-        <Info className="w-3.5 h-3.5 text-pink-600 shrink-0 mt-0.5" />
-        <p className="text-[8px] font-bold text-pink-700 leading-tight uppercase tracking-tight">Updating these reflects instantly on all user upgrade pages. Ensure numbers are valid.</p>
+    <div className="max-w-5xl mx-auto pb-32 space-y-6 px-1 scale-[0.98] origin-top">
+      <div className="flex items-center justify-between px-2 py-4">
+         <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-2xl bg-slate-950 flex items-center justify-center border border-slate-800 shadow-xl">
+               <Building className="w-5 h-5 text-pink-400" />
+            </div>
+            <div>
+               <h1 className="text-lg font-black text-slate-900 uppercase">Finance Hub</h1>
+               <p className="text-[7px] text-slate-400 font-bold uppercase tracking-[0.3em] mt-1.5">Asset Withdrawal Node</p>
+            </div>
+         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-2.5">
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-2 mb-4"><div className="w-7 h-7 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center"><Smartphone className="w-4 h-4" /></div><h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">EasyPaisa Hub</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Number</label><input defaultValue="03001234567" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 font-bold outline-none focus:border-pink-400 text-[11px]" /></div>
-            <div><label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Title</label><input defaultValue="HQ Finance" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 font-bold outline-none focus:border-pink-400 text-[11px]" /></div>
+      <form onSubmit={handleSave} className="space-y-6 px-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-6 relative overflow-hidden group">
+            <div className="flex items-center space-x-3">
+               <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner">
+                  <Smartphone className="w-5 h-5" />
+               </div>
+               <div>
+                 <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">EasyPaisa Hub</h3>
+                 <p className="text-[7px] font-bold text-emerald-500 uppercase">Mobile Node</p>
+               </div>
+            </div>
+            <div className="space-y-3">
+              <input defaultValue="03001234567" className="w-full bg-pink-50/50 border border-pink-100 rounded-xl p-3 font-black text-[12px] outline-none" placeholder="Account Number" />
+              <input defaultValue="Noor Official HQ" className="w-full bg-pink-50/50 border border-pink-100 rounded-xl p-3 font-black text-[12px] outline-none" placeholder="Account Title" />
+            </div>
+          </div>
+
+          <div className="bg-white p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-6 relative overflow-hidden group">
+            <div className="flex items-center space-x-3">
+               <div className="w-10 h-10 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center shadow-inner">
+                  <SmartphoneNfc className="w-5 h-5" />
+               </div>
+               <div>
+                 <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">JazzCash Hub</h3>
+                 <p className="text-[7px] font-bold text-pink-400 uppercase">Mobile Node</p>
+               </div>
+            </div>
+            <div className="space-y-3">
+              <input defaultValue="03017654321" className="w-full bg-pink-50/50 border border-pink-100 rounded-xl p-3 font-black text-[12px] outline-none" placeholder="Account Number" />
+              <input defaultValue="Noor Official Finance" className="w-full bg-pink-50/50 border border-pink-100 rounded-xl p-3 font-black text-[12px] outline-none" placeholder="Account Title" />
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-          <div className="flex items-center space-x-2 mb-4"><div className="w-7 h-7 bg-pink-50 text-pink-600 rounded-lg flex items-center justify-center"><SmartphoneNfc className="w-4 h-4" /></div><h3 className="text-[11px] font-black text-gray-900 uppercase tracking-widest">JazzCash Node</h3></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Number</label><input defaultValue="03017654321" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 font-bold outline-none focus:border-pink-400 text-[11px]" /></div>
-            <div><label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Title</label><input defaultValue="Branch Core" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-2.5 font-bold outline-none focus:border-pink-400 text-[11px]" /></div>
-          </div>
-        </div>
-
-        <button type="submit" className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center shadow-lg transition-all ${isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-pink-600'}`}>
-          {isSaved ? <CheckCircle2 className="w-4 h-4 mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
-          {isSaved ? "Saved" : "Apply Channels"}
+        <button 
+          type="submit" 
+          disabled={isSaving || isSaved}
+          className={`w-full py-5 rounded-[2rem] font-black text-[10px] uppercase tracking-[0.4em] flex items-center justify-center shadow-xl transition-all ${
+            isSaved ? 'bg-emerald-500 text-white' : 'bg-slate-950 text-white hover:bg-pink-500'
+          }`}
+        >
+          {isSaving ? <Loader2 className="w-5 h-5 animate-spin mr-3" /> : isSaved ? <CheckCircle2 className="w-5 h-5 mr-3" /> : <ShieldCheck className="w-5 h-5 mr-3 text-pink-400" />}
+          {isSaving ? "Syncing Logic Nodes..." : isSaved ? "Core Financials Locked" : "Commit Financial Sync"}
         </button>
       </form>
     </div>

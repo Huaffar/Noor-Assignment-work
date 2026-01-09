@@ -1,192 +1,163 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, 
   Lock, 
-  Smartphone, 
-  Palette, 
   Save, 
-  CheckCircle2, 
+  Camera, 
+  Loader2, 
+  ShieldCheck, 
+  Settings as GearIcon,
+  CreditCard,
+  Fingerprint,
+  Bell,
   Moon,
-  Sun,
-  Edit2,
-  X,
-  Camera,
-  Loader2
+  Smartphone
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useSystem } from '../../context/SystemContext';
 
 const Settings: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'payout' | 'appearance'>('profile');
-  const [isEditing, setIsEditing] = useState(false);
+  const { setTheme } = useSystem();
+  const [activeTab, setActiveTab] = useState<'profile' | 'wallet' | 'security' | 'prefs'>('profile');
   const [isSaving, setIsSaving] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
-
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    whatsapp: user?.whatsapp || '',
-    password: ''
-  });
 
   const tabs = [
     { id: 'profile', label: 'Identity', icon: User },
-    { id: 'payout', label: 'Payouts', icon: Smartphone },
-    { id: 'appearance', label: 'Theme', icon: Palette },
+    { id: 'wallet', label: 'Payout Hub', icon: CreditCard },
+    { id: 'security', label: 'Shield', icon: Fingerprint },
+    { id: 'prefs', label: 'Platform', icon: GearIcon },
   ];
 
-  const handleCommit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      setIsEditing(false);
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2500);
-    }, 1500);
-  };
-
   return (
-    <div className="max-w-xl mx-auto pb-20 space-y-4 px-1">
-      <div className="px-1 flex items-end justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-black text-gray-900 leading-none">Settings</h1>
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-1">Environment Config</p>
-        </div>
-        <div className="flex bg-gray-100 p-1 rounded-xl w-fit">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => { setActiveTab(tab.id as any); setIsEditing(false); }}
-              className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-tight transition-all flex items-center space-x-1 ${
-                activeTab === tab.id ? 'bg-white text-rose-600 shadow-sm' : 'text-gray-400 hover:text-gray-600'
-              }`}
-            >
-              <tab.icon className="w-3 h-3" />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
+    <div className="max-w-xl mx-auto pb-24 space-y-4 px-1 scale-[0.98] origin-top">
+      <div className="px-3 py-2 flex items-center space-x-3">
+         <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center shadow-lg border border-slate-800">
+            <GearIcon className="w-5 h-5 text-rose-500" />
+         </div>
+         <div>
+            <h1 className="text-sm font-black text-slate-900 uppercase tracking-tight">Node Configuration</h1>
+            <p className="text-[7px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Personnel Infrastructure Sync</p>
+         </div>
       </div>
 
-      <motion.div key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-white p-5 rounded-3xl border border-gray-100 shadow-sm relative overflow-hidden">
-        {activeTab === 'profile' && (
-          <div className="absolute top-5 right-5 z-10">
-            <button 
-              onClick={() => setIsEditing(!isEditing)}
-              className={`p-2.5 rounded-xl transition-all shadow-sm flex items-center justify-center ${
-                isEditing ? 'bg-rose-50 text-rose-600' : 'bg-gray-50 text-gray-400 hover:text-rose-600'
-              }`}
-            >
-              {isEditing ? <X className="w-4 h-4" /> : <Edit2 className="w-4 h-4" />}
-            </button>
-          </div>
-        )}
+      {/* Compact Sub-Navigation */}
+      <div className="flex bg-gray-100 p-1 rounded-2xl mx-1 border border-gray-200">
+         {tabs.map(item => (
+           <button
+             key={item.id}
+             onClick={() => setActiveTab(item.id as any)}
+             className={`flex-1 flex flex-col items-center justify-center py-2.5 rounded-xl transition-all ${
+               activeTab === item.id ? 'bg-white text-rose-600 shadow-sm border border-gray-200' : 'text-slate-400 hover:text-slate-600'
+             }`}
+           >
+             <item.icon className={`w-4 h-4 mb-1 ${activeTab === item.id ? 'opacity-100' : 'opacity-40'}`} />
+             <span className="text-[7px] font-black uppercase tracking-tighter">{item.label}</span>
+           </button>
+         ))}
+      </div>
 
-        <form onSubmit={handleCommit} className="space-y-4">
+      <div className="px-1">
+        <AnimatePresence mode="wait">
           {activeTab === 'profile' && (
-            <div className="space-y-4">
-              {/* Profile Overview Card */}
-              <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <div className="relative group">
-                  <div className="w-16 h-16 bg-rose-600 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-lg shadow-rose-200">
-                    {user?.name?.[0].toUpperCase()}
+            <motion.div key="p" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+               <div className="bg-white p-5 rounded-[2rem] border border-pink-50 shadow-sm space-y-4">
+                  <div className="flex items-center space-x-4">
+                     <div className="relative group cursor-pointer">
+                        <div className="w-14 h-14 rounded-2xl overflow-hidden bg-rose-50 border-2 border-white shadow-md">
+                           <img src={`https://ui-avatars.com/api/?name=${user?.name}&background=fff1f2&color=e11d48&bold=true`} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/10 rounded-2xl"><Camera className="w-4 h-4 text-white" /></div>
+                     </div>
+                     <div>
+                        <h3 className="text-[11px] font-black text-slate-900 uppercase">{user?.name}</h3>
+                        <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">{user?.email}</p>
+                     </div>
                   </div>
-                  {isEditing && (
-                    <div className="absolute inset-0 bg-slate-900/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                      <Camera className="w-5 h-5 text-white" />
-                    </div>
-                  )}
-                </div>
-                <div>
-                   <h3 className="text-sm font-black text-gray-900 leading-none mb-1">{user?.name}</h3>
-                   <p className="text-[10px] font-black text-rose-600/60 uppercase tracking-widest">{user?.role === 'admin' ? 'Strategic Administrator' : 'Verified Worker'}</p>
-                   <p className="text-[8px] font-bold text-gray-400 mt-0.5 uppercase">Joined: Oct 2023</p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Display Name</label>
-                  <input 
-                    disabled={!isEditing}
-                    className={`w-full border rounded-xl p-3 font-bold text-sm outline-none transition-all ${
-                      isEditing ? 'bg-white border-rose-200 focus:ring-4 focus:ring-rose-500/5 focus:border-rose-600' : 'bg-gray-50 border-gray-100 text-gray-500'
-                    }`} 
-                    value={formData.name}
-                    onChange={e => setFormData({...formData, name: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">WhatsApp Primary</label>
-                  <input 
-                    disabled={!isEditing}
-                    className={`w-full border rounded-xl p-3 font-bold text-sm outline-none transition-all ${
-                      isEditing ? 'bg-white border-rose-200 focus:ring-4 focus:ring-rose-500/5 focus:border-rose-600' : 'bg-gray-50 border-gray-100 text-gray-500'
-                    }`} 
-                    value={formData.whatsapp}
-                    onChange={e => setFormData({...formData, whatsapp: e.target.value})}
-                  />
-                </div>
-                {isEditing && (
-                  <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                    <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">New Password (Optional)</label>
-                    <input type="password" placeholder="••••••••" className="w-full bg-white border border-rose-200 rounded-xl p-3 font-bold text-sm outline-none focus:ring-4 focus:ring-rose-500/5 focus:border-rose-600 transition-all" />
-                  </motion.div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'payout' && (
-            <div className="space-y-3">
-              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-[9px] font-black text-emerald-600 uppercase tracking-tight">
-                 Your funds will be credited to these accounts during withdrawal.
-              </div>
-              <div>
-                <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">EasyPaisa</label>
-                <input placeholder="03XXXXXXXXX" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-sm outline-none" />
-              </div>
-              <div>
-                <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">JazzCash</label>
-                <input placeholder="03XXXXXXXXX" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-sm outline-none" />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'appearance' && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm">
-                    {darkMode ? <Moon className="w-4 h-4 text-gray-900" /> : <Sun className="w-4 h-4 text-rose-600" />}
+                  <div className="space-y-3">
+                     <div className="space-y-1">
+                        <label className="text-[7px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Legal Identity</label>
+                        <input defaultValue={user?.name} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-rose-400" />
+                     </div>
+                     <div className="space-y-1">
+                        <label className="text-[7px] font-black text-slate-400 uppercase tracking-widest ml-1">WhatsApp Primary Hub</label>
+                        <input defaultValue={user?.whatsapp} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-rose-400" />
+                     </div>
                   </div>
-                  <p className="text-xs font-black text-gray-900">Adaptive UI (Beta)</p>
-                </div>
-                <button type="button" onClick={() => setDarkMode(!darkMode)} className={`w-10 h-6 rounded-full p-1 transition-all ${darkMode ? 'bg-rose-600' : 'bg-gray-200'}`}>
-                  <div className={`w-4 h-4 bg-white rounded-full transition-transform ${darkMode ? 'translate-x-4' : 'translate-x-0'}`} />
-                </button>
-              </div>
-            </div>
+               </div>
+            </motion.div>
           )}
 
-          {(isEditing || activeTab !== 'profile') && (
-            <button 
-              type="submit" 
-              disabled={isSaving}
-              className={`w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center ${
-                isSaved ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-900 text-white hover:bg-rose-600 shadow-xl shadow-slate-200/50'
-              }`}
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : isSaved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4 mr-2" />}
-              {!isSaving && !isSaved && (activeTab === 'profile' ? "Save Profile" : "Commit Changes")}
-              {isSaved && !isSaving && "Node Synchronised"}
-            </button>
+          {activeTab === 'wallet' && (
+             <motion.div key="w" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+                <div className="bg-white p-6 rounded-[2rem] border border-pink-50 shadow-sm space-y-4">
+                   <div className="flex items-center space-x-2 mb-2">
+                      <CreditCard className="w-4 h-4 text-emerald-500" />
+                      <h3 className="text-[10px] font-black text-slate-900 uppercase">Financial Disbursal Nodes</h3>
+                   </div>
+                   <div className="space-y-3">
+                      <div className="space-y-1">
+                         <label className="text-[7px] font-black text-slate-400 uppercase tracking-widest ml-1">EasyPaisa Account</label>
+                         <input placeholder="03XXXXXXXXX" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-emerald-400 shadow-inner" />
+                      </div>
+                      <div className="space-y-1">
+                         <label className="text-[7px] font-black text-slate-400 uppercase tracking-widest ml-1">JazzCash Account</label>
+                         <input placeholder="03XXXXXXXXX" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-rose-400 shadow-inner" />
+                      </div>
+                   </div>
+                </div>
+             </motion.div>
           )}
-        </form>
-      </motion.div>
+
+          {activeTab === 'security' && (
+             <motion.div key="s" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+                <div className="bg-white p-6 rounded-[2rem] border border-pink-50 shadow-sm space-y-4">
+                   <div className="flex items-center space-x-2 mb-2 text-rose-600">
+                      <Lock className="w-4 h-4" />
+                      <h3 className="text-[10px] font-black text-slate-900 uppercase">Shield Protocol</h3>
+                   </div>
+                   <div className="space-y-3">
+                      <input type="password" placeholder="Current Access Key" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-rose-400" />
+                      <input type="password" placeholder="New Secret Node" className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-xs outline-none focus:border-rose-400" />
+                   </div>
+                </div>
+             </motion.div>
+          )}
+
+          {activeTab === 'prefs' && (
+             <motion.div key="pr" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} className="space-y-3">
+                <div className="bg-white p-6 rounded-[2rem] border border-pink-50 shadow-sm space-y-4">
+                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                     <div className="flex items-center space-x-3">
+                       <Moon className="w-4 h-4 text-slate-950" />
+                       <p className="text-[10px] font-black text-slate-900 uppercase">Slate Noir UI</p>
+                     </div>
+                     <button className="w-10 h-6 bg-slate-200 rounded-full p-1"><div className="w-4 h-4 bg-white rounded-full shadow-md" /></button>
+                   </div>
+                   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                     <div className="flex items-center space-x-3">
+                       <Bell className="w-4 h-4 text-rose-600" />
+                       <p className="text-[10px] font-black text-slate-900 uppercase">Alert Ticker</p>
+                     </div>
+                     <button className="w-10 h-6 bg-rose-500 rounded-full p-1 flex justify-end"><div className="w-4 h-4 bg-white rounded-full shadow-md" /></button>
+                   </div>
+                </div>
+             </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="p-3">
+         <button 
+           onClick={() => { setIsSaving(true); setTimeout(() => setIsSaving(false), 1200); }}
+           disabled={isSaving}
+           className="w-full py-4 bg-slate-950 text-white rounded-[1.5rem] font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center shadow-xl transition-all hover:bg-rose-600"
+         >
+           {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2 text-rose-500" />}
+           Commit State Sync
+         </button>
+      </div>
     </div>
   );
 };

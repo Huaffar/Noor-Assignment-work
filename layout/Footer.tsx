@@ -1,54 +1,24 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSystem } from '../context/SystemContext';
 
 const Footer: React.FC = () => {
-  const { settings } = useSystem();
   return (
-    <footer className="border-t transition-colors" style={{ backgroundColor: 'var(--theme-bg)', borderColor: 'var(--theme-primary)' }}>
-      <div className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-          <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--theme-primary)' }}>
-                <span className="text-white font-bold text-lg">N</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--theme-text)' }}>
-                Noor<span style={{ color: 'var(--theme-primary)' }}>Official</span>
-              </span>
-            </Link>
-            <p className="text-sm opacity-70 max-w-sm leading-relaxed" style={{ color: 'var(--theme-text)' }}>
-              {settings.siteName} - Pakistan's premium micro-task platform. Empowering thousands to earn daily through digital assignments and handwriting tasks.
-            </p>
+    <footer className="bg-pink-50 border-t border-pink-100 mt-auto">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded bg-pink-400 flex items-center justify-center text-white font-black text-[10px]">N</div>
+            <span className="text-sm font-black tracking-tighter text-slate-900">
+              Noor<span className="text-pink-500">Official</span>
+            </span>
           </div>
-          
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-widest mb-4 opacity-50" style={{ color: 'var(--theme-text)' }}>Platform</h4>
-            <ul className="space-y-2 text-sm font-bold opacity-80" style={{ color: 'var(--theme-text)' }}>
-              <li><Link to="/about" className="hover:opacity-60 transition-colors">About Us</Link></li>
-              <li><Link to="/upgrade" className="hover:opacity-60 transition-colors">Earning Plans</Link></li>
-              <li><Link to="/support" className="hover:opacity-60 transition-colors">How it Works</Link></li>
-              <li><Link to="/support" className="hover:opacity-60 transition-colors">FAQs</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[10px] font-black uppercase tracking-widest mb-4 opacity-50" style={{ color: 'var(--theme-text)' }}>Legal</h4>
-            <ul className="space-y-2 text-sm font-bold opacity-80" style={{ color: 'var(--theme-text)' }}>
-              <li><Link to="/terms" className="hover:opacity-60 transition-colors">Terms of Service</Link></li>
-              <li><Link to="/privacy" className="hover:opacity-60 transition-colors">Privacy Policy</Link></li>
-              <li><Link to="/support" className="hover:opacity-60 transition-colors">Payout Rules</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center gap-4 border-black/5">
-          <p className="text-xs font-medium opacity-40" style={{ color: 'var(--theme-text)' }}>
-            © {new Date().getFullYear()} {settings.siteName}. All rights reserved.
+          <p className="text-[10px] font-black text-pink-300 uppercase tracking-widest">
+            © {new Date().getFullYear()} Pakistan verified network
           </p>
-          <div className="flex items-center space-x-6">
-             <span className="text-[10px] font-black uppercase tracking-widest opacity-30" style={{ color: 'var(--theme-text)' }}>Designed for Pakistan</span>
+          <div className="flex items-center space-x-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
+            <Link to="/support" className="hover:text-pink-500">Support</Link>
+            <Link to="/upgrade" className="hover:text-pink-500">Plans</Link>
           </div>
         </div>
       </div>

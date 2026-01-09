@@ -1,6 +1,15 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { useNotifications } from './hooks/useNotifications';
+import { AuthProvider } from './context/AuthContext';
+import { SystemProvider } from './context/SystemContext';
+
+const AppContainer = () => {
+  useNotifications();
+  return <App />;
+};
 
 const mount = () => {
   const rootElement = document.getElementById('root');
@@ -13,7 +22,12 @@ const mount = () => {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
       <React.StrictMode>
-        <App />
+        {/* Fixed: Wrapped AppContainer in Providers so useNotifications can access AuthContext and SystemContext */}
+        <SystemProvider>
+          <AuthProvider>
+            <AppContainer />
+          </AuthProvider>
+        </SystemProvider>
       </React.StrictMode>
     );
   } catch (err) {

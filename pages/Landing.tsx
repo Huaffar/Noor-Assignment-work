@@ -4,199 +4,213 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowRight, 
-  UserPlus, 
-  ClipboardCheck, 
-  Banknote, 
+  ShieldCheck, 
+  Zap, 
+  Clock, 
+  Star,
+  Users,
+  Wallet,
+  TrendingUp,
+  CheckCircle2,
+  Phone,
+  PlayCircle,
+  UserPlus,
+  ClipboardCheck,
+  Banknote,
   MessageCircle
 } from 'lucide-react';
-import { landingStats, features } from '../utils/landingData';
-import { useSystem } from '../context/SystemContext';
-import LivePayouts from '../components/LivePayouts';
+import { heroSlides } from '../utils/landingData';
 
 const Landing: React.FC = () => {
   const navigate = useNavigate();
-  const { settings } = useSystem();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const heroConfig = settings.heroConfig;
-  const slides = heroConfig.slides;
-
   useEffect(() => {
-    if (slides.length <= 1) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, heroConfig.transitionDuration * 1000);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
     return () => clearInterval(timer);
-  }, [slides.length, heroConfig.transitionDuration]);
+  }, []);
 
-  // Aspect Ratio Styles
-  const getHeroHeight = () => {
-    switch(heroConfig.aspectRatio) {
-      case '16:9': return 'aspect-video';
-      case '21:9': return 'aspect-[21/9]';
-      case '4:3': return 'aspect-[4/3]';
-      default: return 'h-[80vh] min-h-[500px]';
-    }
-  };
+  const stats = [
+    { label: "Active Members", value: "15,400+", icon: Users, color: "text-blue-600" },
+    { label: "Total Paid", value: "Rs. 5.2M", icon: Wallet, color: "text-emerald-600" },
+    { label: "Daily Tasks", value: "850+", icon: Zap, color: "text-rose-600" },
+  ];
+
+  const workflow = [
+    { title: "Create ID", desc: "Sign up with WhatsApp number.", icon: UserPlus },
+    { title: "Complete Work", desc: "Daily writing assignments.", icon: ClipboardCheck },
+    { title: "Get Paid", desc: "Instant EasyPaisa transfer.", icon: Banknote },
+  ];
+
+  const reviews = [
+    { name: "Ali Raza", role: "Gold Member", comment: "Bht hi acha platform hai, daily payment mil jati hai.", rating: 5 },
+    { name: "Sana Khan", role: "Standard", comment: "Handwriting work is simple and easy. Highly recommended!", rating: 5 },
+    { name: "Umar Ahmed", role: "Gold Member", comment: "Noor Official is very trustable. Support team is best.", rating: 5 },
+  ];
 
   return (
-    <div className="bg-white">
-      <LivePayouts />
-      {/* Sleek Dynamic Hero Slider */}
-      <section className={`relative overflow-hidden transition-all duration-500 ${getHeroHeight()}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentSlide}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0"
-          >
-            <div className="absolute inset-0 bg-slate-950/50 z-10" />
-            <img 
-              src={slides[currentSlide].image} 
-              alt="Noor Hero"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center">
-          <div className="max-w-3xl">
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              className="mb-4 inline-block bg-rose-600 text-white px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase"
-            >
-              Verified Earning Network
-            </motion.div>
-
-            <motion.h1 
-              key={`title-${currentSlide}`}
-              initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, type: 'spring' }}
-              className="text-4xl md:text-6xl lg:text-7xl font-black text-white leading-tight mb-4 tracking-tighter"
-            >
-              {slides[currentSlide].title}
-            </motion.h1>
-
-            <motion.p 
-              key={`sub-${currentSlide}`}
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="text-sm md:text-lg text-gray-200 max-w-lg mx-auto mb-8 font-medium leading-relaxed"
-            >
-              {slides[currentSlide].subtitle}
-            </motion.p>
-
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="flex flex-col sm:flex-row items-center justify-center gap-3"
-            >
-              <button 
-                onClick={() => navigate(slides[currentSlide].buttonLink)}
-                className="w-full sm:w-auto px-8 py-4 bg-rose-600 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-rose-700 transition-all shadow-xl shadow-rose-900/20 flex items-center justify-center group"
-              >
-                {slides[currentSlide].buttonText} <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-              <button 
-                className="w-full sm:w-auto px-8 py-4 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all"
-              >
-                Learn More
-              </button>
-            </motion.div>
-          </div>
-        </div>
-
-        {slides.length > 1 && (
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex space-x-2">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => setCurrentSlide(idx)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  currentSlide === idx ? 'w-10 bg-rose-600' : 'w-2 bg-white/40'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Thin Stats Bar */}
-      <section className="bg-white py-6 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { label: "Active Workers", value: landingStats.totalUsers },
-              { label: "Total Paid", value: landingStats.totalPaid },
-              { label: "Live Tasks", value: landingStats.activeTasks },
-              { label: "Support", value: landingStats.supportResponse }
-            ].map((stat, idx) => (
-              <div key={idx} className="text-center border-r last:border-0 border-gray-100 md:border-r">
-                <div className="text-base md:text-xl font-black text-gray-900 tracking-tighter">{stat.value}</div>
-                <div className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* High Density Features */}
-      <section className="py-12 md:py-20 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-rose-600 font-black uppercase tracking-widest text-[9px]">Workflow</span>
-            <h2 className="text-2xl md:text-4xl font-black text-gray-900 tracking-tight">How It Works</h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {features.map((feature, idx) => (
-              <div
-                key={idx}
-                className="bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-lg transition-all"
-              >
-                <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 mb-6">
-                  {feature.icon === 'UserPlus' && <UserPlus className="w-6 h-6" />}
-                  {feature.icon === 'ClipboardCheck' && <ClipboardCheck className="w-6 h-6" />}
-                  {feature.icon === 'Banknote' && <Banknote className="w-6 h-6" />}
-                </div>
-                <h3 className="text-lg font-black text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-sm text-gray-500 font-medium leading-relaxed">{feature.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Compact CTA */}
-      <section className="py-12 md:py-24">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-slate-900 rounded-[3rem] p-10 md:p-16 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-80 h-80 bg-rose-600/10 rounded-full -ml-40 -mt-40 blur-[100px]" />
+    <div className="min-h-screen bg-[#FDF2F8] selection:bg-rose-100 selection:text-rose-600 overflow-x-hidden">
+      <div className="max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-6">
+        
+        {/* Compact Hero Section */}
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-7 bg-white rounded-[2.5rem] p-8 md:p-12 shadow-sm border border-rose-50 relative overflow-hidden flex flex-col justify-center min-h-[380px]">
             <div className="relative z-10">
-              <h2 className="text-3xl md:text-6xl font-black text-white mb-6 tracking-tighter">
-                Ready to Join <span className="text-rose-600">The Network?</span>
-              </h2>
-              <p className="text-slate-400 text-sm md:text-base mb-10 max-w-lg mx-auto font-medium">
-                Thousands of Pakistanis are already earning. Create your account and start your first assignment in minutes.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <button 
-                  onClick={() => navigate('/register')}
-                  className="px-10 py-4 bg-white text-slate-950 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all w-full sm:w-auto shadow-2xl"
+              <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="inline-flex items-center space-x-2 bg-rose-50 px-3 py-1 rounded-full mb-6">
+                <span className="w-1.5 h-1.5 bg-rose-600 rounded-full animate-pulse" />
+                <span className="text-[9px] font-black text-rose-600 uppercase tracking-widest">Official Earning Hub v4.0</span>
+              </motion.div>
+              
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={currentSlide}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-4"
                 >
-                  Get Started Free
+                  <h1 className="text-4xl md:text-5xl font-black text-slate-950 leading-[1.1] tracking-tight">
+                    {currentSlide === 0 ? <>Ghar Bethay <span className="text-rose-600 italic">Daily</span> Paisay Kamayen</> : 
+                     currentSlide === 1 ? <>Instant <span className="text-rose-600 italic">EasyPaisa</span> Payouts</> :
+                     <>Simple Work, <span className="text-rose-600 italic">Real</span> Monthly Income</>}
+                  </h1>
+                  <p className="text-[13px] text-slate-500 font-medium max-w-sm leading-relaxed">
+                    Pakistan's most trusted platform for handwriting and digital tasks. Join our 15k+ family today.
+                  </p>
+                </motion.div>
+              </AnimatePresence>
+
+              <div className="flex flex-wrap gap-3 mt-10">
+                <button onClick={() => navigate('/register')} className="px-8 py-4 bg-rose-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest shadow-lg shadow-rose-100 hover:bg-rose-700 active:scale-95 transition-all flex items-center">
+                  Start Earning <ArrowRight className="ml-2 w-4 h-4" />
                 </button>
-                <a 
-                  href={`https://wa.me/${settings.supportWhatsApp}`}
-                  className="px-10 py-4 bg-slate-800 text-white rounded-xl font-black text-xs uppercase tracking-widest flex items-center w-full sm:w-auto justify-center border border-white/5"
-                >
-                  <MessageCircle className="w-5 h-5 mr-2 text-rose-500" /> WhatsApp Support
-                </a>
+                <button onClick={() => navigate('/login')} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest hover:bg-slate-800 transition-all">Login</button>
               </div>
             </div>
+            <div className="absolute right-[-20px] bottom-[-20px] opacity-5 pointer-events-none">
+              <Zap className="w-64 h-64 text-rose-600 rotate-12" />
+            </div>
           </div>
+
+          {/* Quick Stats Grid */}
+          <div className="md:col-span-5 grid grid-cols-1 gap-3">
+            <div className="bg-slate-950 rounded-[2.5rem] p-6 text-white flex flex-col justify-between shadow-xl relative overflow-hidden">
+               <div className="relative z-10">
+                  <div className="w-8 h-8 bg-rose-600 rounded-xl flex items-center justify-center mb-4">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  <h4 className="text-3xl font-black tracking-tighter text-rose-500">Rs. 5,200,000+</h4>
+                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Total Payouts Disbursed</p>
+               </div>
+               <div className="absolute top-0 right-0 w-32 h-32 bg-rose-600/10 rounded-full blur-3xl" />
+            </div>
+            <div className="bg-white rounded-[2.5rem] p-6 border border-rose-50 flex items-center justify-between shadow-sm">
+               <div>
+                  <h4 className="text-2xl font-black text-slate-900 leading-none">15,400+</h4>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-2">Active Members</p>
+               </div>
+               <div className="flex -space-x-2">
+                  {[1,2,3].map(i => <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-rose-100 overflow-hidden shadow-sm"><img src={`https://i.pravatar.cc/100?u=${i+50}`} /></div>)}
+                  <div className="w-8 h-8 rounded-full border-2 border-white bg-slate-900 flex items-center justify-center text-[8px] font-black text-white">+1k</div>
+               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Workflow Section - Compact Steps */}
+        <section className="bg-white rounded-[3rem] p-8 md:p-12 border border-rose-50 shadow-sm overflow-hidden">
+          <div className="text-center mb-10 space-y-2">
+            <h2 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight uppercase">How It Works</h2>
+            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.3em]">Start earning in 3 easy steps</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+            {workflow.map((step, i) => (
+              <div key={i} className="relative flex flex-col items-center text-center space-y-4 group">
+                <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-[1.8rem] flex items-center justify-center shadow-inner group-hover:bg-rose-600 group-hover:text-white transition-all duration-500">
+                  <step.icon className="w-7 h-7" />
+                </div>
+                <div>
+                   <h3 className="text-sm font-black text-slate-900 uppercase mb-1">{step.title}</h3>
+                   <p className="text-[11px] font-medium text-gray-500">{step.desc}</p>
+                </div>
+                {i < 2 && <div className="hidden md:block absolute top-8 right-[-15%] w-[30%] border-t-2 border-dashed border-rose-100" />}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Why Trust Section */}
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white p-6 rounded-[2rem] border border-rose-50 shadow-sm text-center space-y-3">
+             <div className="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center mx-auto shadow-sm"><ShieldCheck className="w-5 h-5" /></div>
+             <h3 className="text-md font-black text-slate-900 uppercase">100% Secure</h3>
+             <p className="font-urdu text-lg text-gray-500 leading-relaxed">آپ کا کام اور رقم ہمارے پاس مکمل محفوظ ہے۔ ہم شفافیت پر یقین رکھتے ہیں۔</p>
+          </div>
+          <div className="bg-white p-6 rounded-[2rem] border border-rose-50 shadow-sm text-center space-y-3">
+             <div className="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center mx-auto shadow-sm"><Zap className="w-5 h-5" /></div>
+             <h3 className="text-md font-black text-slate-900 uppercase">Fast Payouts</h3>
+             <p className="font-urdu text-lg text-gray-500 leading-relaxed">ایزی پیسہ اور جاز کیش کے ذریعے روزانہ ادائیگی، بغیر کسی لمبی تاخیر کے۔</p>
+          </div>
+          <div className="bg-white p-6 rounded-[2rem] border border-rose-50 shadow-sm text-center space-y-3">
+             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mx-auto shadow-sm"><Clock className="w-5 h-5" /></div>
+             <h3 className="text-md font-black text-slate-900 uppercase">24/7 Help</h3>
+             <p className="font-urdu text-lg text-gray-500 leading-relaxed">ہماری ٹیم ہر وقت آپ کی رہنمائی کے لیے واٹس ایپ پر دستیاب ہے۔</p>
+          </div>
+        </section>
+
+        {/* User Reviews Section */}
+        <section className="py-6">
+          <div className="flex items-center justify-between px-2 mb-6">
+             <h2 className="text-xl font-black text-slate-900 uppercase tracking-tighter">Member Reviews</h2>
+             <div className="flex items-center space-x-1">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span className="text-xs font-black text-slate-900">4.9/5</span>
+             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {reviews.map((rev, i) => (
+              <div key={i} className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center font-black text-rose-600 text-xs shadow-inner">{rev.name[0]}</div>
+                  <div>
+                    <h4 className="text-[11px] font-black text-slate-900 uppercase leading-none">{rev.name}</h4>
+                    <p className="text-[8px] font-bold text-gray-400 uppercase mt-1 tracking-widest">{rev.role}</p>
+                  </div>
+                </div>
+                <p className="text-[12px] font-medium text-slate-600 leading-relaxed italic">"{rev.comment}"</p>
+                <div className="flex space-x-0.5">
+                   {[...Array(5)].map((_, i) => <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Compact CTA Banner */}
+        <section className="bg-rose-600 rounded-[2.5rem] p-10 text-center text-white relative overflow-hidden shadow-2xl shadow-rose-200">
+           <div className="relative z-10 space-y-4">
+              <h2 className="text-3xl md:text-4xl font-black tracking-tight uppercase leading-tight">Ready to join Pakistan's <br/>Most Trusted Network?</h2>
+              <p className="text-rose-100 font-bold text-[10px] uppercase tracking-[0.3em]">Registration is free and takes 30 seconds</p>
+              <div className="flex justify-center pt-4">
+                <button onClick={() => navigate('/register')} className="px-12 py-5 bg-white text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center">
+                  Create My Account <ArrowRight className="ml-2 w-4 h-4" />
+                </button>
+              </div>
+           </div>
+           <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-20 -mt-20" />
+           <div className="absolute bottom-0 right-0 w-64 h-64 bg-black/10 rounded-full blur-3xl -mr-20 -mb-20" />
+        </section>
+
+        {/* WhatsApp Floating (Visual Only) */}
+        <div className="flex justify-center pt-4 pb-8">
+           <a href={`https://wa.me/923000000000`} className="flex items-center space-x-2 text-emerald-600 font-black text-[10px] uppercase tracking-widest bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 shadow-sm hover:scale-105 transition-transform">
+             <MessageCircle className="w-4 h-4" />
+             <span>Official Support Center</span>
+           </a>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

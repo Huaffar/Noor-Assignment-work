@@ -1,11 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Noor Official | Earn Smarter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Noor Official | Pakistan's Premium Task Earning Network</title>
+    <meta name="description" content="Earn daily PKR rewards by completing simple handwriting and digital assignments.">
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
@@ -14,70 +16,56 @@
         theme: {
           extend: {
             colors: {
-              rose: {
-                50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 
-                400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 
-                800: '#9f1239', 900: '#881337',
+              pink: {
+                50: '#fff1f2',
+                100: '#fce7f3',
+                200: '#fbcfe8',
+                300: '#f9a8d4',
+                400: '#f472b6',
+                500: '#ec4899',
+                600: '#db2777',
               },
-              pink: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899' }
+              slate: {
+                950: '#020617',
+              }
             },
             fontFamily: {
               sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-              urdu: ['"Noto Nastaliq Urdu"', 'serif'],
+              urdu: ['"Jameel Noori Nastaleeq"', '"Noto Nastaliq Urdu"', 'serif'],
             },
-            fontSize: { '2xs': '0.65rem', '3xs': '0.55rem' },
           },
         },
       }
     </script>
     <style>
+        @font-face {
+          font-family: 'Jameel Noori Nastaleeq';
+          src: url('https://cdn.jsdelivr.net/gh/m-m-m-f/jameel-noori-nastaleeq-font@master/Jameel%20Noori%20Nastaleeq.ttf') format('truetype');
+          font-display: swap;
+        }
         :root {
-          --theme-primary: #e11d48;
-          --theme-bg: #fdf2f8;
-          --theme-text: #1e293b;
-          --theme-accent: #fb7185;
+          --theme-primary: #f472b6;
+          --theme-bg: #ffffff;
+          --theme-text: #0f172a;
         }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; font-size: 13px; background-color: var(--theme-bg); color: var(--theme-text); transition: background-color 0.3s ease, color 0.3s ease; }
-        .urdu { font-family: 'Noto Nastaliq Urdu', serif; line-height: 2.2; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(251, 113, 133, 0.1); }
-        
-        /* Dynamic Theme Helpers */
-        .theme-bg { background-color: var(--theme-bg); }
-        .theme-text { color: var(--theme-text); }
-        .theme-primary-bg { background-color: var(--theme-primary); }
-        .theme-primary-text { color: var(--theme-primary); }
-        .theme-border { border-color: var(--theme-primary); }
-
+        body { 
+          font-family: 'Plus Jakarta Sans', sans-serif; 
+          background-color: #ffffff; 
+          color: #0f172a;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .font-urdu {
+          font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
+          line-height: 2.2;
+          direction: rtl;
+          text-align: right;
+        }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .rose-pattern {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.15;
-            background-image: url('https://www.transparenttextures.com/patterns/pollen.png');
+        .pink-glass {
+          background: rgba(252, 231, 243, 0.8);
+          backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(244, 114, 182, 0.1);
         }
-
-        .petal {
-            position: absolute;
-            background-color: var(--theme-primary);
-            border-radius: 150% 0 150% 0;
-            opacity: 0.2;
-            animation: float 15s infinite linear;
-        }
-
-        @keyframes float {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-        }
-
-        h1, h2, h3, h4 { letter-spacing: -0.03em; }
-        input, select, textarea { font-size: 0.85rem !important; }
-        button { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 <script type="importmap">
 {
@@ -90,20 +78,18 @@
     "framer-motion": "https://esm.sh/framer-motion@11.11.17?external=react,react-dom",
     "recharts": "https://esm.sh/recharts@2.13.3?external=react,react-dom",
     "canvas-confetti": "https://esm.sh/canvas-confetti@1.9.3",
+    "html2canvas": "https://esm.sh/html2canvas@1.4.1",
+    "react-easy-crop": "https://esm.sh/react-easy-crop@5.1.0?external=react,react-dom",
+    "@capacitor/status-bar": "https://esm.sh/@capacitor/status-bar@^8.0.0",
+    "@capacitor/core": "https://esm.sh/@capacitor/core@^8.0.0",
+    "@capacitor/app": "https://esm.sh/@capacitor/app@^8.0.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
     "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
 </head>
-<body class="selection:bg-pink-100 selection:text-pink-600 antialiased">
-    <div class="rose-pattern">
-        <div class="petal" style="width:10px; height:10px; left:10%; animation-delay:0s;"></div>
-        <div class="petal" style="width:15px; height:15px; left:30%; animation-delay:2s;"></div>
-        <div class="petal" style="width:8px; height:8px; left:50%; animation-delay:4s;"></div>
-        <div class="petal" style="width:12px; height:12px; left:70%; animation-delay:1s;"></div>
-        <div class="petal" style="width:10px; height:10px; left:90%; animation-delay:5s;"></div>
-    </div>
+<body class="antialiased selection:bg-pink-100 selection:text-pink-600">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>

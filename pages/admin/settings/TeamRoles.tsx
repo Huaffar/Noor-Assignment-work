@@ -21,7 +21,8 @@ const RoleBadge = ({ role }: { role: string }) => {
     case 'super_admin':
       return <span className="px-2 py-0.5 rounded-md text-[7px] font-black uppercase bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-sm tracking-widest">Super Admin</span>;
     case 'manager':
-      return <span className="px-2 py-0.5 rounded-md text-[7px] font-black uppercase bg-blue-500 text-white shadow-sm tracking-widest">Manager</span>;
+      // Style changed to Dark Slate as requested
+      return <span className="px-2 py-0.5 rounded-md text-[7px] font-black uppercase bg-slate-900 text-white shadow-sm tracking-widest">Manager</span>;
     case 'support':
       return <span className="px-2 py-0.5 rounded-md text-[7px] font-black uppercase bg-emerald-500 text-white shadow-sm tracking-widest">Support</span>;
     default:

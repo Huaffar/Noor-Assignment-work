@@ -1,281 +1,139 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, 
   ArrowUpRight, 
-  ArrowDownLeft, 
-  Clock, 
-  CheckCircle2, 
+  History, 
+  TrendingUp, 
   X,
-  SmartphoneNfc,
-  ChevronRight,
-  History,
-  AlertCircle,
-  Lock,
-  TrendingUp,
-  Loader2,
-  ShieldAlert
+  ArrowDown,
+  ArrowUp,
+  Briefcase,
+  Layers,
+  ChevronDown
 } from 'lucide-react';
-import { useSystem } from '../../context/SystemContext';
 import { useAuth } from '../../context/AuthContext';
+import PaymentReceipt from '../../components/PaymentReceipt';
 
 const WalletHub: React.FC = () => {
-  const { settings } = useSystem();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
-  const [withdrawStep, setWithdrawStep] = useState(1);
-  const [withdrawData, setWithdrawData] = useState({ amount: '', method: 'EasyPaisa', account: '' });
-  const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [filter, setFilter] = useState<'all' | 'in' | 'out'>('all');
+  const [selectedTx, setSelectedTx] = useState<any>(null);
+  const [loadCount, setLoadCount] = useState(6);
 
-  // Referral & KYC Lock Conditions
-  const isReferralLocked = (user?.referralCount || 0) < 1;
-  const isKYCLocked = user?.kycStatus !== 'approved';
+  const transactions = useMemo(() => [
+    { id: 'TX-8821', type: 'withdrawal', amount: 4500, status: 'success', description: 'Withdrawal to EasyPaisa', date: 'Today, 10:30 AM', isCredit: false },
+    { id: 'TX-7742', type: 'task_earning', amount: 240, status: 'success', description: 'Urdu Work Reward', date: 'Today, 09:15 AM', isCredit: true },
+    { id: 'TX-1102', type: 'plan_purchase', amount: 3500, status: 'success', description: 'Gold Package Activation', date: 'Oct 22', isCredit: false },
+    { id: 'TX-0092', type: 'task_earning', amount: 150, status: 'success', description: 'Bonus Reward', date: 'Oct 20', isCredit: true },
+    { id: 'TX-0081', type: 'withdrawal', amount: 1200, status: 'pending', description: 'Withdrawal to JazzCash', date: 'Oct 18', isCredit: false },
+  ], []);
 
-  const requests = [
-    { id: 'W1', type: 'Withdrawal', amount: 2000, status: 'Completed', date: '2 days ago', method: 'EasyPaisa' },
-    { id: 'P1', type: 'Plan Buy', amount: 500, status: 'Pending', date: '5 hours ago', plan: 'Student Bundle' },
-    { id: 'W2', type: 'Withdrawal', amount: 1500, status: 'Rejected', date: '1 week ago', method: 'JazzCash' }
-  ];
+  const filteredTransactions = useMemo(() => {
+    if (filter === 'all') return transactions;
+    if (filter === 'in') return transactions.filter(t => t.isCredit);
+    return transactions.filter(t => !t.isCredit);
+  }, [filter, transactions]);
 
-  const handleWithdraw = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isKYCLocked) {
-      setError("Verify identity first.");
-      return;
-    }
-
-    const amountNum = Number(withdrawData.amount);
-    if (amountNum < settings.minWithdrawal) {
-      setError(`Min. Rs. ${settings.minWithdrawal}`);
-      return;
-    }
-    if (amountNum > (user?.balance || 0)) {
-      setError('Insufficient funds');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsWithdrawModalOpen(false);
-      setWithdrawStep(1);
-      setWithdrawData({ amount: '', method: 'EasyPaisa', account: '' });
-      setError('');
-      alert("Verification Pending! Activation in 1-2 hours.");
-    }, 2000);
+  const getTxIcon = (type: string, isCredit: boolean) => {
+    if (isCredit) return <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner"><ArrowDown className="w-4 h-4" /></div>;
+    if (type === 'plan_purchase') return <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner"><Layers className="w-4 h-4" /></div>;
+    return <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shadow-inner"><ArrowUp className="w-4 h-4" /></div>;
   };
 
   return (
-    <div className="max-w-xl mx-auto pb-20 px-1 space-y-3">
-      <div className="flex items-center justify-between px-2">
-        <div>
-          <h1 className="text-lg font-black text-gray-900 leading-none">Wallet</h1>
-          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest mt-1">Managed Earnings</p>
-        </div>
-        <div className={`px-2.5 py-1 rounded-lg border flex items-center space-x-1.5 ${isKYCLocked ? 'bg-rose-50 border-rose-100 text-rose-600' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
-           {isKYCLocked ? <ShieldAlert className="w-3 h-3" /> : <TrendingUp className="w-3 h-3" />}
-           <span className="text-[7px] font-black uppercase tracking-widest">{isKYCLocked ? 'Unverified' : 'Verified'}</span>
-        </div>
-      </div>
-
+    <div className="max-w-xl mx-auto pb-24 px-1 space-y-4 scale-[0.98] origin-top">
+      {/* PREMIUM CARD */}
       <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-gradient-to-br from-rose-500 to-pink-600 p-5 rounded-2xl text-white shadow-lg shadow-rose-200 relative overflow-hidden"
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="relative h-48 rounded-[2rem] bg-gradient-to-br from-rose-600 to-rose-800 p-6 text-white shadow-2xl mx-2"
       >
-        <div className="absolute top-0 right-0 w-24 h-24 bg-white/10 rounded-full -mr-12 -mt-12 blur-xl" />
-        <div className="relative z-10">
-          <p className="text-rose-100 font-black uppercase tracking-[0.2em] text-[7px] mb-0.5">Available Funds</p>
-          <div className="flex items-baseline space-x-1 mb-4">
-            <span className="text-xs font-bold text-rose-100">Rs.</span>
-            <span className="text-2xl font-black tracking-tight">{user?.balance.toLocaleString()}</span>
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-3xl -mr-16 -mt-16" />
+        <div className="relative z-10 h-full flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+             <div>
+                <p className="text-[8px] font-black uppercase tracking-[0.3em] text-rose-100/60 mb-1">Available Funds</p>
+                <div className="flex items-baseline space-x-1.5">
+                   <span className="text-sm font-bold opacity-30">PKR</span>
+                   <h2 className="text-3xl font-black tracking-tighter">{user?.balance.toLocaleString()}</h2>
+                </div>
+             </div>
+             <Wallet className="w-8 h-8 text-white/20" />
           </div>
-          
-          <button 
-            onClick={() => setIsWithdrawModalOpen(true)}
-            className="w-full bg-white text-rose-600 py-2.5 rounded-xl font-black text-[10px] hover:bg-rose-50 transition-all shadow-md active:scale-95 flex items-center justify-center uppercase tracking-widest"
-          >
-            Cash Out <ArrowUpRight className="ml-1 w-3.5 h-3.5" />
-          </button>
+          <button onClick={() => navigate('/withdraw')} className="w-full py-3.5 bg-white text-rose-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Withdraw Money</button>
         </div>
       </motion.div>
 
-      {/* Identity Warning */}
-      {isKYCLocked && (
-        <motion.div 
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          onClick={() => navigate('/kyc')}
-          className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between group cursor-pointer"
-        >
-          <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 bg-rose-600 rounded-lg flex items-center justify-center text-white shrink-0 shadow-lg shadow-rose-900/40">
-               <ShieldAlert className="w-4 h-4" />
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-white uppercase tracking-tight">Identity Scan Required</p>
-              <p className="text-[7px] font-bold text-gray-400 uppercase">Click to complete KYC</p>
-            </div>
+      {/* QUICK STATS */}
+      <div className="grid grid-cols-3 gap-2 px-2">
+        {[
+          { label: 'Total Earned', val: 8450, color: 'emerald', icon: TrendingUp },
+          { label: 'Withdrawn', val: 5700, color: 'amber', icon: ArrowUpRight },
+          { label: 'Invested', val: 3500, color: 'indigo', icon: Briefcase },
+        ].map((item, i) => (
+          <div key={i} className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center space-y-1.5">
+             <div className={`w-7 h-7 rounded-lg flex items-center justify-center bg-${item.color}-50 text-${item.color}-600 shadow-inner`}><item.icon className="w-3.5 h-3.5" /></div>
+             <div>
+                <p className="text-[10px] font-black text-gray-900">Rs. {item.val.toLocaleString()}</p>
+                <p className="text-[6px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-gray-600 group-hover:text-rose-500 transition-colors" />
-        </motion.div>
-      )}
-
-      {/* Referral Lock Warning */}
-      {isReferralLocked && (
-        <motion.div 
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-3 bg-amber-50 rounded-xl border border-amber-100 flex items-center space-x-2.5"
-        >
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-amber-600 shrink-0 shadow-sm">
-             <Lock className="w-4 h-4" />
-          </div>
-          <p className="text-[9px] font-bold text-amber-700 uppercase tracking-tight">
-            Invite <span className="text-amber-900 font-black">1 Active Referral</span> to unlock.
-          </p>
-        </motion.div>
-      )}
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between px-2">
-          <h3 className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Recent Activity</h3>
-          <History className="w-3.5 h-3.5 text-gray-300" />
-        </div>
-
-        <div className="space-y-1.5">
-          {requests.map((req) => (
-            <div key={req.id} className="bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between group active:bg-gray-50 transition-colors">
-              <div className="flex items-center space-x-2.5">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                  req.type === 'Withdrawal' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
-                }`}>
-                  {req.type === 'Withdrawal' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownLeft className="w-4 h-4" />}
-                </div>
-                <div>
-                  <h4 className="font-black text-gray-900 text-xs leading-none mb-0.5">{req.type}</h4>
-                  <p className="text-[7px] font-black text-gray-400 uppercase tracking-tight">{req.date}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-black text-gray-900 text-xs leading-none mb-0.5">Rs. {req.amount}</p>
-                <p className={`text-[7px] font-black uppercase tracking-tight ${
-                  req.status === 'Completed' ? 'text-emerald-500' : 
-                  req.status === 'Pending' ? 'text-amber-500' : 'text-red-500'
-                }`}>
-                  {req.status}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
+        ))}
       </div>
 
+      {/* ACTIVITY LIST */}
+      <div className="px-2 space-y-3">
+        <div className="flex items-center justify-between px-2">
+           <div className="flex items-center space-x-2">
+              <History className="w-3.5 h-3.5 text-gray-400" />
+              <h3 className="text-[10px] font-black text-gray-900 uppercase tracking-widest">Recent Activity</h3>
+           </div>
+           <div className="flex bg-gray-100 p-0.5 rounded-lg border border-gray-200">
+             {['all', 'in', 'out'].map(opt => (
+               <button key={opt} onClick={() => setFilter(opt as any)} className={`px-2.5 py-1 rounded-md text-[7px] font-black uppercase transition-all ${filter === opt ? 'bg-white text-rose-600 shadow-sm' : 'text-gray-400'}`}>{opt}</button>
+             ))}
+           </div>
+        </div>
+
+        <div className="space-y-1">
+          <AnimatePresence mode="popLayout">
+            {filteredTransactions.slice(0, loadCount).map((tx) => (
+              <motion.div key={tx.id} layout className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between active:bg-gray-50 transition-all cursor-pointer" onClick={() => tx.type === 'withdrawal' && tx.status === 'success' ? setSelectedTx(tx) : null}>
+                <div className="flex items-center space-x-3 min-w-0">
+                  {getTxIcon(tx.type, tx.isCredit)}
+                  <div className="min-w-0">
+                    <h4 className="text-[9px] font-black text-gray-900 leading-tight uppercase truncate">{tx.description}</h4>
+                    <p className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">{tx.date}</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 ml-3">
+                   <p className={`text-[10px] font-black ${tx.isCredit ? 'text-emerald-600' : 'text-rose-600'}`}>{tx.isCredit ? '+' : '-'} Rs. {tx.amount.toLocaleString()}</p>
+                   <div className={`text-[6px] font-black uppercase px-1 py-0.5 rounded border inline-block ${tx.status === 'success' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>{tx.status}</div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {loadCount < filteredTransactions.length && (
+          <button onClick={() => setLoadCount(prev => prev + 5)} className="w-full py-2.5 text-[8px] font-black text-gray-400 uppercase tracking-widest flex items-center justify-center group">
+            <span>Show More Activity</span>
+            <ChevronDown className="w-3 h-3 ml-1" />
+          </button>
+        )}
+      </div>
+
+      {/* RECEIPT MODAL */}
       <AnimatePresence>
-        {isWithdrawModalOpen && (
-          <div className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center p-0">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
-              onClick={() => setIsWithdrawModalOpen(false)}
-            />
-            <motion.div 
-              initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-              className="relative w-full max-w-sm bg-white rounded-t-3xl sm:rounded-3xl p-6 shadow-2xl"
-            >
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-base font-black text-gray-900 uppercase">Payout Request</h2>
-                <button onClick={() => setIsWithdrawModalOpen(false)} className="p-1.5 bg-gray-50 rounded-lg">
-                  <X className="w-4 h-4 text-gray-400" />
-                </button>
-              </div>
-
-              {isKYCLocked ? (
-                <div className="text-center py-6 space-y-4">
-                  <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-rose-100">
-                    <ShieldAlert className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-lg font-black text-gray-900 leading-tight">Identity Required</h3>
-                  <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed">Please complete your Biometric scan to unlock cash outs.</p>
-                  <button 
-                    onClick={() => navigate('/kyc')}
-                    className="w-full bg-slate-900 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl"
-                  >
-                    Go to Identity Node
-                  </button>
-                </div>
-              ) : withdrawStep === 1 ? (
-                <div className="space-y-3">
-                  <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-center">Select Destination</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {['EasyPaisa', 'JazzCash'].map(m => (
-                      <button 
-                        key={m}
-                        onClick={() => setWithdrawData({...withdrawData, method: m})}
-                        className={`py-4 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${
-                          withdrawData.method === m ? 'border-rose-400 bg-rose-50 text-rose-600' : 'border-gray-50 bg-gray-50 text-gray-300'
-                        }`}
-                      >
-                        <SmartphoneNfc className="w-6 h-6" />
-                        <span className="font-black text-[9px] uppercase tracking-widest">{m}</span>
-                      </button>
-                    ))}
-                  </div>
-                  <button 
-                    onClick={() => setWithdrawStep(2)}
-                    className="w-full py-3 bg-slate-900 text-white font-black rounded-xl text-[10px] uppercase tracking-widest"
-                  >
-                    Set Amount
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleWithdraw} className="space-y-3">
-                  <div className="bg-rose-50 p-2.5 rounded-lg border border-rose-100 flex items-center space-x-2">
-                    <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
-                    <p className="text-[8px] font-bold text-rose-700 uppercase">Min: Rs. {settings.minWithdrawal}</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">Cash Amount</label>
-                    <input 
-                      required
-                      type="number"
-                      placeholder="0.00"
-                      value={withdrawData.amount}
-                      onChange={e => { setWithdrawData({...withdrawData, amount: e.target.value}); setError(''); }}
-                      className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-black outline-none focus:border-rose-400 text-lg"
-                    />
-                    {error && <p className="text-red-500 text-[8px] font-black uppercase mt-1 ml-1">{error}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1 ml-1">{withdrawData.method} Account</label>
-                    <input 
-                      required
-                      type="text"
-                      placeholder="03XXXXXXXXX"
-                      value={withdrawData.account}
-                      onChange={e => setWithdrawData({...withdrawData, account: e.target.value})}
-                      className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-black outline-none focus:border-rose-400 text-sm"
-                    />
-                  </div>
-
-                  <div className="flex gap-2 pt-1">
-                    <button type="button" onClick={() => setWithdrawStep(1)} className="flex-1 py-3 bg-gray-100 text-gray-500 font-black rounded-xl text-[10px] uppercase">Back</button>
-                    {isReferralLocked ? (
-                      <button disabled className="flex-[2] py-3 bg-gray-200 text-gray-400 font-black rounded-xl text-[10px] uppercase cursor-not-allowed">Locked</button>
-                    ) : (
-                      <button type="submit" disabled={isSubmitting} className="flex-[2] py-3 bg-rose-600 text-white font-black rounded-xl text-[10px] uppercase shadow-lg shadow-rose-100">
-                        {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Request Cash"}
-                      </button>
-                    )}
-                  </div>
-                </form>
-              )}
+        {selectedTx && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedTx(null)} className="absolute inset-0 bg-slate-950/80 backdrop-blur-md" />
+            <motion.div initial={{ scale: 0.9, y: 15 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 15 }} className="relative w-full max-w-[280px] z-10">
+              <button onClick={() => setSelectedTx(null)} className="absolute -top-10 right-0 p-2 bg-white/10 text-white rounded-full"><X className="w-5 h-5" /></button>
+              <PaymentReceipt transaction={selectedTx} />
             </motion.div>
           </div>
         )}

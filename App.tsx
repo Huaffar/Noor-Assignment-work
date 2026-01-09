@@ -1,410 +1,136 @@
-
-import React from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Landing from './pages/Landing';
-import Dashboard from './pages/user/Dashboard';
-import About from './pages/About';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import WorkCenter from './pages/WorkCenter';
-import DoTask from './pages/DoTask';
-import WalletHub from './pages/user/WalletHub';
-import Settings from './pages/user/Settings';
-import MyPlan from './pages/user/MyPlan';
-import PlanMarket from './pages/user/PlanMarket';
-import Referrals from './pages/user/Referrals';
-import MyRequests from './pages/user/MyRequests';
-import Support from './pages/user/Support';
-import KYC from './pages/user/KYC';
-import Invite from './pages/user/Invite';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import ReviewTasks from './pages/admin/ReviewTasks';
-import ManagePlans from './pages/admin/ManagePlans';
-import WorkManager from './pages/admin/WorkManager';
-import UserManager from './pages/admin/UserManager';
-import AdminSettings from './pages/admin/AdminSettings';
-import ManageSupport from './pages/admin/ManageSupport';
-import KYCRequests from './pages/admin/KYCRequests';
-import PlanRequests from './pages/admin/requests/PlanRequests';
-import WithdrawalRequests from './pages/admin/requests/WithdrawalRequests';
-import AuditHistory from './pages/admin/AuditHistory';
-import Trash from './pages/admin/Trash';
+import { StatusBar } from '@capacitor/status-bar';
+import { Capacitor } from '@capacitor/core';
+
+// Layout & Critical Components
 import Header from './layout/Header';
 import Footer from './layout/Footer';
 import UserLayout from './layout/UserLayout';
-import Loader from './components/Loader';
+import Preloader from './components/Preloader';
 import Maintenance from './components/Maintenance';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { SystemProvider, useSystem } from './context/SystemContext';
+import UserSurvey from './components/UserSurvey'; 
+import ErrorBoundary from './components/ErrorBoundary';
+import { useAuth } from './context/AuthContext';
+import { useSystem } from './context/SystemContext';
+import { useMobileBack } from './hooks/useMobileBack';
+import { AdminRoute, UserRoute } from './components/RouteGuards';
 
-// Public Layout Wrapper
+// Lazy Loaded Pages
+const Landing = lazy(() => import('./pages/Landing'));
+const Dashboard = lazy(() => import('./pages/user/Dashboard'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const DailyWork = lazy(() => import('./pages/user/DailyWork'));
+const WalletHub = lazy(() => import('./pages/user/WalletHub'));
+const Withdraw = lazy(() => import('./pages/user/Withdraw')); 
+const Profile = lazy(() => import('./pages/user/Profile'));
+const PlanMarket = lazy(() => import('./pages/user/PlanMarket'));
+const Referrals = lazy(() => import('./pages/user/Referrals'));
+const MyRequests = lazy(() => import('./pages/user/MyRequests'));
+const Support = lazy(() => import('./pages/user/Support'));
+
+// Admin Pages
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const UserManager = lazy(() => import('./pages/admin/UserManager'));
+const ManagePlans = lazy(() => import('./pages/admin/ManagePlans'));
+const ManageTasks = lazy(() => import('./pages/admin/ManageTasks')); 
+const KYCRequests = lazy(() => import('./pages/admin/KYCRequests'));
+const ManageWithdrawals = lazy(() => import('./pages/admin/ManageWithdrawals')); 
+const PaymentMethods = lazy(() => import('./pages/admin/PaymentMethods'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const PlanRequests = lazy(() => import('./pages/admin/requests/PlanRequests'));
+const Trash = lazy(() => import('./pages/admin/Trash'));
+const ManageGuides = lazy(() => import('./pages/admin/ManageGuides'));
+const ManageMarketing = lazy(() => import('./pages/admin/ManageMarketing'));
+const SendAlert = lazy(() => import('./pages/admin/SendAlert'));
+const AuditHistory = lazy(() => import('./pages/admin/AuditHistory'));
+const WorkManager = lazy(() => import('./pages/admin/WorkManager'));
+
+const MobileAppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  useMobileBack();
+  const { user, isAuthenticated } = useAuth();
+  const [showSurvey, setShowSurvey] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user && user.role !== 'admin') {
+      const surveyKey = `noor_survey_done_${user.id}`;
+      if (!localStorage.getItem(surveyKey) && (!user.currentPlan || user.currentPlan === 'None')) {
+        setShowSurvey(true);
+      }
+    }
+  }, [user, isAuthenticated]);
+
+  return (
+    <>
+      {showSurvey && <UserSurvey onComplete={() => { if(user) localStorage.setItem(`noor_survey_done_${user.id}`, 'true'); setShowSurvey(false); }} />}
+      {children}
+    </>
+  );
+};
+
 const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, user, logout } = useAuth();
   return (
     <div className="flex flex-col min-h-screen">
       <Header isAuthenticated={isAuthenticated} user={user} onLogout={logout} />
-      <main className="flex-grow pt-16">{children}</main>
+      <main className="flex-grow pt-14">
+        {children}
+      </main>
       <Footer />
     </div>
   );
 };
 
-const AppRoutes: React.FC = () => {
-  const { isAuthenticated, loading: authLoading, user } = useAuth();
-  const { settings, isLoading: systemLoading } = useSystem();
-
-  if (authLoading || systemLoading) return <Loader />;
-
-  // Maintenance Guard: Block non-admins if maintenanceMode is active
-  const isMaintenanceActive = settings.maintenanceMode;
-  const isUserAdmin = user?.role === 'admin';
-  
-  if (isMaintenanceActive && !isUserAdmin) {
-    return <Maintenance />;
-  }
+const App: React.FC = () => {
+  const { settings } = useSystem();
+  if (settings.maintenanceMode) return <Maintenance />;
 
   return (
     <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
-        <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
-        <Route 
-          path="/login" 
-          element={!isAuthenticated ? <PublicLayout><Login /></PublicLayout> : <Navigate to="/dashboard" />} 
-        />
-        <Route 
-          path="/register" 
-          element={!isAuthenticated ? <PublicLayout><Register /></PublicLayout> : <Navigate to="/dashboard" />} 
-        />
+      <ErrorBoundary>
+        <MobileAppWrapper>
+          <Suspense fallback={<Preloader />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
 
-        {/* Protected Dashboard Routes */}
-        <Route 
-          path="/dashboard" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <Dashboard />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-        
-        <Route 
-          path="/tasks" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <WorkCenter />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
+              {/* Protected User Routes */}
+              <Route path="/dashboard" element={<UserRoute><UserLayout><Dashboard /></UserLayout></UserRoute>} />
+              <Route path="/tasks" element={<UserRoute><UserLayout><DailyWork /></UserLayout></UserRoute>} />
+              <Route path="/wallet" element={<UserRoute><UserLayout><WalletHub /></UserLayout></UserRoute>} />
+              <Route path="/withdraw" element={<UserRoute><UserLayout><Withdraw /></UserLayout></UserRoute>} />
+              <Route path="/profile" element={<UserRoute><UserLayout><Profile /></UserLayout></UserRoute>} />
+              <Route path="/upgrade" element={<UserRoute><UserLayout><PlanMarket /></UserLayout></UserRoute>} />
+              <Route path="/referrals" element={<UserRoute><UserLayout><Referrals /></UserLayout></UserRoute>} />
+              <Route path="/requests" element={<UserRoute><UserLayout><MyRequests /></UserLayout></UserRoute>} />
+              <Route path="/support" element={<UserRoute><UserLayout><Support /></UserLayout></UserRoute>} />
 
-        <Route 
-          path="/do-task/:id" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <DoTask />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
+              {/* Protected Admin Routes */}
+              <Route path="/admin" element={<AdminRoute><UserLayout><AdminDashboard /></UserLayout></AdminRoute>} />
+              <Route path="/admin/users" element={<AdminRoute><UserLayout><UserManager /></UserLayout></AdminRoute>} />
+              <Route path="/admin/plans" element={<AdminRoute><UserLayout><ManagePlans /></UserLayout></AdminRoute>} />
+              <Route path="/admin/plan-requests" element={<AdminRoute><UserLayout><PlanRequests /></UserLayout></AdminRoute>} />
+              <Route path="/admin/withdrawals" element={<AdminRoute><UserLayout><ManageWithdrawals /></UserLayout></AdminRoute>} />
+              <Route path="/admin/reviews" element={<AdminRoute><UserLayout><ManageTasks /></UserLayout></AdminRoute>} />
+              <Route path="/admin/kyc" element={<AdminRoute><UserLayout><KYCRequests /></UserLayout></AdminRoute>} />
+              <Route path="/admin/finance" element={<AdminRoute><UserLayout><PaymentMethods /></UserLayout></AdminRoute>} />
+              <Route path="/admin/settings" element={<AdminRoute><UserLayout><AdminSettings /></UserLayout></AdminRoute>} />
+              <Route path="/admin/trash" element={<AdminRoute><UserLayout><Trash /></UserLayout></AdminRoute>} />
+              <Route path="/admin/guides" element={<AdminRoute><UserLayout><ManageGuides /></UserLayout></AdminRoute>} />
+              <Route path="/admin/marketing" element={<AdminRoute><UserLayout><ManageMarketing /></UserLayout></AdminRoute>} />
+              <Route path="/admin/alerts" element={<AdminRoute><UserLayout><SendAlert /></UserLayout></AdminRoute>} />
+              <Route path="/admin/audit" element={<AdminRoute><UserLayout><AuditHistory /></UserLayout></AdminRoute>} />
+              <Route path="/admin/work" element={<AdminRoute><UserLayout><WorkManager /></UserLayout></AdminRoute>} />
 
-        <Route 
-          path="/wallet" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <WalletHub />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/profile" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <Settings />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/kyc" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <KYC />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/invite" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <Invite />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/my-plan" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <MyPlan />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/upgrade" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <PlanMarket />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/referrals" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <Referrals />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/requests" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <MyRequests />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/support" 
-          element={
-            isAuthenticated ? (
-              <UserLayout>
-                <Support />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        {/* Admin Routes */}
-        <Route 
-          path="/admin" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <AdminDashboard />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/reviews" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <ReviewTasks />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/kyc" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <KYCRequests />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/history" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <AuditHistory />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/trash" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <Trash />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/work" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <WorkManager />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/plans" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <ManagePlans />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/users" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <UserManager />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/plan-requests" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <PlanRequests />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/withdrawals" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <WithdrawalRequests />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/settings" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <AdminSettings />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route 
-          path="/admin/support" 
-          element={
-            isAuthenticated && user?.role === 'admin' ? (
-              <UserLayout>
-                <ManageSupport />
-              </UserLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
-          } 
-        />
-
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </MobileAppWrapper>
+      </ErrorBoundary>
     </Router>
-  );
-};
-
-const App: React.FC = () => {
-  return (
-    <SystemProvider>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </SystemProvider>
   );
 };
 
