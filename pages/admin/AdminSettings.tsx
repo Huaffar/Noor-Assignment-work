@@ -22,7 +22,8 @@ import {
   Lock,
   ChevronRight,
   Building2,
-  Wallet
+  Wallet,
+  UserPlus
 } from 'lucide-react';
 import { useSystem } from '../../context/SystemContext';
 
@@ -36,17 +37,16 @@ const AdminSettings: React.FC = () => {
 
   const handleSave = async () => {
     setIsSaving(true);
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 600));
     updateSettings(localConfig);
     setIsSaving(false);
-    alert("Platform Configuration Node Synchronized.");
   };
 
   const tabs = [
-    { id: 'identity', label: 'Company Profile', icon: Building2 },
-    { id: 'finance', label: 'Financial Vault', icon: Banknote },
-    { id: 'visuals', label: 'Marketing Matrix', icon: Megaphone },
-    { id: 'modules', label: 'Logic Modules', icon: Cpu },
+    { id: 'identity', label: 'Identity', icon: Building2 },
+    { id: 'finance', label: 'Financials', icon: Banknote },
+    { id: 'visuals', label: 'Marketing', icon: Megaphone },
+    { id: 'modules', label: 'Modules', icon: Cpu },
   ];
 
   return (
@@ -69,7 +69,7 @@ const AdminSettings: React.FC = () => {
           className="px-10 py-4 bg-rose-600 text-white rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-rose-900/40 flex items-center active:scale-95 transition-all hover:bg-rose-700 relative z-10"
         >
           {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-3" /> : <Save className="w-4 h-4 mr-3" />}
-          Apply Global Override
+          Apply Changes
         </button>
       </div>
 
@@ -92,28 +92,22 @@ const AdminSettings: React.FC = () => {
         <AnimatePresence mode="wait">
           {activeTab === 'identity' && (
             <motion.div key="i" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               {/* Site Metadata */}
                <div className="bg-white p-8 rounded-[3rem] border border-pink-50 shadow-sm space-y-8">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center"><Building className="w-5 h-5 mr-3 text-rose-500" /> General Branding</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center"><Building className="w-5 h-5 mr-3 text-rose-500" /> Branding</h3>
                   <div className="space-y-6">
                      <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Logo URL (CDN)</label>
+                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Logo URL</label>
                         <input value={localConfig.companyProfile.logoUrl} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, logoUrl: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none focus:border-rose-400" />
                      </div>
                      <div className="space-y-2">
                         <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Header Announcement</label>
                         <input value={localConfig.companyProfile.headerText} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, headerText: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none" />
                      </div>
-                     <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Footer Verification String</label>
-                        <input value={localConfig.companyProfile.footerText} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, footerText: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none" />
-                     </div>
                   </div>
                </div>
 
-               {/* Social Matrix */}
                <div className="bg-white p-8 rounded-[3rem] border border-pink-50 shadow-sm space-y-8">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center"><Share2 className="w-5 h-5 mr-3 text-indigo-500" /> Social Integrations</h3>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center"><Share2 className="w-5 h-5 mr-3 text-indigo-500" /> Social Hub</h3>
                   <div className="grid grid-cols-2 gap-4">
                      {['whatsapp', 'telegram', 'facebook', 'instagram'].map(s => (
                        <div key={s} className="space-y-2">
@@ -121,25 +115,6 @@ const AdminSettings: React.FC = () => {
                           <input value={(localConfig.companyProfile as any)[s]} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, [s]: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-3 font-bold text-[10px] outline-none" />
                        </div>
                      ))}
-                  </div>
-               </div>
-
-               {/* Bank Vault Node */}
-               <div className="lg:col-span-2 bg-white p-8 rounded-[3rem] border border-pink-50 shadow-sm space-y-8">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900 flex items-center"><Wallet className="w-5 h-5 mr-3 text-emerald-500" /> Institutional Bank Hub</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Institution Name</label>
-                        <input value={localConfig.companyProfile.bankName} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, bankName: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none" />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Account IBAN / ID</label>
-                        <input value={localConfig.companyProfile.bankAccount} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, bankAccount: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none" />
-                     </div>
-                     <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest ml-1">Legal Account Title</label>
-                        <input value={localConfig.companyProfile.bankTitle} onChange={e=>setLocalConfig({...localConfig, companyProfile: {...localConfig.companyProfile, bankTitle: e.target.value}})} className="w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 font-bold text-xs outline-none" />
-                     </div>
                   </div>
                </div>
             </motion.div>
@@ -156,15 +131,16 @@ const AdminSettings: React.FC = () => {
                            <input type="number" value={localConfig.minWithdrawal} onChange={e=>setLocalConfig({...localConfig, minWithdrawal: Number(e.target.value)})} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 font-black" />
                         </div>
                         <div className="space-y-2">
-                           <label className="text-[8px] font-black text-slate-400 uppercase">Network Fee %</label>
-                           <input type="number" value={localConfig.withdrawalFee} onChange={e=>setLocalConfig({...localConfig, withdrawalFee: Number(e.target.value)})} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 font-black" />
+                           <label className="text-[8px] font-black text-slate-400 uppercase">Referral Lock #</label>
+                           <input type="number" value={localConfig.referralStrategy.withdrawalUnlockReferrals} onChange={e=>setLocalConfig({...localConfig, referralStrategy: {...localConfig.referralStrategy, withdrawalUnlockReferrals: Number(e.target.value)}})} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 font-black" />
                         </div>
                      </div>
+                     <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest">Required active referrals to unlock first withdrawal node.</p>
                   </div>
                   <div className="bg-white p-8 rounded-[2.5rem] border border-pink-50 shadow-sm space-y-6">
                      <h3 className="text-[12px] font-black text-slate-900 uppercase flex items-center"><Zap className="w-4 h-4 mr-2 text-emerald-500" /> Yield Protocol</h3>
                      <div className="space-y-2">
-                        <label className="text-[8px] font-black text-slate-400 uppercase">Yield Per Assignment Node (PKR)</label>
+                        <label className="text-[8px] font-black text-slate-400 uppercase">Yield Per Page (PKR)</label>
                         <input type="number" value={localConfig.ratePerPage} onChange={e=>setLocalConfig({...localConfig, ratePerPage: Number(e.target.value)})} className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 font-black text-2xl" />
                      </div>
                   </div>
@@ -176,10 +152,10 @@ const AdminSettings: React.FC = () => {
             <motion.div key="m" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-6">
                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                   {[
-                    { id: 'referralSystem', label: 'Affiliate Graph', icon: Share2 },
-                    { id: 'registration', label: 'Registration Hub', icon: Activity },
-                    { id: 'kycRequired', label: 'Biometric Shield', icon: ShieldCheck },
-                    { id: 'requireReferralForWithdraw', label: 'Withdrawal Unlock Strategy', icon: Lock },
+                    { id: 'referralSystem', label: 'Affiliate Network', icon: Share2 },
+                    { id: 'registration', label: 'Public Registration', icon: Activity },
+                    { id: 'requireReferralForWithdraw', label: 'Withdrawal Lock Strategy', icon: Lock },
+                    { id: 'kycRequired', label: 'Identity Verification', icon: ShieldCheck },
                   ].map((mod) => (
                     <div key={mod.id} className="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex items-center justify-between group hover:border-rose-300 transition-all">
                        <div className="flex items-center space-x-4">

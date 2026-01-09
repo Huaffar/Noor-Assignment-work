@@ -1,25 +1,13 @@
-
-// Simulated database for notifications
 let notifications: any[] = [
-  { id: 'n1', userId: 'demo_user', title: 'Welcome!', message: 'Start your first task today.', type: 'info', isRead: false, createdAt: new Date() },
-  { id: 'n2', userId: 'demo_user', title: 'Bonus Received', message: 'Rs. 50 added to your wallet.', type: 'success', isRead: true, createdAt: new Date(Date.now() - 86400000) }
+  { id: 'n1', userId: 'demo_user', title: 'Network Welcome', message: 'Assalam-o-Alaikum! Your worker node is now active.', type: 'info', isRead: false, createdAt: new Date() },
+  { id: 'n2', userId: 'demo_user', title: 'Payment Confirmed', message: 'Rs. 240 from Task #882 added to wallet.', type: 'success', isRead: true, createdAt: new Date(Date.now() - 3600000) },
+  { id: 'n3', userId: null, title: 'Maintenance Over', message: 'Global Hub v4.5.0 synchronization complete.', type: 'success', isRead: false, createdAt: new Date(Date.now() - 7200000) },
+  { id: 'n4', userId: null, title: 'Referral Boost', message: 'Earn 15% commission on Gold Tiers this weekend!', type: 'warning', isRead: false, createdAt: new Date(Date.now() - 14400000) }
 ];
 
-/**
- * UTILITY: System-wide alert trigger
- */
-export const sendNotification = async (userId: string | null, title: string, message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info') => {
-  const newNotif = {
-    id: 'notif_' + Math.random().toString(36).substr(2, 9),
-    userId,
-    title,
-    message,
-    type,
-    isRead: false,
-    createdAt: new Date()
-  };
+export const sendNotification = async (userId: string | null, title: string, message: string, type: any = 'info') => {
+  const newNotif = { id: 'notif_' + Math.random(), userId, title, message, type, isRead: false, createdAt: new Date() };
   notifications = [newNotif, ...notifications];
-  console.log(`[ALERTER] Pushed ${type} alert to ${userId || 'GLOBAL'}: ${title}`);
   return newNotif;
 };
 
@@ -27,8 +15,8 @@ export const getUserNotifications = async (userId: string) => {
   return notifications.filter(n => n.userId === userId || n.userId === null);
 };
 
-export const markAsRead = async (notificationId: string) => {
-  notifications = notifications.map(n => n.id === notificationId ? { ...n, isRead: true } : n);
+export const markAsRead = async (id: string) => {
+  notifications = notifications.map(n => n.id === id ? { ...n, isRead: true } : n);
   return { success: true };
 };
 
@@ -38,9 +26,6 @@ export const markAllRead = async (userId: string) => {
 };
 
 export const broadcastAnnouncement = async (adminId: string, payload: any) => {
-  const { title, message, targetGroup } = payload;
-  console.log(`[ADMIN] ${adminId} broadcasting to ${targetGroup}: ${title}`);
-  // In real app, this would iterate users or set a null userId for global
-  await sendNotification(null, title, message, 'info');
+  await sendNotification(null, payload.title, payload.message, payload.type);
   return { success: true };
 };

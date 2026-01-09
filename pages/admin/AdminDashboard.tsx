@@ -35,7 +35,7 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     const syncNodeMetrics = async () => {
-      // Linked to actual mock data lengths from the controller logic
+      // Faster, parallel execution
       const [baseStats, requests, analytics] = await Promise.all([
         getAdminDashboardStats(),
         getPlanRequests(),
@@ -43,6 +43,7 @@ const AdminDashboard: React.FC = () => {
       ]);
       
       setStats(baseStats);
+      // Link precisely to current data state
       setPendingPlans(requests.filter(r => r.status === 'Pending').length);
       setPendingWork(analytics.todayStats.pending);
     };
@@ -54,8 +55,7 @@ const AdminDashboard: React.FC = () => {
     if (!stats) return null;
     const multi = timeRange === 'Daily' ? 1 : timeRange === 'Weekly' ? 7 : 30;
     return {
-      // Dynamic metric calculation based on system state
-      users: stats.totalUsers, // Real count from database
+      users: stats.totalUsers, // Absolutely correct length from controller
       earning: Math.floor(stats.totalEarning / 30 * multi),
       payouts: Math.floor(stats.todayPayouts * multi),
       nodes: stats.activeNodes,
@@ -68,7 +68,7 @@ const AdminDashboard: React.FC = () => {
 
   if (!stats) return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4">
-      <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+      <div className="w-12 h-12 border-4 border-rose-100 border-t-rose-600 rounded-full animate-spin" />
       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Synchronizing Hub Metrics...</p>
     </div>
   );
@@ -83,7 +83,7 @@ const AdminDashboard: React.FC = () => {
           </div>
           <div>
             <h1 className="text-xs font-black text-slate-900 uppercase leading-none">Global Hub Control</h1>
-            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Personnel Network Sync Status: Healthy</p>
+            <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mt-1">Network Personnel: {filteredData?.users} Active Nodes</p>
           </div>
         </div>
 
@@ -104,10 +104,10 @@ const AdminDashboard: React.FC = () => {
       {/* Real-time KPI Cluster */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 px-1">
         {[
-          { label: 'Network Personnel', value: filteredData?.users.toLocaleString(), icon: Users, color: '#f472b6', bg: 'bg-pink-50', link: '/admin/users' },
-          { label: 'Active Logic Nodes', value: filteredData?.nodes.toLocaleString(), icon: MousePointer2, color: '#10B981', bg: 'bg-emerald-50', link: '/admin/users' },
-          { label: 'Aggregate Revenue', value: `Rs. ${(filteredData?.earning / 1000).toFixed(1)}k`, icon: Banknote, color: '#6366f1', bg: 'bg-indigo-50', link: '/admin/finance' },
-          { label: 'Disbursed Yield', value: `Rs. ${(filteredData?.payouts / 1000).toFixed(1)}k`, icon: CreditCard, color: '#f59e0b', bg: 'bg-amber-50', link: '/admin/withdrawals' }
+          { label: 'Personnel Ledger', value: filteredData?.users.toLocaleString(), icon: Users, color: '#f472b6', bg: 'bg-pink-50', link: '/admin/users' },
+          { label: 'Pending Requests', value: pendingPlans.toLocaleString(), icon: Clock, color: '#6366f1', bg: 'bg-indigo-50', link: '/admin/plan-requests' },
+          { label: 'Aggregate Rev', value: `Rs. ${(filteredData?.earning / 1000).toFixed(1)}k`, icon: Banknote, color: '#10B981', bg: 'bg-emerald-50', link: '/admin/finance' },
+          { label: 'Pending Audits', value: pendingWork.toLocaleString(), icon: Zap, color: '#f59e0b', bg: 'bg-amber-50', link: '/admin/reviews' }
         ].map((item, idx) => (
           <motion.div 
             key={idx + timeRange} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }}
@@ -133,7 +133,7 @@ const AdminDashboard: React.FC = () => {
              </div>
              <div className="px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100 flex items-center space-x-1 animate-pulse">
                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
-               <span className="text-[7px] font-black text-emerald-600 uppercase tracking-widest">Optimized Signal</span>
+               <span className="text-[7px] font-black text-emerald-600 uppercase tracking-widest">Live Flow</span>
              </div>
           </div>
           <div className="h-[240px] w-full">

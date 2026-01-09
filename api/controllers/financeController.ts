@@ -7,17 +7,23 @@ let transactions: ITransaction[] = [];
 export const requestWithdrawal = async (user: any, data: any, settings: any) => {
   const { amount, method, account } = data;
 
-  // Referral Requirement Gate
-  if (settings.modules.requireReferralForWithdraw && user.referralCount < settings.referralStrategy.withdrawalUnlockReferrals) {
-    throw new Error(`Strategy Breach: You must invite at least ${settings.referralStrategy.withdrawalUnlockReferrals} active member(s) to unlock payouts.`);
+  // Real data check for withdrawal unlock
+  if (settings.modules.requireReferralForWithdraw) {
+    const required = settings.referralStrategy.withdrawalUnlockReferrals || 1;
+    // user.referralCount is the source of truth
+    if ((user.referralCount || 0) < required) {
+      throw new Error(`Access Blocked: Withdrawal requires at least ${required} active referral(s). Current: ${user.referralCount || 0}`);
+    }
   }
 
   if (settings.modules.kycRequired && user.kycStatus !== 'approved') {
     throw new Error("Identity verification required.");
   }
+  
   if (amount < settings.minWithdrawal) {
     throw new Error(`Minimum withdrawal is Rs. ${settings.minWithdrawal}`);
   }
+  
   if (amount > user.balance) {
     throw new Error("Insufficient balance.");
   }

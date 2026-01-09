@@ -1,4 +1,5 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, RefreshCw, Home } from 'lucide-react';
 
@@ -13,16 +14,12 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fixed: Explicitly extending React.Component with Props and State interfaces to ensure type safety for 'props' and 'state'
+// Fixed: Explicitly extending React.Component with Props and State interfaces to ensure instance properties (props, state) are correctly inherited and recognized by TypeScript.
 class ErrorBoundary extends React.Component<Props, State> {
-  // Fixed: state and props are now correctly recognized as inherited from Component
-  constructor(props: Props) {
-    super(props);
-    // Fixed: Correctly initializing inherited state property
-    this.state = {
-      hasError: false
-    };
-  }
+  // Fixed: Property initializer for state ensures the component's state is correctly typed.
+  public state: State = {
+    hasError: false
+  };
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
@@ -33,7 +30,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public render(): ReactNode {
-    // Fixed: Accessing inherited props and state correctly via React.Component inheritance
+    // Fixed: Correctly destructuring inherited props and state from the class instance (this).
     const { children } = this.props;
     const { hasError } = this.state;
 
