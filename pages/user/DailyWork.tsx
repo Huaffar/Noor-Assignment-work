@@ -23,8 +23,8 @@ import {
   FileText,
   Keyboard,
   PenTool,
-  // Fixed: Added X to lucide-react imports to resolve "Cannot find name 'X'" error
-  X
+  X,
+  Database
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -98,8 +98,8 @@ const DailyWork: React.FC = () => {
       await submitWork(user?.id || 'demo', workState.topic.id, file, user);
       
       Swal.fire({
-        title: 'Audit Dispatched',
-        text: 'Assignment sent to verification terminal.',
+        title: 'Work Securely Stored',
+        text: 'Assignment payload synced to our secure storage nodes.',
         icon: 'success',
         timer: 2000,
         showConfirmButton: false,
@@ -111,7 +111,7 @@ const DailyWork: React.FC = () => {
       setFile(null);
     } catch (err: any) {
       Swal.fire({
-        title: 'Node Sync Error',
+        title: 'Sync Protocol Failure',
         text: err.message,
         icon: 'error'
       });
@@ -224,22 +224,28 @@ const DailyWork: React.FC = () => {
            )}
 
            <form onSubmit={handleSubmit} className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm space-y-4">
-              <p className="text-[8px] font-black text-gray-900 uppercase tracking-widest text-center">Submission Hub</p>
+              <div className="flex items-center justify-center space-x-2 mb-1">
+                 <Database className="w-3 h-3 text-rose-500" />
+                 <p className="text-[8px] font-black text-gray-900 uppercase tracking-widest text-center">Cloud Storage Node</p>
+              </div>
               <div 
                 onClick={() => !file && document.getElementById('work-upload')?.click()}
-                className="bg-rose-50/20 p-5 rounded-[1.5rem] border border-dashed border-rose-100 flex flex-col items-center justify-center space-y-3 cursor-pointer group hover:bg-rose-100/30 transition-all"
+                className={`p-5 rounded-[1.5rem] border border-dashed flex flex-col items-center justify-center space-y-3 cursor-pointer group transition-all ${
+                  file ? 'bg-emerald-50/20 border-emerald-200' : 'bg-rose-50/20 border-rose-100 hover:bg-rose-100/30'
+                }`}
               >
                 <input type="file" id="work-upload" hidden accept="image/*" onChange={onFileChange} />
                 {!file ? (
                   <>
                     <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-rose-500 shadow-sm group-hover:scale-110 transition-transform"><Upload className="w-5 h-5" /></div>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Attach Work</p>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-center">Attach Work Asset</p>
+                    <p className="text-[6px] font-bold text-gray-300 uppercase">JPEG / PNG / PDF</p>
                   </>
                 ) : (
                   <div className="w-full">
                     <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-white shadow-xl">
                         <img src={file} className="w-full h-full object-cover" alt="Proof" />
-                        <button type="button" onClick={(e) => {e.stopPropagation(); setFile(null);}} className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg"><XCircle className="w-3.5 h-3.5" /></button>
+                        <button type="button" onClick={(e) => {e.stopPropagation(); setFile(null);}} className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-lg active:scale-90 transition-transform"><X className="w-3.5 h-3.5" /></button>
                     </div>
                   </div>
                 )}
@@ -247,7 +253,7 @@ const DailyWork: React.FC = () => {
 
               <button disabled={isSubmitting || !file} className="w-full py-4 bg-slate-950 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-50 transition-all flex items-center justify-center group">
                 {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />}
-                Transmit Node
+                Sync Payload
               </button>
            </form>
 
@@ -263,8 +269,5 @@ const DailyWork: React.FC = () => {
     </div>
   );
 };
-
-// Simple helper icon for removal that was missing from direct lucide import if needed
-const XCircle = ({ className }: { className?: string }) => <X className={className} />;
 
 export default DailyWork;

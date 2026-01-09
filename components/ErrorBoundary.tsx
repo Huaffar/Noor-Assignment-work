@@ -1,4 +1,3 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, RefreshCw, Home } from 'lucide-react';
@@ -14,8 +13,8 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fixed: Explicitly extending React.Component with Props and State interfaces to ensure instance properties (props, state) are correctly inherited and recognized by TypeScript.
-class ErrorBoundary extends React.Component<Props, State> {
+// Fixed: Extending Component directly to ensure instance properties (props, state) are correctly recognized by TypeScript.
+class ErrorBoundary extends Component<Props, State> {
   // Fixed: Property initializer for state ensures the component's state is correctly typed.
   public state: State = {
     hasError: false

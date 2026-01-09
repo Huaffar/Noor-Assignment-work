@@ -45,15 +45,23 @@
         }
         :root {
           --theme-primary: #f472b6;
-          --theme-bg: #ffffff;
+          --theme-bg: #fcfcfd;
           --theme-text: #0f172a;
         }
         body { 
           font-family: 'Plus Jakarta Sans', sans-serif; 
-          background-color: #ffffff; 
+          background-color: var(--theme-bg); 
           color: #0f172a;
           -webkit-tap-highlight-color: transparent;
         }
+        
+        /* Data Background Grid Pattern */
+        .bg-data-grid {
+          background-image: 
+            radial-gradient(circle at 2px 2px, rgba(244, 114, 182, 0.05) 1px, transparent 0);
+          background-size: 24px 24px;
+        }
+        
         .font-urdu {
           font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
           line-height: 2.2;
@@ -62,9 +70,14 @@
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .pink-glass {
-          background: rgba(252, 231, 243, 0.8);
+          background: rgba(255, 255, 255, 0.8);
           backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(244, 114, 182, 0.1);
+        }
+        
+        /* Premium Receipt Cut */
+        .receipt-cut {
+          clip-path: polygon(0 0, 100% 0, 100% 95%, 98% 93%, 96% 95%, 94% 93%, 92% 95%, 90% 93%, 88% 95%, 86% 93%, 84% 95%, 82% 93%, 80% 95%, 78% 93%, 76% 95%, 74% 93%, 72% 95%, 70% 93%, 68% 95%, 66% 93%, 64% 95%, 62% 93%, 60% 95%, 58% 93%, 56% 95%, 54% 93%, 52% 95%, 50% 93%, 48% 95%, 46% 93%, 44% 95%, 42% 93%, 40% 95%, 38% 93%, 36% 95%, 34% 93%, 32% 95%, 30% 93%, 28% 95%, 26% 93%, 24% 95%, 22% 93%, 20% 95%, 18% 93%, 16% 95%, 14% 93%, 12% 95%, 10% 93%, 8% 95%, 6% 93%, 4% 95%, 2% 93%, 0 95%);
         }
     </style>
 <script type="importmap">
@@ -89,7 +102,7 @@
 }
 </script>
 </head>
-<body class="antialiased selection:bg-pink-100 selection:text-pink-600">
+<body class="antialiased selection:bg-pink-100 selection:text-pink-600 bg-data-grid">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
