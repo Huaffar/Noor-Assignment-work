@@ -48,54 +48,54 @@ const UserManager: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-2">
-          <div className="relative">
+          <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
             <input 
               value={search} onChange={e => setSearch(e.target.value)} 
               placeholder="Search Members..." 
-              className="bg-gray-50 border border-gray-100 rounded-xl py-2 pl-9 pr-4 text-[10px] font-black uppercase outline-none focus:border-theme-primary w-full md:w-48" 
+              className="bg-gray-50 border border-gray-100 rounded-xl py-2 pl-9 pr-4 text-[10px] font-black uppercase outline-none focus:border-theme-primary w-full md:w-48 shadow-inner" 
             />
           </div>
-          <button className="p-2.5 bg-slate-100 rounded-xl text-slate-400"><Filter className="w-4 h-4" /></button>
+          <button className="p-2.5 bg-slate-100 rounded-xl text-slate-400 hover:text-theme-primary transition-colors"><Filter className="w-4 h-4" /></button>
         </div>
       </div>
 
-      {/* Grid of User Cards: 2-col Mobile, 3-col Tablet, 4-col Desktop */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 px-1">
+      {/* Grid of User Cards: Single column for mobile, multiple for larger screens */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-1">
         {filteredUsers.map(u => (
           <motion.div 
             key={u.id} 
             layout
             onClick={() => setSelectedUser(u)}
-            className="bg-white p-3 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+            className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl transition-all cursor-pointer group relative overflow-hidden"
           >
-            <div className="flex items-start justify-between mb-3">
-               <div className="w-9 h-9 rounded-xl bg-theme-secondary text-theme-primary flex items-center justify-center font-black text-xs uppercase shadow-inner">
+            <div className="flex items-start justify-between mb-5">
+               <div className="w-12 h-12 rounded-2xl bg-theme-secondary text-theme-primary flex items-center justify-center font-black text-lg uppercase shadow-inner">
                  {u.name[0]}
                </div>
-               <div className={`px-2 py-0.5 rounded-full text-[6px] font-black uppercase tracking-widest border ${u.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+               <div className={`px-3 py-1 rounded-full text-[7px] font-black uppercase tracking-widest border ${u.status === 'Active' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
                  {u.status}
                </div>
             </div>
 
-            <div className="space-y-1">
-               <h3 className="text-[10px] font-black text-slate-900 uppercase truncate leading-none">{u.name}</h3>
-               <p className="text-[7px] font-bold text-gray-400 uppercase truncate">Joined {u.joined}</p>
+            <div className="space-y-1.5">
+               <h3 className="text-[12px] font-black text-slate-900 uppercase truncate leading-none">{u.name}</h3>
+               <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest truncate">Joined {u.joined}</p>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+            <div className="mt-6 pt-4 border-t border-gray-50 flex items-center justify-between">
                <div>
-                  <p className="text-[6px] font-black text-gray-300 uppercase tracking-tighter">Balance</p>
-                  <p className="text-[10px] font-black text-slate-900">Rs. {u.balance}</p>
+                  <p className="text-[7px] font-black text-gray-300 uppercase tracking-tighter mb-0.5">Balance</p>
+                  <p className="text-[11px] font-black text-slate-900 leading-none">Rs. {u.balance.toLocaleString()}</p>
                </div>
                <div className="text-right">
-                  <p className="text-[6px] font-black text-gray-300 uppercase tracking-tighter">Plan</p>
-                  <p className="text-[8px] font-black text-theme-primary uppercase">{u.tier.split(' ')[0]}</p>
+                  <p className="text-[7px] font-black text-gray-300 uppercase tracking-tighter mb-0.5">Node Tier</p>
+                  <p className="text-[9px] font-black text-theme-primary uppercase leading-none">{u.tier.split(' ')[0]}</p>
                </div>
             </div>
 
-            <button className="absolute bottom-2 right-2 p-1 opacity-0 group-hover:opacity-100 transition-opacity">
-               <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
+            <button className="absolute bottom-3 right-3 p-1.5 bg-gray-50 rounded-lg opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-0 translate-x-2">
+               <ChevronRight className="w-4 h-4 text-theme-primary" />
             </button>
           </motion.div>
         ))}

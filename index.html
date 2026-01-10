@@ -45,8 +45,8 @@
           --theme-text: #0f172a;
           --theme-card: #ffffff;
           --theme-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-          --card-radius: 1rem; /* Shrunk from 2rem */
-          --card-shadow: 0 4px 12px -2px rgba(0,0,0,0.05); /* Lighter shadow */
+          --card-radius: 1.5rem;
+          --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
           --card-border: 1px;
           --card-opacity: 1;
           --card-blur: 0px;
@@ -55,7 +55,7 @@
           font-family: 'Plus Jakarta Sans', sans-serif; 
           background-color: var(--theme-bg); 
           color: var(--theme-text);
-          font-size: 13px; /* Smaller base font */
+          font-size: 14px;
           transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
           -webkit-tap-highlight-color: transparent;
         }
@@ -84,9 +84,10 @@
           text-align: right;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .themed-glass {
+        .sky-glass {
           background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(12px);
+          border-bottom: 1px solid rgba(14, 165, 233, 0.1);
         }
     </style>
 <script type="importmap">

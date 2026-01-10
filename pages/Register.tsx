@@ -11,7 +11,6 @@ import {
   Loader2,
   ChevronLeft,
   ShieldCheck,
-  MessageCircle,
   CloudLightning
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -44,101 +43,113 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^03\d{9}$/.test(formData.whatsapp)) {
-      alert("Invalid format. Use 03XXXXXXXXX");
+      alert("Invalid format. Use 03XXXXXXXXX (11 digits starting with 03)");
       return;
     }
     if (formData.password.length < 6) {
-      alert("Password must be at least 6 characters.");
+      alert("Password must be at least 6 characters for security.");
       return;
     }
 
     setLoading(true);
     try {
-      // Logic fix: Ensure user is registered and redirect to dashboard
       await register(formData);
       setSuccess(true);
-      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      setTimeout(() => navigate('/dashboard'), 1500); // Redirect to dashboard, not login
+      confetti({ 
+        particleCount: 100, 
+        spread: 70, 
+        origin: { y: 0.6 },
+        colors: [settings.activeThemeId === 'pink' ? '#E11D48' : '#0ea5e9', '#ffffff']
+      });
+      setTimeout(() => navigate('/dashboard'), 1500);
     } catch (err) {
-      alert("System could not register. Email may already exist.");
+      alert("Registration Failed: Please use a unique email address.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-theme-bg flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-theme-bg flex flex-col items-center justify-center p-5 relative overflow-hidden">
+      {/* Background Decor */}
+      <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-[500px] h-[500px] themed-gradient rounded-full blur-[120px]" />
+        <div className="absolute bottom-1/4 -right-20 w-[500px] h-[500px] themed-gradient rounded-full blur-[120px]" />
+      </div>
+
       <motion.button 
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         onClick={() => navigate('/')}
-        className="mb-4 flex items-center space-x-1 text-theme-primary font-black text-[10px] uppercase tracking-widest z-10"
+        className="mb-6 flex items-center space-x-2 text-theme-primary font-black text-[10px] uppercase tracking-widest hover:scale-95 transition-transform z-10"
       >
-        <ChevronLeft className="w-3.5 h-3.5" />
-        <span>Back</span>
+        <ChevronLeft className="w-4 h-4" />
+        <span>Back to Home</span>
       </motion.button>
 
       <motion.div 
         initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-[320px] themed-card p-6 shadow-2xl relative z-10 overflow-hidden"
+        className="w-full max-w-[320px] themed-card p-6 sm:p-8 rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden border border-theme-primary/5"
       >
+        <div className="absolute top-0 left-0 w-full h-1 themed-gradient" />
+        
         <div className="text-center mb-6">
-          <div className="w-10 h-10 themed-gradient rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
-            <CloudLightning className="text-white w-5 h-5 fill-white" />
+          <div className="w-12 h-12 themed-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <CloudLightning className="text-white w-6 h-6 fill-white" />
           </div>
-          <h2 className="text-lg font-black text-theme-text tracking-tighter uppercase">New Account</h2>
-          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">Join our worker network</p>
+          <h2 className="text-xl font-black text-theme-text tracking-tighter uppercase leading-none">Create Account</h2>
+          <p className="text-[8px] text-gray-400 mt-2.5 font-bold uppercase tracking-widest leading-none">Join the verified worker network</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[8px] font-black text-gray-400 uppercase ml-1">Full Name</label>
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
-              <input name="name" required value={formData.name} onChange={handleChange} className="w-full bg-theme-bg/50 border border-gray-100 rounded-lg py-2.5 pl-9 pr-3 text-[11px] font-bold outline-none focus:border-theme-primary" placeholder="Ahmad Ali" />
+            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+            <div className="relative group">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-theme-primary transition-colors" />
+              <input name="name" required value={formData.name} onChange={handleChange} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-2.5 pl-11 pr-3 text-[11px] font-bold text-theme-text outline-none focus:border-theme-primary transition-all shadow-inner" placeholder="Ahmad Ali" />
             </div>
           </div>
           
           <div className="space-y-1">
-            <label className="text-[8px] font-black text-gray-400 uppercase ml-1">WhatsApp No</label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
-              <input name="whatsapp" required value={formData.whatsapp} onChange={handleChange} className="w-full bg-theme-bg/50 border border-gray-100 rounded-lg py-2.5 pl-9 pr-3 text-[11px] font-bold outline-none focus:border-theme-primary" placeholder="03XXXXXXXXX" />
+            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">WhatsApp No</label>
+            <div className="relative group">
+              <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-theme-primary transition-colors" />
+              <input name="whatsapp" required value={formData.whatsapp} onChange={handleChange} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-2.5 pl-11 pr-3 text-[11px] font-bold text-theme-text outline-none focus:border-theme-primary transition-all shadow-inner" placeholder="03XXXXXXXXX" />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[8px] font-black text-gray-400 uppercase ml-1">Email</label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
-              <input name="email" required type="email" value={formData.email} onChange={handleChange} className="w-full bg-theme-bg/50 border border-gray-100 rounded-lg py-2.5 pl-9 pr-3 text-[11px] font-bold outline-none focus:border-theme-primary" placeholder="user@gmail.com" />
+            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-theme-primary transition-colors" />
+              <input name="email" required type="email" value={formData.email} onChange={handleChange} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-2.5 pl-11 pr-3 text-[11px] font-bold text-theme-text outline-none focus:border-theme-primary transition-all shadow-inner" placeholder="user@example.com" />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[8px] font-black text-gray-400 uppercase ml-1">Password</label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
-              <input name="password" required type="password" value={formData.password} onChange={handleChange} className="w-full bg-theme-bg/50 border border-gray-100 rounded-lg py-2.5 pl-9 pr-3 text-[11px] font-bold outline-none focus:border-theme-primary" placeholder="••••••••" />
+            <label className="text-[8px] font-black text-gray-400 uppercase tracking-widest ml-1">Secure Password</label>
+            <div className="relative group">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-theme-primary transition-colors" />
+              <input name="password" required type="password" value={formData.password} onChange={handleChange} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-2.5 pl-11 pr-3 text-[11px] font-bold text-theme-text outline-none focus:border-theme-primary transition-all shadow-inner" placeholder="••••••••" />
             </div>
           </div>
 
           <button
             disabled={loading || success}
-            className={`w-full font-black py-3.5 rounded-xl transition-all flex items-center justify-center shadow-lg active:scale-95 text-[10px] uppercase tracking-widest mt-4 ${success ? 'bg-emerald-500 text-white' : 'themed-gradient text-white hover:brightness-105'}`}
+            className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl transition-all flex items-center justify-center group mt-2 ${success ? 'bg-emerald-500 text-white' : 'themed-gradient text-white hover:brightness-110 active:scale-95 disabled:opacity-50'}`}
           >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : success ? <><CheckCircle2 className="w-4 h-4 mr-2" /> Creating...</> : 'Create My Account'}
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : success ? <><CheckCircle2 className="w-4 h-4 mr-2" /> Initializing...</> : <>Start Earning <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" /></>}
           </button>
         </form>
 
-        <div className="pt-4 mt-4 border-t border-theme-bg text-center">
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-            Already member? <Link to="/login" className="text-theme-primary font-black hover:underline">Sign In</Link>
+        <div className="pt-6 mt-6 border-t border-theme-bg text-center">
+          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-widest">
+            Already a member? <Link to="/login" className="text-theme-primary font-black hover:underline ml-1">Sign In</Link>
           </p>
         </div>
       </motion.div>
 
-      <div className="mt-6 flex items-center space-x-2 opacity-30 grayscale">
-        <ShieldCheck className="w-3 h-3 text-theme-text" />
+      <div className="mt-8 flex items-center space-x-3 opacity-30 z-10 grayscale">
+        <ShieldCheck className="w-3.5 h-3.5 text-theme-text" />
         <span className="text-[8px] font-black text-theme-text uppercase tracking-widest">Verified Pakistani Network</span>
       </div>
     </div>

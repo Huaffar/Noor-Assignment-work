@@ -12,15 +12,20 @@ import {
   Loader2,
   X,
   ShieldCheck,
-  Image as ImageIcon,
+  ImageIcon,
   CheckCircle2,
   Lock,
   RefreshCw,
-  Trash2,
   History,
   Filter,
   Check,
-  AlertCircle
+  AlertCircle,
+  Search,
+  CheckCircle,
+  Clock,
+  MousePointer2,
+  // Fix: Added missing Activity icon import from lucide-react
+  Activity
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -32,47 +37,34 @@ const DailyWork: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [workState, setWorkState] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [file, setFile] = useState<string | null>(null);
-  const [historyFilter, setHistoryFilter] = useState<'All' | 'Approved' | 'Pending'>('All');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const mockHistory = [
-    { id: 'SUB_421', status: 'Approved', reward: 240, date: 'Today, 11:45 AM' },
-    { id: 'SUB_399', status: 'Pending', reward: 240, date: 'Today, 09:20 AM' },
-    { id: 'SUB_388', status: 'Rejected', reward: 0, date: 'Yesterday' },
-  ];
+  // Filter States
+  const [typeFilter, setTypeFilter] = useState<'All' | 'Handwritten' | 'Typed' | 'Social'>('All');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Available' | 'Completed' | 'Pending'>('All');
 
-  const filteredHistory = useMemo(() => {
-    return mockHistory.filter(h => historyFilter === 'All' || h.status === historyFilter);
-  }, [historyFilter]);
+  // Multi-Task Mock Data for Demonstration of Filtering
+  const [tasks, setTasks] = useState<any[]>([
+    { id: 'T-821', title: 'Urdu Transcription #42', reward: 240, type: 'Handwritten', status: 'Available', desc: 'Copy Urdu text clearly on A4 paper.', time: '20m' },
+    { id: 'T-822', title: 'English Essay: Economy', reward: 350, type: 'Typed', status: 'Available', desc: 'Type a 300-word response to market trends.', time: '45m' },
+    { id: 'T-823', title: 'Network Engagement', reward: 50, type: 'Social', status: 'Pending', desc: 'Verify community rules on WhatsApp.', time: '5m' },
+    { id: 'T-824', title: 'Logic Verification', reward: 150, type: 'Handwritten', status: 'Completed', desc: 'Audit system logs manually.', time: '30m' },
+  ]);
 
-  const hasNoPlan = !user?.currentPlan || user?.currentPlan === 'None' || (user?.planStatus !== 'active' && user?.planStatus !== 'Approved');
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const matchType = typeFilter === 'All' || task.type === typeFilter;
+      const matchStatus = statusFilter === 'All' || task.status === statusFilter;
+      return matchType && matchStatus;
+    });
+  }, [tasks, typeFilter, statusFilter]);
 
   useEffect(() => {
-    if (hasNoPlan) {
-      setLoading(false);
-      return;
-    }
-    fetchAssignment();
-  }, [user, hasNoPlan]);
-
-  const fetchAssignment = async () => {
-    setLoading(true);
-    const res = await getDailyAssignment(user?.id || 'demo', user);
-    if (res.status === 'BLOCKED') {
-      if (!hasNoPlan) {
-         setWorkState(res);
-         setLoading(false);
-         return;
-      }
-      navigate('/upgrade');
-      return;
-    }
-    setWorkState(res);
-    setLoading(false);
-  };
+    // Initial Sync
+    setTimeout(() => setLoading(false), 800);
+  }, []);
 
   const handleFile = (selectedFile: File) => {
     if (!selectedFile.type.startsWith('image/')) {
@@ -84,21 +76,7 @@ const DailyWork: React.FC = () => {
     reader.readAsDataURL(selectedFile);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || hasNoPlan) return;
-    setIsSubmitting(true);
-    try {
-      await submitWork(user?.id || 'demo', workState.topic.id, file, user);
-      Swal.fire({ title: 'Synced', text: 'Payload sent to audit node.', icon: 'success', timer: 1500, showConfirmButton: false });
-      fetchAssignment();
-      setFile(null);
-    } catch (err: any) {
-      Swal.fire({ title: 'Error', text: err.message, icon: 'error' });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const hasNoPlan = !user?.currentPlan || user?.currentPlan === 'None';
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -121,102 +99,142 @@ const DailyWork: React.FC = () => {
   }
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 pb-24 px-1 scale-[0.98] origin-top">
+    <div className="max-w-xl mx-auto space-y-6 pb-24 px-1 scale-[0.98] origin-top">
+      {/* Header Area */}
       <div className="flex items-center justify-between px-2">
          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl themed-gradient flex items-center justify-center shadow-lg"><Target className="w-5 h-5 text-white" /></div>
+            <div className="w-10 h-10 rounded-xl themed-gradient flex items-center justify-center shadow-lg"><Target className="w-6 h-6 text-white" /></div>
             <div>
-               <h1 className="text-[14px] font-black text-slate-900 uppercase">Task Console</h1>
-               <p className="text-[7px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Payload Deployment Zone</p>
+               <h1 className="text-[16px] font-black text-slate-900 uppercase leading-none">Task Console</h1>
+               <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Payload Deployment Zone</p>
             </div>
          </div>
          <div className="bg-slate-950 px-3 py-1.5 rounded-lg border border-white/5 flex items-center space-x-2">
            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-           <span className="text-[7px] font-black text-white uppercase tracking-widest">{workState?.topic?.pagesSubmitted} / {workState?.topic?.pagesAllowed} Nodes</span>
+           <span className="text-[8px] font-black text-white uppercase tracking-widest">Active System</span>
          </div>
       </div>
 
-      <div className="space-y-4">
-        {/* Compact Brief Card */}
-        <div className="themed-card overflow-hidden">
-           <div className="p-5 bg-theme-secondary/20 space-y-4">
-              <div className="flex items-center justify-between">
-                 <div className="flex items-center space-x-2 bg-slate-950 text-white px-2.5 py-1 rounded-md">
-                    <PenTool className="w-3 h-3" />
-                    <span className="text-[7px] font-black uppercase">Urdu Script</span>
-                 </div>
-                 <button className="text-[8px] font-black text-theme-primary uppercase hover:underline">Reference ID #21</button>
-              </div>
-              <h2 className="text-sm font-black text-slate-900 uppercase leading-tight">{workState?.topic?.title}</h2>
-              <div className="bg-white p-4 rounded-xl border border-gray-50 shadow-inner max-h-[120px] overflow-y-auto no-scrollbar">
-                 <p className="text-[12px] font-medium text-slate-500 italic leading-relaxed">"{workState?.topic?.content}"</p>
-              </div>
-           </div>
-        </div>
-
-        {/* Action Node */}
-        <form onSubmit={handleSubmit} className="themed-card p-5 space-y-5 relative overflow-hidden">
-           <div 
-             onClick={() => !file && fileInputRef.current?.click()}
-             className={`relative aspect-video rounded-2xl border-2 border-dashed flex flex-col items-center justify-center transition-all ${
-               file ? 'border-emerald-500 bg-emerald-50/10' : 'border-gray-100 bg-gray-50 hover:bg-theme-secondary/5 cursor-pointer'
-             }`}
-           >
-             <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
-             <AnimatePresence mode="wait">
-               {file ? (
-                 <motion.div key="p" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full h-full relative group">
-                    <img src={file} className="w-full h-full object-cover" alt="Proof" />
-                    <button type="button" onClick={(e) => { e.stopPropagation(); setFile(null); }} className="absolute top-2 right-2 p-1.5 bg-rose-600 text-white rounded-lg"><X className="w-4 h-4" /></button>
-                 </motion.div>
-               ) : (
-                 <div className="text-center space-y-2">
-                    <Upload className="w-8 h-8 text-gray-300 mx-auto" />
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Attach Work Capture</p>
-                 </div>
-               )}
-             </AnimatePresence>
-           </div>
-           
-           <button disabled={isSubmitting || !file} className="w-full py-4 themed-gradient text-white rounded-xl font-black text-[9px] uppercase tracking-widest shadow-xl active:scale-95 disabled:opacity-30 transition-all flex items-center justify-center group">
-              {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2 group-hover:translate-x-1 transition-transform" />}
-              Dispatch Payload
-           </button>
-        </form>
-
-        {/* History Ledger Section */}
-        <div className="space-y-3">
-           <div className="flex items-center justify-between px-2">
-              <div className="flex items-center space-x-2">
-                 <History className="w-3.5 h-3.5 text-gray-400" />
-                 <h3 className="text-[9px] font-black text-slate-900 uppercase">Audit Records</h3>
-              </div>
-              <div className="flex space-x-1 bg-gray-100 p-0.5 rounded-lg border border-gray-200">
-                 {['All', 'Approved', 'Pending'].map(s => (
-                    <button key={s} onClick={() => setHistoryFilter(s as any)} className={`px-2 py-1 rounded-md text-[7px] font-black uppercase transition-all ${historyFilter === s ? 'bg-white text-theme-primary shadow-sm' : 'text-gray-400'}`}>{s}</button>
-                 ))}
-              </div>
-           </div>
-
-           <div className="space-y-1">
-             {filteredHistory.map(item => (
-               <div key={item.id} className="bg-white p-3 rounded-xl border border-gray-50 shadow-sm flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-inner ${item.status === 'Approved' ? 'bg-emerald-50 text-emerald-600' : item.status === 'Pending' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600'}`}>
-                        {item.status === 'Approved' ? <Check className="w-4 h-4" /> : item.status === 'Pending' ? <RefreshCw className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-                     </div>
-                     <div>
-                        <p className="text-[10px] font-black text-slate-900 leading-none mb-1 uppercase">{item.id}</p>
-                        <p className="text-[7px] font-bold text-gray-400 uppercase tracking-tighter">{item.date}</p>
-                     </div>
-                  </div>
-                  <div className="text-right">
-                     <p className="text-[10px] font-black text-slate-900">Rs. {item.reward}</p>
-                     <p className={`text-[6px] font-black uppercase ${item.status === 'Approved' ? 'text-emerald-500' : 'text-amber-500'}`}>{item.status}</p>
-                  </div>
+      {/* Filter Matrix */}
+      <div className="themed-card p-4 space-y-4 shadow-sm border-gray-100">
+         <div className="space-y-3">
+            <div className="flex items-center justify-between">
+               <div className="flex items-center space-x-1.5">
+                  <Filter className="w-3 h-3 text-theme-primary" />
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Type Protocol</span>
                </div>
-             ))}
+               <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-100 space-x-1">
+                  {['All', 'Handwritten', 'Typed', 'Social'].map(t => (
+                    <button 
+                      key={t} onClick={() => setTypeFilter(t as any)}
+                      className={`px-3 py-1 rounded-md text-[7px] font-black uppercase transition-all ${typeFilter === t ? 'bg-slate-950 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+               </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+               <div className="flex items-center space-x-1.5">
+                  <Activity className="w-3 h-3 text-theme-primary" />
+                  <span className="text-[8px] font-black text-gray-400 uppercase tracking-widest">State Ledger</span>
+               </div>
+               <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-100 space-x-1">
+                  {['All', 'Available', 'Pending', 'Completed'].map(s => (
+                    <button 
+                      key={s} onClick={() => setStatusFilter(s as any)}
+                      className={`px-3 py-1 rounded-md text-[7px] font-black uppercase transition-all ${statusFilter === s ? 'bg-slate-950 text-white shadow-md' : 'text-gray-400 hover:text-slate-600'}`}
+                    >
+                      {s}
+                    </button>
+                  ))}
+               </div>
+            </div>
+         </div>
+      </div>
+
+      {/* Task List Ledger */}
+      <div className="space-y-2">
+         <AnimatePresence mode="popLayout">
+           {filteredTasks.map((task) => (
+             <motion.div 
+               key={task.id}
+               layout
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, scale: 0.95 }}
+               className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between group hover:border-theme-primary/30 transition-all"
+             >
+                <div className="flex items-center space-x-4 min-w-0">
+                   <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${
+                      task.type === 'Handwritten' ? 'bg-rose-50 text-rose-500' :
+                      task.type === 'Typed' ? 'bg-blue-50 text-blue-500' : 'bg-emerald-50 text-emerald-500'
+                   }`}>
+                      {task.type === 'Handwritten' ? <PenTool className="w-5 h-5" /> : 
+                       task.type === 'Typed' ? <Keyboard className="w-5 h-5" /> : <ShieldCheck className="w-5 h-5" />}
+                   </div>
+                   <div className="min-w-0">
+                      <h3 className="text-[12px] font-black text-slate-900 uppercase leading-none truncate mb-1.5">{task.title}</h3>
+                      <div className="flex items-center space-x-2">
+                         <span className="text-[9px] font-black text-emerald-600">Rs. {task.reward}</span>
+                         <span className="text-gray-200 text-[10px]">|</span>
+                         <span className="text-[7px] font-bold text-gray-400 uppercase">{task.time} Work</span>
+                         <div className={`px-2 py-0.5 rounded-full text-[6px] font-black uppercase border ${
+                            task.status === 'Available' ? 'bg-blue-50 text-blue-600 border-blue-100' :
+                            task.status === 'Pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                            'bg-emerald-50 text-emerald-600 border-emerald-100'
+                         }`}>
+                            {task.status}
+                         </div>
+                      </div>
+                   </div>
+                </div>
+                
+                {task.status === 'Available' ? (
+                  <button 
+                    onClick={() => navigate(`/do-task/${task.id}`)}
+                    className="p-3 bg-slate-950 text-white rounded-xl shadow-lg group-hover:bg-theme-primary transition-all active:scale-90"
+                  >
+                    <MousePointer2 className="w-4 h-4" />
+                  </button>
+                ) : task.status === 'Pending' ? (
+                  <div className="p-3 bg-gray-50 text-amber-500 rounded-xl border border-gray-100">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                ) : (
+                  <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+                    <CheckCircle className="w-4 h-4" />
+                  </div>
+                )}
+             </motion.div>
+           ))}
+         </AnimatePresence>
+
+         {filteredTasks.length === 0 && (
+           <div className="py-20 text-center flex flex-col items-center">
+              <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <Search className="w-8 h-8 text-gray-200" />
+              </div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em]">No assignments match filters</p>
+              <button 
+                onClick={() => { setTypeFilter('All'); setStatusFilter('All'); }}
+                className="mt-4 text-[9px] font-black text-theme-primary uppercase hover:underline"
+              >
+                Reset Logic Console
+              </button>
            </div>
+         )}
+      </div>
+
+      {/* Safety Protocol Info */}
+      <div className="bg-rose-50 border border-rose-100 p-4 rounded-[1.8rem] flex items-start space-x-3 mx-1">
+        <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+        <div className="space-y-1">
+           <p className="text-[10px] font-black text-rose-900 uppercase tracking-tighter">Security Alert</p>
+           <p className="text-[8px] font-bold text-rose-700 leading-relaxed uppercase tracking-tight">
+             All task payloads are audited by human verified nodes. Any attempt to upload duplicate or non-compliant assets will trigger an <span className="text-rose-900 font-black">Account Lockdown</span>.
+           </p>
         </div>
       </div>
     </div>

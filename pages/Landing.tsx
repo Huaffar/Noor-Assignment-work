@@ -10,9 +10,7 @@ import {
   Users,
   MessageCircle,
   CloudLightning,
-  ClipboardCheck,
   Globe,
-  Heart,
   Quote
 } from 'lucide-react';
 import { heroSlides } from '../utils/landingData';
@@ -86,43 +84,7 @@ const Landing: React.FC = () => {
           </div>
         </section>
 
-        {/* Earning Packages */}
-        <section className="space-y-10">
-           <div className="text-center">
-              <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Hamary Earning Packages</h2>
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Select The Best Plan For Your Needs</p>
-           </div>
-           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-1">
-              {plansData.map((plan) => (
-                <motion.div 
-                  key={plan.id} 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  className="bg-white p-5 rounded-[2rem] border border-gray-100 shadow-sm text-center relative overflow-hidden group hover:border-theme-primary transition-all"
-                >
-                   {plan.isPopular && <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[6px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest z-10 shadow-lg">Hot</div>}
-                   <h3 className="text-[11px] font-black text-slate-900 uppercase mb-3 tracking-tight">{plan.name}</h3>
-                   <div className="bg-gray-50 py-4 rounded-2xl mb-5 shadow-inner">
-                      <p className="text-[7px] font-black text-gray-400 uppercase mb-1">Registration</p>
-                      <p className="text-base font-black text-slate-900 leading-none">Rs. {plan.investment}</p>
-                   </div>
-                   <div className="space-y-2.5 text-left px-1">
-                      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                         <span className="text-[8px] font-black text-gray-400 uppercase">Daily Work</span>
-                         <span className="text-[10px] font-black text-slate-900">{plan.dailyWork} Pages</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                         <span className="text-[8px] font-black text-gray-400 uppercase">Monthly</span>
-                         <span className="text-[10px] font-black text-theme-primary">Rs. {plan.monthlySalary}</span>
-                      </div>
-                   </div>
-                   <button onClick={() => navigate('/register')} className="w-full mt-6 py-3 bg-slate-950 text-white rounded-xl text-[9px] font-black uppercase tracking-widest group-hover:bg-theme-primary transition-colors active:scale-95">Start Today</button>
-                </motion.div>
-              ))}
-           </div>
-        </section>
-
-        {/* Why Choose Us (Redesigned) */}
+        {/* Why Choose Us */}
         <section className="bg-slate-950 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden shadow-2xl border border-white/5">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
              <div className="absolute -top-24 -left-24 w-96 h-96 bg-theme-primary rounded-full blur-[120px]" />
@@ -163,19 +125,19 @@ const Landing: React.FC = () => {
           </div>
         </section>
 
-        {/* Client Reviews Section */}
+        {/* Client Reviews */}
         <section className="space-y-12">
            <div className="text-center">
               <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Kamyab Workers Ki Kahani</h2>
               <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">What Our Members Say</p>
            </div>
            
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-1">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-1 pb-12">
               {reviews.map((rev) => (
                 <motion.div 
                   key={rev.id}
                   whileHover={{ y: -5 }}
-                  className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative"
+                  className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative transition-all hover:shadow-md"
                 >
                    <div className="flex items-center space-x-1 text-amber-400 mb-4">
                       {[...Array(rev.rating)].map((_, i) => <Star key={i} className="w-3 h-3 fill-current" />)}
@@ -192,46 +154,6 @@ const Landing: React.FC = () => {
               ))}
            </div>
         </section>
-
-        {/* Footer */}
-        <footer className="bg-slate-950 rounded-[3rem] p-10 md:p-16 text-white relative overflow-hidden border border-white/5">
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
-              <div className="space-y-6">
-                 <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-theme-primary rounded-2xl flex items-center justify-center shadow-2xl"><CloudLightning className="w-7 h-7 text-white fill-white" /></div>
-                    <span className="text-2xl font-black tracking-tighter uppercase">Noor<span className="text-theme-primary">Official</span></span>
-                 </div>
-                 <p className="text-xs text-slate-500 uppercase tracking-widest leading-loose">The most reliable task network in Pakistan. Built for workers, powered by integrity.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="space-y-4">
-                    <h4 className="text-[10px] font-black uppercase text-slate-300">Quick Nodes</h4>
-                    <div className="flex flex-col space-y-3 text-[10px] font-bold text-slate-500 uppercase">
-                       <Link to="/register" className="hover:text-theme-primary transition-colors">Apply Node</Link>
-                       <Link to="/login" className="hover:text-theme-primary transition-colors">Login Portal</Link>
-                       <Link to="/support" className="hover:text-theme-primary transition-colors">Support Hub</Link>
-                    </div>
-                 </div>
-                 <div className="space-y-4">
-                    <h4 className="text-[10px] font-black uppercase text-slate-300">Resources</h4>
-                    <div className="flex flex-col space-y-3 text-[10px] font-bold text-slate-500 uppercase">
-                       <a href="#" className="hover:text-theme-primary transition-colors">WhatsApp Community</a>
-                       <a href="#" className="hover:text-theme-primary transition-colors">System Rules</a>
-                    </div>
-                 </div>
-              </div>
-              <div className="space-y-6">
-                 <h4 className="text-[10px] font-black uppercase text-slate-300">Connect</h4>
-                 <div className="flex items-center space-x-3">
-                    <button className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-theme-primary transition-all border border-white/10"><Globe className="w-5 h-5" /></button>
-                    <button className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-[#25D366] transition-all border border-white/10"><MessageCircle className="w-5 h-5" /></button>
-                 </div>
-              </div>
-           </div>
-           <div className="mt-16 pt-10 border-t border-white/5 text-center">
-              <p className="text-[9px] font-black text-slate-600 uppercase tracking-[0.5em]">© 2024 Noor Digital Network. Pakistan Verified Hub.</p>
-           </div>
-        </footer>
       </div>
     </div>
   );

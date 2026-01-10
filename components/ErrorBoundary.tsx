@@ -14,27 +14,23 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fixed: Explicitly using React.Component to ensure inheritance is correctly recognized by the TypeScript compiler
+// Fix: Using the named Component import directly and specifying generics to ensure props and state are correctly inherited
+// Fix: Changed inheritance to React.Component to resolve 'props' visibility issue in some TS environments
 class ErrorBoundary extends React.Component<Props, State> {
-  // Fixed: Declared state property with type annotation to resolve "Property 'state' does not exist" errors
   public state: State = {
     hasError: false
   };
-
-  constructor(props: Props) {
-    super(props);
-  }
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Critical Node Failure Sync:", error, errorInfo);
+    console.error("Platform Critical Logic Break:", error, errorInfo);
   }
 
   public render(): ReactNode {
-    // Fixed: Correctly accessing children and hasError from this.props and this.state which are inherited from React.Component
+    // Fix: Correctly accessing children and hasError from props and state via this
     const { children } = this.props;
     const { hasError } = this.state;
 
@@ -48,35 +44,35 @@ class ErrorBoundary extends React.Component<Props, State> {
           <motion.div 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="w-full max-sm bg-white p-10 rounded-[3rem] border border-rose-50 shadow-2xl relative"
+            className="w-full max-w-[340px] bg-white p-8 rounded-[2.5rem] border border-rose-50 shadow-2xl relative"
           >
-            <div className="w-20 h-20 bg-rose-50 text-rose-600 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
-               <ShieldAlert className="w-10 h-10" />
+            <div className="w-16 h-16 bg-rose-50 text-rose-600 rounded-[1.5rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
+               <ShieldAlert className="w-8 h-8" />
             </div>
             
-            <h2 className="text-2xl font-black text-slate-900 mb-3 uppercase tracking-tighter">Sync Interruption</h2>
-            <p className="text-sm text-gray-500 font-medium mb-10 leading-relaxed uppercase tracking-tight">
-              Assalam-o-Alaikum! We encountered a temporary node sync issue. Please refresh or return to the main terminal.
+            <h2 className="text-xl font-black text-slate-900 mb-2 uppercase tracking-tighter">Connection Interrupted</h2>
+            <p className="text-[10px] text-gray-500 font-bold mb-10 leading-relaxed uppercase tracking-widest">
+              Assalam-o-Alaikum! We encountered a temporary issue. Please refresh or return to the main dashboard.
             </p>
 
             <div className="space-y-3">
               <button 
                 onClick={() => window.location.reload()}
-                className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-rose-200 active:scale-95 transition-all flex items-center justify-center"
+                className="w-full py-4 bg-rose-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-rose-200 active:scale-95 transition-all flex items-center justify-center"
               >
-                <RefreshCw className="w-4 h-4 mr-2" /> Refresh Terminal
+                <RefreshCw className="w-4 h-4 mr-2" /> Refresh Page
               </button>
               
               <button 
                 onClick={() => window.location.href = '/'}
-                className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all flex items-center justify-center"
+                className="w-full py-4 bg-slate-950 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg active:scale-95 transition-all flex items-center justify-center"
               >
                 <Home className="w-4 h-4 mr-2" /> Exit Hub
               </button>
             </div>
           </motion.div>
           
-          <p className="mt-8 text-[7px] font-black text-gray-300 uppercase tracking-[0.5em]">Network Fault Isolation Active</p>
+          <p className="mt-8 text-[7px] font-black text-gray-300 uppercase tracking-[0.5em]">Automated Recovery Active</p>
         </div>
       );
     }
