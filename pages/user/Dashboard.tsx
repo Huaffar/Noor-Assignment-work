@@ -21,7 +21,9 @@ import {
   ResponsiveContainer,
   AreaChart,
   Area,
-  Tooltip
+  Tooltip,
+  XAxis,
+  CartesianGrid
 } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import DailyBonus from '../../components/DailyBonus';
@@ -32,7 +34,6 @@ const Dashboard: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<'Daily' | 'Weekly' | 'Monthly'>('Weekly');
 
   const stats = useMemo(() => {
-    const multi = timeFilter === 'Daily' ? 1 : timeFilter === 'Weekly' ? 7 : 30;
     return {
       today: 680,
       monthly: 14400,
@@ -41,12 +42,12 @@ const Dashboard: React.FC = () => {
       referralEarn: 2400,
       pendingTasks: 4
     };
-  }, [timeFilter, user]);
+  }, [user]);
 
   const chartData = [
-    { name: 'M', val: 400 }, { name: 'T', val: 700 }, { name: 'W', val: 500 },
-    { name: 'T', val: 800 }, { name: 'F', val: 1200 }, { name: 'S', val: 1000 },
-    { name: 'S', val: 1400 }
+    { name: 'Mon', val: 400 }, { name: 'Tue', val: 700 }, { name: 'Wed', val: 500 },
+    { name: 'Thu', val: 800 }, { name: 'Fri', val: 1200 }, { name: 'Sat', val: 1000 },
+    { name: 'Sun', val: 1400 }
   ];
 
   const limit = user?.dailyLimit || 12;
@@ -54,126 +55,161 @@ const Dashboard: React.FC = () => {
   const taskProgress = (completed / limit) * 100;
 
   return (
-    <div className="max-w-xl mx-auto space-y-4 pb-24 px-1 scale-[0.98] origin-top">
-      {/* Financial Matrix Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="bg-slate-950 p-6 rounded-[2rem] text-white relative overflow-hidden shadow-2xl mx-1 border border-white/5"
-      >
-        <div className="absolute top-0 right-0 w-48 h-48 bg-theme-primary/10 rounded-full blur-[80px]" />
-        <div className="relative z-10 space-y-6">
-           <div className="flex justify-between items-start">
+    <div className="max-w-7xl mx-auto space-y-6 pb-24 px-4 scale-[0.98] lg:scale-100 origin-top">
+      
+      {/* Top Section - Multi-Column on PC */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Main Wallet & Actions - Spans more space on PC */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+          className="lg:col-span-8 bg-slate-950 p-8 md:p-12 rounded-[3rem] text-white relative overflow-hidden shadow-2xl border border-white/5"
+        >
+          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-theme-primary/10 rounded-full blur-[100px] -mr-48 -mt-48" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row justify-between gap-12">
+            <div className="flex-1 space-y-10">
+               <div className="space-y-2">
+                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em]">Node Balance Matrix</p>
+                  <div className="flex items-baseline space-x-3">
+                     <span className="text-xl font-bold text-theme-primary opacity-60">PKR</span>
+                     <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-none">{(user?.balance || 0).toLocaleString()}</h2>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Today Yield', val: `Rs. ${stats.today}`, color: 'text-emerald-400' },
+                    { label: 'Cycle Earning', val: `Rs. ${stats.monthly.toLocaleString()}`, color: 'text-theme-primary' },
+                    { label: 'Asset Withdrawn', val: `Rs. ${stats.totalWithdrawn.toLocaleString()}`, color: 'text-amber-400' },
+                    { label: 'Affiliate Rev', val: `Rs. ${stats.referralEarn.toLocaleString()}`, color: 'text-indigo-400' }
+                  ].map((s, i) => (
+                    <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                       <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{s.label}</p>
+                       <p className={`text-sm font-black ${s.color}`}>{s.val}</p>
+                    </div>
+                  ))}
+               </div>
+            </div>
+
+            <div className="md:w-64 flex flex-col justify-end gap-3">
+               <button onClick={() => navigate('/withdraw')} className="w-full py-5 themed-gradient text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl shadow-theme-primary/20 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center">
+                 <ArrowDownToLine className="w-5 h-5 mr-3" /> Withdraw Funds
+               </button>
+               <button onClick={() => navigate('/upgrade')} className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:bg-slate-50 active:scale-95 transition-all flex items-center justify-center">
+                 <Rocket className="w-5 h-5 mr-3 text-theme-primary" /> Boost Plan
+               </button>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Attendance - Side column on PC */}
+        <div className="lg:col-span-4 h-full flex flex-col">
+          <DailyBonus />
+        </div>
+      </div>
+
+      {/* Middle Section - Performance & Status */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Performance Chart - Large on PC */}
+        <div className="lg:col-span-8 bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-sm">
+           <div className="flex items-center justify-between mb-8">
               <div>
-                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Available Funds</p>
-                 <div className="flex items-baseline space-x-1.5">
-                    <span className="text-xs font-bold text-theme-primary opacity-60">PKR</span>
-                    <h2 className="text-4xl font-black tracking-tighter leading-none">{(user?.balance || 0).toLocaleString()}</h2>
-                 </div>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center">
+                  <BarChart3 className="w-4 h-4 mr-2 text-theme-primary" /> Yield Performance
+                </h3>
+                <p className="text-[10px] text-gray-400 font-medium uppercase mt-1">Real-time network contribution audit</p>
               </div>
-              <div className="flex space-x-2">
-                 <button onClick={() => navigate('/wallet')} className="p-2 bg-white/5 rounded-xl border border-white/10"><History className="w-4 h-4 text-theme-primary" /></button>
-                 <button onClick={() => navigate('/profile')} className="p-2 bg-white/5 rounded-xl border border-white/10"><UserIcon className="w-4 h-4" /></button>
-              </div>
-           </div>
-
-           <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Today Kamai</p>
-                 <p className="text-sm font-black text-emerald-400">Rs. {stats.today}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Kamai</p>
-                 <p className="text-sm font-black text-theme-primary">Rs. {stats.monthly.toLocaleString()}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Payouts</p>
-                 <p className="text-sm font-black text-amber-400">Rs. {stats.totalWithdrawn.toLocaleString()}</p>
-              </div>
-              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
-                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Referral Income</p>
-                 <p className="text-sm font-black text-indigo-400">Rs. {stats.referralEarn.toLocaleString()}</p>
+              <div className="flex items-center space-x-2 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100">
+                 <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                 <span className="text-[10px] font-black text-emerald-600 uppercase">+14.2% Growth</span>
               </div>
            </div>
-
-           <div className="flex gap-2">
-              <button onClick={() => navigate('/withdraw')} className="flex-1 py-3.5 themed-gradient text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center active:scale-95 transition-all">
-                <ArrowDownToLine className="w-3.5 h-3.5 mr-2" /> Raqam Nikalein
-              </button>
-              <button onClick={() => navigate('/upgrade')} className="flex-1 py-3.5 bg-white text-slate-950 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center active:scale-95 transition-all">
-                <Rocket className="w-3.5 h-3.5 mr-2 text-theme-primary" /> Upgrade Plan
-              </button>
+           <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                 <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="var(--theme-primary)" stopOpacity={0.15}/>
+                        <stop offset="95%" stopColor="var(--theme-primary)" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#94a3b8' }} dy={10} />
+                    <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', shadow: '0 20px 40px rgba(0,0,0,0.1)' }} />
+                    <Area type="monotone" dataKey="val" stroke="var(--theme-primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorVal)" />
+                 </AreaChart>
+              </ResponsiveContainer>
            </div>
         </div>
-      </motion.div>
 
-      {/* Performance Graph */}
-      <div className="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm mx-1">
-         <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[10px] font-black text-slate-900 uppercase">Aap Ki Karkardagi</h3>
-            <div className="flex items-center text-[7px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">
-               <TrendingUp className="w-2.5 h-2.5 mr-1" /> +12% Is Hafte
+        {/* Task Nodes Grid - Optimized for PC column */}
+        <div className="lg:col-span-4 grid grid-cols-1 gap-4 h-full">
+           <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 flex flex-col justify-between hover:border-theme-primary/30 transition-all">
+              <div className="flex items-center justify-between">
+                 <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500"><Clock className="w-6 h-6" /></div>
+                 <span className="text-[10px] font-black text-amber-500 bg-amber-50 px-2 py-1 rounded-lg uppercase">In Audit</span>
+              </div>
+              <div>
+                 <h4 className="text-3xl font-black text-slate-900 leading-none mb-2">{stats.pendingTasks}</h4>
+                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Pending Validations</p>
+              </div>
+              <button onClick={() => navigate('/requests')} className="w-full py-3 bg-gray-50 text-slate-400 rounded-xl text-[9px] font-black uppercase hover:bg-slate-900 hover:text-white transition-all">View Audit Log</button>
+           </div>
+
+           <div className="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm space-y-4 flex flex-col justify-between hover:border-theme-primary/30 transition-all">
+              <div className="flex items-center justify-between">
+                 <div className="w-10 h-10 bg-theme-secondary rounded-2xl flex items-center justify-center text-theme-primary"><Target className="w-6 h-6" /></div>
+                 <span className="text-[10px] font-black text-theme-primary bg-theme-secondary px-2 py-1 rounded-lg uppercase">Daily Node</span>
+              </div>
+              <div>
+                 <h4 className="text-3xl font-black text-slate-900 leading-none mb-2">{completed}/{limit}</h4>
+                 <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden mt-3">
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${taskProgress}%` }} className="h-full bg-theme-primary" />
+                 </div>
+              </div>
+              <button onClick={() => navigate('/tasks')} className="w-full py-3 themed-gradient text-white rounded-xl text-[9px] font-black uppercase shadow-lg active:scale-95 transition-all">Execute Assignments</button>
+           </div>
+        </div>
+      </div>
+
+      {/* Footer Meta Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+         {/* System Status Node */}
+         <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-[2.5rem] flex items-center space-x-5">
+            <div className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-emerald-500">
+               <ShieldCheck className="w-7 h-7" />
+            </div>
+            <div>
+               <p className="text-[10px] font-black text-emerald-700 uppercase">Network Secure</p>
+               <p className="text-[8px] font-bold text-emerald-600/60 uppercase mt-1 tracking-widest">Global Hub Sync 100%</p>
             </div>
          </div>
-         <div className="h-20 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-               <AreaChart data={chartData}>
-                  <defs><linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.1}/><stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/></linearGradient></defs>
-                  <Area type="monotone" dataKey="val" stroke="#0ea5e9" strokeWidth={2} fill="url(#colorVal)" />
-               </AreaChart>
-            </ResponsiveContainer>
+
+         {/* Personnel Stat */}
+         <div className="bg-slate-50 border border-slate-200 p-6 rounded-[2.5rem] flex items-center space-x-5 opacity-60">
+            <div className="w-12 h-12 bg-white rounded-2xl shadow-sm flex items-center justify-center text-slate-400">
+               <Users className="w-7 h-7" />
+            </div>
+            <div>
+               <p className="text-[10px] font-black text-slate-600 uppercase">Node Level: Active</p>
+               <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Personnel Verification OK</p>
+            </div>
          </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-3 mx-1">
-        {/* Pending Work Status */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-           <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-black text-slate-900 uppercase">Pending Work</h3>
-              <Clock className="w-4 h-4 text-amber-500" />
-           </div>
-           <p className="text-xl font-black text-slate-900 leading-none">{stats.pendingTasks}</p>
-           <p className="text-[8px] font-bold text-gray-400 uppercase">Check honey wala kaam</p>
-           <button onClick={() => navigate('/requests')} className="w-full py-2 bg-gray-50 text-gray-400 rounded-lg text-[8px] font-black uppercase hover:bg-gray-100">Audit Ledger</button>
-        </div>
-
-        {/* Task Progress */}
-        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
-           <div className="flex items-center justify-between">
-              <h3 className="text-[10px] font-black text-slate-900 uppercase">Today Kaam</h3>
-              <Target className="w-4 h-4 text-theme-primary" />
-           </div>
-           <p className="text-xl font-black text-slate-900 leading-none">{completed}/{limit}</p>
-           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div className="h-full bg-theme-primary" style={{ width: `${taskProgress}%` }} />
-           </div>
-           <button onClick={() => navigate('/tasks')} className="w-full py-2 bg-theme-secondary text-theme-primary rounded-lg text-[8px] font-black uppercase shadow-sm">Open Terminal</button>
-        </div>
-      </div>
-
-      <DailyBonus />
-
-      <div className="mx-2">
-         <div className="flex items-center space-x-2 text-gray-400 mb-2">
-            <History className="w-3.5 h-3.5" />
-            <h3 className="text-[9px] font-black uppercase">Attendance History</h3>
-         </div>
-         <div className="space-y-1.5">
-            {[
-              { day: 'Friday', date: '25 Oct', val: 'Rs. 5', status: 'Present' },
-              { day: 'Thursday', date: '24 Oct', val: 'Rs. 5', status: 'Present' },
-              { day: 'Wednesday', date: '23 Oct', val: 'Rs. 50', status: 'Milestone' },
-            ].map((at, i) => (
-              <div key={i} className="bg-white p-3 rounded-xl border border-gray-50 flex items-center justify-between opacity-70 scale-95 origin-left">
-                 <div>
-                    <p className="text-[10px] font-black text-slate-900 leading-none">{at.day}</p>
-                    <p className="text-[7px] text-gray-400 mt-0.5">{at.date}</p>
-                 </div>
-                 <div className="text-right">
-                    <p className="text-[10px] font-black text-emerald-600 leading-none">{at.val}</p>
-                    <p className="text-[6px] font-black text-slate-400 uppercase mt-0.5">{at.status}</p>
-                 </div>
-              </div>
-            ))}
+         {/* Support Node */}
+         <div onClick={() => navigate('/support')} className="bg-blue-50 border border-blue-100 p-6 rounded-[2.5rem] flex items-center justify-between cursor-pointer hover:bg-blue-100 transition-all group">
+            <div className="flex items-center space-x-5">
+               <div className="w-12 h-12 bg-white rounded-2xl shadow-xl flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                  <Rocket className="w-7 h-7" />
+               </div>
+               <div>
+                  <p className="text-[10px] font-black text-blue-700 uppercase">Need Support?</p>
+                  <p className="text-[8px] font-bold text-blue-600/60 uppercase mt-1 tracking-widest">Connect to HQ Cluster</p>
+               </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-blue-300" />
          </div>
       </div>
     </div>

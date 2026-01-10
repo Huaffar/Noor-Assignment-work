@@ -1,7 +1,7 @@
 
 {
   "name": "noor-official-platform",
-  "version": "4.5.2",
+  "version": "4.5.3",
   "private": true,
   "dependencies": {
     "react": "^19.0.0",
@@ -12,7 +12,10 @@
     "canvas-confetti": "^1.9.3",
     "html2canvas": "^1.4.1",
     "react-router-dom": "^6.28.0",
-    "react-easy-crop": "^5.1.0"
+    "react-easy-crop": "^5.1.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
   },
   "overrides": {
     "recharts": {

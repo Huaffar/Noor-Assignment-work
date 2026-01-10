@@ -1,5 +1,5 @@
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { ErrorInfo, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, RefreshCw, Home } from 'lucide-react';
 
@@ -14,8 +14,7 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fix: Using the named Component import directly and specifying generics to ensure props and state are correctly inherited
-// Fix: Changed inheritance to React.Component to resolve 'props' visibility issue in some TS environments
+// Fixed: Explicitly extending React.Component<Props, State> to ensure the compiler recognizes this.props and this.state
 class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false
@@ -30,7 +29,8 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public render(): ReactNode {
-    // Fix: Correctly accessing children and hasError from props and state via this
+    // Accessing children and hasError from the instance props and state
+    // Fixed: Correctly destructuring children from this.props and hasError from this.state
     const { children } = this.props;
     const { hasError } = this.state;
 

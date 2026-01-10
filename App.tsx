@@ -27,6 +27,10 @@ const PlanMarket = lazy(() => import('./pages/user/PlanMarket'));
 const Referrals = lazy(() => import('./pages/user/Referrals'));
 const MyRequests = lazy(() => import('./pages/user/MyRequests'));
 const Support = lazy(() => import('./pages/user/Support'));
+const About = lazy(() => import('./pages/About'));
+const Instructions = lazy(() => import('./pages/user/Instructions'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
 
 // Admin Pages
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
@@ -103,6 +107,10 @@ const App: React.FC = () => {
               <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/about" element={<PublicLayout><About /></PublicLayout>} />
+              <Route path="/instructions" element={<PublicLayout><Instructions /></PublicLayout>} />
+              <Route path="/privacy" element={<PublicLayout><Privacy /></PublicLayout>} />
+              <Route path="/terms" element={<PublicLayout><Terms /></PublicLayout>} />
 
               {/* User Routes */}
               <Route path="/dashboard" element={<UserRoute><UserLayout><Dashboard /></UserLayout></UserRoute>} />

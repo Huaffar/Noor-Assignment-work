@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { CloudLightning, Globe, MessageCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Footer: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <footer className="bg-slate-950 text-white relative overflow-hidden border-t border-white/5 py-12 md:py-16">
       {/* Background Decor */}
@@ -32,18 +35,23 @@ const Footer: React.FC = () => {
             <div className="space-y-4">
               <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-widest">Quick Links</h4>
               <div className="flex flex-col space-y-3 text-[10px] font-bold text-slate-500 uppercase">
-                <Link to="/register" className="hover:text-theme-primary transition-colors">Get Started</Link>
-                <Link to="/login" className="hover:text-theme-primary transition-colors">Worker Portal</Link>
+                <Link to={isAuthenticated ? "/dashboard" : "/register"} className="hover:text-theme-primary transition-colors">
+                  {isAuthenticated ? "Dashboard" : "Get Started"}
+                </Link>
+                <Link to={isAuthenticated ? "/tasks" : "/login"} className="hover:text-theme-primary transition-colors">
+                  {isAuthenticated ? "Work Center" : "Worker Portal"}
+                </Link>
                 <Link to="/support" className="hover:text-theme-primary transition-colors">Support Hub</Link>
                 <Link to="/upgrade" className="hover:text-theme-primary transition-colors">Revenue Plans</Link>
               </div>
             </div>
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-widest">Resources</h4>
+              <h4 className="text-[10px] font-black uppercase text-slate-300 tracking-widest">Governance</h4>
               <div className="flex flex-col space-y-3 text-[10px] font-bold text-slate-500 uppercase">
-                <a href="#" className="hover:text-theme-primary transition-colors">WhatsApp Community</a>
-                <a href="#" className="hover:text-theme-primary transition-colors">System Rules</a>
-                <Link to="/profile" className="hover:text-theme-primary transition-colors">My Identity</Link>
+                <Link to="/terms" className="hover:text-theme-primary transition-colors">Terms of Service</Link>
+                <Link to="/privacy" className="hover:text-theme-primary transition-colors">Privacy Shield</Link>
+                <Link to="/instructions" className="hover:text-theme-primary transition-colors">System Rules</Link>
+                <Link to="/about" className="hover:text-theme-primary transition-colors">About Noor</Link>
               </div>
             </div>
           </div>

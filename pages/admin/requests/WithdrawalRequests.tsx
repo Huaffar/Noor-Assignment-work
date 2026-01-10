@@ -2,18 +2,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Banknote, 
   CheckCircle2, 
-  XCircle, 
-  ArrowUpRight, 
   Clock, 
-  Phone, 
-  Wallet,
   Search,
   Filter,
   Check,
-  X,
-  CreditCard
+  X
 } from 'lucide-react';
 
 const WithdrawalRequests: React.FC = () => {
@@ -69,7 +63,7 @@ const WithdrawalRequests: React.FC = () => {
 
       <div className="space-y-2">
         <AnimatePresence>
-          {requests.map((req, idx) => (
+          {requests.map((req) => (
             <motion.div
               key={req.id}
               layout
@@ -106,14 +100,12 @@ const WithdrawalRequests: React.FC = () => {
               </div>
 
               <div className="flex items-center space-x-1.5 shrink-0">
-                {/* Fixed: Use handleProcess instead of non-existent handleAction */}
                 <button 
                   onClick={() => handleProcess(req.id, 'reject')}
                   className="p-2 bg-gray-50 text-gray-400 hover:text-rose-600 rounded-xl transition-all"
                 >
                   <X className="w-4 h-4" />
                 </button>
-                {/* Fixed: Use handleProcess instead of non-existent handleAction */}
                 <button 
                   onClick={() => handleProcess(req.id, 'approve')}
                   className="px-4 py-2 bg-slate-900 text-white hover:bg-emerald-600 rounded-xl font-black text-[9px] uppercase tracking-widest shadow-lg transition-all flex items-center"

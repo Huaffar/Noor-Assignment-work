@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, AuthState } from '../types';
 
@@ -12,34 +13,33 @@ interface AuthContextType extends AuthState {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
-    loading: true,
-    token: null,
-  });
-
-  useEffect(() => {
+  // Sync Hydration: Immediate check of localStorage to prevent flicker
+  const [state, setState] = useState<AuthState>(() => {
+    if (typeof window === 'undefined') return { user: null, isAuthenticated: false, loading: true, token: null };
+    
     const token = localStorage.getItem('noor_token');
     const userStr = localStorage.getItem('noor_user');
     
     if (token && userStr && userStr !== "undefined") {
       try {
-        setState({
+        const parsedUser = JSON.parse(userStr);
+        return {
           token,
-          user: JSON.parse(userStr),
+          user: parsedUser,
           isAuthenticated: true,
           loading: false,
-        });
-        return;
+        };
       } catch (err) {
         localStorage.clear();
       }
     }
-    setState(prev => ({ ...prev, loading: false }));
-  }, []);
+    return { user: null, isAuthenticated: false, loading: false, token: null };
+  });
 
   const login = async (email: string, pass: string): Promise<User> => {
+    setState(prev => ({ ...prev, loading: true }));
+    await new Promise(r => setTimeout(r, 600));
+    
     const isAdmin = (email === 'admin@noorofficial.com' || email.includes('admin'));
     const role = isAdmin ? 'admin' : 'user';
     
@@ -61,18 +61,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       kycStatus: 'approved' as const,
       totalEarned: role === 'admin' ? 0 : 18400,
       totalWithdrawn: role === 'admin' ? 0 : 13000,
-      // Added missing field to prevent undefined errors in UI
-      // @ts-ignore (Adding dynamic field for UI logic)
-      completedTasksToday: role === 'admin' ? 0 : 3
     };
     
-    localStorage.setItem('noor_token', 'jwt_' + Date.now());
+    const token = 'jwt_' + Date.now();
+    localStorage.setItem('noor_token', token);
     localStorage.setItem('noor_user', JSON.stringify(user));
-    setState({ token: 'jwt_' + Date.now(), user, isAuthenticated: true, loading: false });
+    
+    setState({ token, user, isAuthenticated: true, loading: false });
     return user;
   };
 
   const register = async (data: any) => {
+    setState(prev => ({ ...prev, loading: true }));
+    await new Promise(r => setTimeout(r, 800));
     const user = { 
       ...data, 
       id: 'u_' + Date.now(), 
@@ -85,11 +86,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       kycStatus: 'pending', 
       totalEarned: 0, 
       totalWithdrawn: 0,
-      completedTasksToday: 0
+      dailyLimit: 0
     };
-    localStorage.setItem('noor_token', 'jwt_' + Date.now());
+    const token = 'jwt_' + Date.now();
+    localStorage.setItem('noor_token', token);
     localStorage.setItem('noor_user', JSON.stringify(user));
-    setState({ token: 'jwt_' + Date.now(), user: user as User, isAuthenticated: true, loading: false });
+    setState({ token, user: user as User, isAuthenticated: true, loading: false });
   };
 
   const demoLogin = () => login('worker@noorofficial.com', 'demo');
@@ -110,6 +112,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth error');
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
