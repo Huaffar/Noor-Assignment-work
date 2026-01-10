@@ -1,39 +1,43 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { CloudLightning } from 'lucide-react';
 
 const Preloader: React.FC = () => {
   return (
     <div className="fixed inset-0 z-[1000] bg-white flex flex-col items-center justify-center">
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-rose-600 rounded-full blur-[120px]" />
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-sky-600 rounded-full blur-[140px]" />
       </div>
 
       <div className="relative flex flex-col items-center">
-        <div className="relative mb-8">
+        <div className="relative mb-10">
            <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-            className="w-14 h-14 rounded-[1.5rem] border-2 border-rose-50 border-t-rose-500 shadow-2xl shadow-rose-100"
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-16 h-16 rounded-[2rem] border-4 border-sky-50 border-t-sky-600 shadow-2xl shadow-sky-100"
           />
           <div className="absolute inset-0 flex items-center justify-center">
-             <span className="text-[10px] font-black text-rose-600">N</span>
+             <CloudLightning className="w-6 h-6 text-sky-600" />
           </div>
         </div>
         
-        <div className="text-center space-y-2">
-          <h2 className="text-sm font-black text-slate-900 uppercase tracking-widest">Noor Official</h2>
-          <div className="flex items-center space-x-2">
-             <div className="h-0.5 w-4 bg-emerald-500 rounded-full animate-pulse" />
-             <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.4em]">Synchronizing Nodes</span>
-             <div className="h-0.5 w-4 bg-emerald-500 rounded-full animate-pulse" />
+        <div className="text-center space-y-4">
+          <h2 className="text-lg font-black text-slate-900 uppercase tracking-[0.4em]">Noor Official</h2>
+          <div className="flex items-center space-x-3 justify-center">
+             <div className="h-1 w-6 bg-sky-500 rounded-full animate-pulse" />
+             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.5em]">Synchronizing</span>
+             <div className="h-1 w-6 bg-sky-500 rounded-full animate-pulse" />
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-10 flex items-center space-x-2 opacity-20">
-         <div className="w-1 h-1 bg-slate-950 rounded-full" />
-         <p className="text-[6px] font-black text-slate-950 uppercase tracking-[0.5em]">Protocol 4.5.1 Alpha</p>
-         <div className="w-1 h-1 bg-slate-950 rounded-full" />
+      <div className="absolute bottom-12 flex flex-col items-center space-y-3 opacity-30">
+         <p className="text-[8px] font-black text-slate-950 uppercase tracking-[0.6em]">Mainframe Core 4.5.1</p>
+         <div className="flex items-center space-x-2">
+            <div className="w-1 h-1 bg-sky-600 rounded-full animate-ping" />
+            <div className="w-1 h-1 bg-sky-600 rounded-full animate-ping [animation-delay:0.2s]" />
+            <div className="w-1 h-1 bg-sky-600 rounded-full animate-ping [animation-delay:0.4s]" />
+         </div>
       </div>
     </div>
   );

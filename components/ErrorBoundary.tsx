@@ -13,12 +13,15 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fixed: Extending Component directly to ensure instance properties (props, state) are correctly recognized by TypeScript.
-class ErrorBoundary extends Component<Props, State> {
-  // Fixed: Property initializer for state ensures the component's state is correctly typed.
-  public state: State = {
-    hasError: false
-  };
+// Fix: Explicitly extending React.Component and using a constructor to resolve "Property 'props' does not exist" error
+class ErrorBoundary extends React.Component<Props, State> {
+  // Fix: Explicitly initialize state in constructor for better type compatibility
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false
+    };
+  }
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
@@ -29,7 +32,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public render(): ReactNode {
-    // Fixed: Correctly destructuring inherited props and state from the class instance (this).
+    // Fix: Accessing props and state inherited from the React.Component base class
     const { children } = this.props;
     const { hasError } = this.state;
 

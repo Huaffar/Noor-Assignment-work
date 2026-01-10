@@ -5,8 +5,8 @@ interface AuthContextType extends AuthState {
   login: (email: string, pass: string) => Promise<User>;
   register: (data: any) => Promise<void>;
   logout: () => void;
-  demoLogin: () => void;
-  adminDemoLogin: () => void;
+  demoLogin: () => Promise<User>;
+  adminDemoLogin: () => Promise<User>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,7 +20,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   });
 
   useEffect(() => {
-    // Zero-latency boot sync
     const token = localStorage.getItem('noor_token');
     const userStr = localStorage.getItem('noor_user');
     
@@ -41,10 +40,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   const login = async (email: string, pass: string): Promise<User> => {
-    const role = (email === 'admin@noorofficial.com' || email.includes('admin')) ? 'admin' : 'user';
+    const isAdmin = (email === 'admin@noorofficial.com' || email.includes('admin'));
+    const role = isAdmin ? 'admin' : 'user';
+    
     const user: User = {
       id: role === 'admin' ? 'admin_root' : 'u_demo_worker',
-      name: email.split('@')[0],
+      name: isAdmin ? 'Admin Manager' : 'Standard Worker',
       email,
       whatsapp: '03001234567',
       balance: role === 'admin' ? 999999 : 5400,
@@ -54,12 +55,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       role: role as 'admin' | 'user',
       status: 'active' as const,
       checkInStreak: role === 'admin' ? 0 : 4,
-      planStatus: role === 'admin' ? 'active' : 'active',
+      planStatus: 'active',
       currentPlan: role === 'admin' ? 'System Admin' : 'Gold Package',
       dailyLimit: role === 'admin' ? 100 : 12,
       kycStatus: 'approved' as const,
       totalEarned: role === 'admin' ? 0 : 18400,
-      totalWithdrawn: role === 'admin' ? 0 : 13000
+      totalWithdrawn: role === 'admin' ? 0 : 13000,
+      // Added missing field to prevent undefined errors in UI
+      // @ts-ignore (Adding dynamic field for UI logic)
+      completedTasksToday: role === 'admin' ? 0 : 3
     };
     
     localStorage.setItem('noor_token', 'jwt_' + Date.now());
@@ -69,13 +73,26 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const register = async (data: any) => {
-    const user = { ...data, id: 'u_' + Date.now(), balance: 0, currency: 'PKR', role: 'user', status: 'active', checkInStreak: 0, planStatus: 'none', kycStatus: 'pending', totalEarned: 0, totalWithdrawn: 0 };
+    const user = { 
+      ...data, 
+      id: 'u_' + Date.now(), 
+      balance: 0, 
+      currency: 'PKR', 
+      role: 'user', 
+      status: 'active', 
+      checkInStreak: 0, 
+      planStatus: 'none', 
+      kycStatus: 'pending', 
+      totalEarned: 0, 
+      totalWithdrawn: 0,
+      completedTasksToday: 0
+    };
     localStorage.setItem('noor_token', 'jwt_' + Date.now());
     localStorage.setItem('noor_user', JSON.stringify(user));
     setState({ token: 'jwt_' + Date.now(), user: user as User, isAuthenticated: true, loading: false });
   };
 
-  const demoLogin = () => login('worker@noor.com', 'demo');
+  const demoLogin = () => login('worker@noorofficial.com', 'demo');
   const adminDemoLogin = () => login('admin@noorofficial.com', 'admin');
 
   const logout = () => {

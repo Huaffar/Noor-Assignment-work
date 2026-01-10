@@ -1,34 +1,27 @@
-
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet, 
-  TrendingUp, 
-  Zap, 
   History, 
-  ArrowRight,
-  Layers,
+  CheckCircle2, 
+  ShieldCheck, 
+  Users, 
+  ChevronRight, 
+  ArrowDownToLine,
+  Target,
+  Rocket,
+  User as UserIcon,
   BarChart3,
-  Filter,
-  ArrowUpRight,
-  CheckCircle2,
-  Calendar,
-  Smartphone,
-  ShieldCheck,
-  LayoutGrid,
-  // Added missing Share2 and Users imports
-  Share2,
-  Users
+  TrendingUp,
+  Clock,
+  Briefcase
 } from 'lucide-react';
 import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  Tooltip
 } from 'recharts';
 import { useAuth } from '../../context/AuthContext';
 import DailyBonus from '../../components/DailyBonus';
@@ -41,142 +34,150 @@ const Dashboard: React.FC = () => {
   const stats = useMemo(() => {
     const multi = timeFilter === 'Daily' ? 1 : timeFilter === 'Weekly' ? 7 : 30;
     return {
-      profit: Math.floor((user?.totalEarned || 8450) / 30 * multi),
-      tasks: Math.floor(42 / 30 * multi),
-      referrals: Math.floor(12 / 30 * multi),
-      chart: [
-        { day: 'M', amount: 400 * (multi/7) }, { day: 'T', amount: 300 * (multi/7) }, { day: 'W', amount: 600 * (multi/7) },
-        { day: 'T', amount: 800 * (multi/7) }, { day: 'F', amount: 500 * (multi/7) }, { day: 'S', amount: 900 * (multi/7) }, { day: 'S', amount: 1200 * (multi/7) },
-      ]
+      today: 680,
+      monthly: 14400,
+      totalEarned: user?.totalEarned || 18400,
+      totalWithdrawn: user?.totalWithdrawn || 13000,
+      referralEarn: 2400,
+      pendingTasks: 4
     };
   }, [timeFilter, user]);
 
-  const completed = user?.completedTasksToday || 3;
-  const limit = user?.dailyLimit || 8;
+  const chartData = [
+    { name: 'M', val: 400 }, { name: 'T', val: 700 }, { name: 'W', val: 500 },
+    { name: 'T', val: 800 }, { name: 'F', val: 1200 }, { name: 'S', val: 1000 },
+    { name: 'S', val: 1400 }
+  ];
+
+  const limit = user?.dailyLimit || 12;
+  const completed = (user as any)?.completedTasksToday || 3;
   const taskProgress = (completed / limit) * 100;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-4 pb-24 px-1 scale-[0.98] origin-top">
-      {/* Top Identity Node */}
-      <div className="flex items-center justify-between bg-white px-5 py-3 rounded-2xl border border-pink-50 shadow-sm mx-1">
-         <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 shadow-inner">
-               <UserIcon className="w-5 h-5" />
-            </div>
-            <div>
-               <h1 className="text-[13px] font-black text-slate-900 uppercase leading-none">Command Terminal</h1>
-               <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mt-1">Worker Node: {user?.id.toUpperCase()}</p>
+    <div className="max-w-xl mx-auto space-y-4 pb-24 px-1 scale-[0.98] origin-top">
+      {/* Financial Matrix Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+        className="bg-slate-950 p-6 rounded-[2rem] text-white relative overflow-hidden shadow-2xl mx-1 border border-white/5"
+      >
+        <div className="absolute top-0 right-0 w-48 h-48 bg-theme-primary/10 rounded-full blur-[80px]" />
+        <div className="relative z-10 space-y-6">
+           <div className="flex justify-between items-start">
+              <div>
+                 <p className="text-[8px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Available Funds</p>
+                 <div className="flex items-baseline space-x-1.5">
+                    <span className="text-xs font-bold text-theme-primary opacity-60">PKR</span>
+                    <h2 className="text-4xl font-black tracking-tighter leading-none">{(user?.balance || 0).toLocaleString()}</h2>
+                 </div>
+              </div>
+              <div className="flex space-x-2">
+                 <button onClick={() => navigate('/wallet')} className="p-2 bg-white/5 rounded-xl border border-white/10"><History className="w-4 h-4 text-theme-primary" /></button>
+                 <button onClick={() => navigate('/profile')} className="p-2 bg-white/5 rounded-xl border border-white/10"><UserIcon className="w-4 h-4" /></button>
+              </div>
+           </div>
+
+           <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Today Kamai</p>
+                 <p className="text-sm font-black text-emerald-400">Rs. {stats.today}</p>
+              </div>
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Monthly Kamai</p>
+                 <p className="text-sm font-black text-theme-primary">Rs. {stats.monthly.toLocaleString()}</p>
+              </div>
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Payouts</p>
+                 <p className="text-sm font-black text-amber-400">Rs. {stats.totalWithdrawn.toLocaleString()}</p>
+              </div>
+              <div className="bg-white/5 p-3 rounded-2xl border border-white/10">
+                 <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1">Referral Income</p>
+                 <p className="text-sm font-black text-indigo-400">Rs. {stats.referralEarn.toLocaleString()}</p>
+              </div>
+           </div>
+
+           <div className="flex gap-2">
+              <button onClick={() => navigate('/withdraw')} className="flex-1 py-3.5 themed-gradient text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center active:scale-95 transition-all">
+                <ArrowDownToLine className="w-3.5 h-3.5 mr-2" /> Raqam Nikalein
+              </button>
+              <button onClick={() => navigate('/upgrade')} className="flex-1 py-3.5 bg-white text-slate-950 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center active:scale-95 transition-all">
+                <Rocket className="w-3.5 h-3.5 mr-2 text-theme-primary" /> Upgrade Plan
+              </button>
+           </div>
+        </div>
+      </motion.div>
+
+      {/* Performance Graph */}
+      <div className="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm mx-1">
+         <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[10px] font-black text-slate-900 uppercase">Aap Ki Karkardagi</h3>
+            <div className="flex items-center text-[7px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">
+               <TrendingUp className="w-2.5 h-2.5 mr-1" /> +12% Is Hafte
             </div>
          </div>
-         <div className="bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100 flex items-center space-x-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Logic Synced</span>
+         <div className="h-20 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+               <AreaChart data={chartData}>
+                  <defs><linearGradient id="colorVal" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.1}/><stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/></linearGradient></defs>
+                  <Area type="monotone" dataKey="val" stroke="#0ea5e9" strokeWidth={2} fill="url(#colorVal)" />
+               </AreaChart>
+            </ResponsiveContainer>
          </div>
       </div>
 
-      {/* Top Row: Wallet & Quota - Compressed */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-          className="md:col-span-7 bg-slate-950 rounded-[2rem] p-6 text-white relative overflow-hidden shadow-2xl border border-slate-800"
-        >
-          <div className="absolute top-0 right-0 w-48 h-48 bg-rose-600/10 rounded-full blur-[60px] -mr-16 -mt-16" />
-          <div className="relative z-10 h-full flex flex-col justify-between">
-             <div className="flex justify-between items-center mb-4">
-                <div className="flex items-center space-x-3">
-                   <div className="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10 shadow-2xl">
-                      <Wallet className="w-5 h-5 text-rose-500" />
-                   </div>
-                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">Hub Treasury</p>
-                </div>
-                <button onClick={() => navigate('/wallet')} className="p-2 bg-white/5 rounded-xl hover:bg-white/10 transition-colors"><History className="w-4 h-4 text-slate-400" /></button>
-             </div>
-             
-             <div className="mb-6">
-                <div className="flex items-baseline space-x-2">
-                   <span className="text-sm font-bold opacity-30 uppercase">PKR</span>
-                   <h1 className="text-4xl font-black tracking-tighter leading-none">{(user?.balance || 0).toLocaleString()}</h1>
-                </div>
-                <p className="text-[8px] font-bold text-emerald-400 uppercase tracking-[0.4em] mt-2 flex items-center"><ShieldCheck className="w-3 h-3 mr-1.5" /> Verified Ledger Balance</p>
-             </div>
-
-             <div className="flex gap-2.5">
-                <button onClick={() => navigate('/withdraw')} className="flex-1 bg-rose-600 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-rose-950/40 active:scale-95 transition-all">Instant Payout</button>
-                <button onClick={() => navigate('/upgrade')} className="flex-1 bg-white/5 border border-white/10 text-white py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-white/10 active:scale-95 transition-all">Expand Capacity</button>
-             </div>
-          </div>
-        </motion.div>
-
-        {/* Daily Capacity Node */}
-        <div className="md:col-span-5 bg-white p-6 rounded-[2rem] border border-pink-50 shadow-sm flex flex-col justify-between">
-           <div className="flex justify-between items-start mb-2">
-              <div>
-                 <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-widest">Node Load</h3>
-                 <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-widest">Daily Processing Quota</p>
-              </div>
-              <div className="w-10 h-10 rounded-2xl bg-pink-50 flex items-center justify-center text-pink-500 shadow-inner"><Zap className="w-5 h-5" /></div>
+      <div className="grid grid-cols-2 gap-3 mx-1">
+        {/* Pending Work Status */}
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+           <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black text-slate-900 uppercase">Pending Work</h3>
+              <Clock className="w-4 h-4 text-amber-500" />
            </div>
-           
-           <div className="space-y-4 my-6">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-tighter">
-                 <span className="text-slate-400">Payload Transmitted</span>
-                 <span className="text-slate-900">{completed} / {limit} Pgs</span>
-              </div>
-              <div className="h-2.5 bg-slate-50 rounded-full overflow-hidden border border-slate-100 relative shadow-inner">
-                 <motion.div 
-                   initial={{ width: 0 }} 
-                   animate={{ width: `${taskProgress}%` }} 
-                   className="h-full bg-gradient-to-r from-pink-500 to-rose-600 rounded-full shadow-[0_0_12px_rgba(244,63,94,0.4)]" 
-                 />
-              </div>
-           </div>
+           <p className="text-xl font-black text-slate-900 leading-none">{stats.pendingTasks}</p>
+           <p className="text-[8px] font-bold text-gray-400 uppercase">Check honey wala kaam</p>
+           <button onClick={() => navigate('/requests')} className="w-full py-2 bg-gray-50 text-gray-400 rounded-lg text-[8px] font-black uppercase hover:bg-gray-100">Audit Ledger</button>
+        </div>
 
-           <button onClick={() => navigate('/tasks')} className="w-full py-3 bg-slate-950 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center group shadow-xl active:scale-95 transition-all">
-             Initialize Payloads <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform text-rose-500" />
-           </button>
+        {/* Task Progress */}
+        <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-3">
+           <div className="flex items-center justify-between">
+              <h3 className="text-[10px] font-black text-slate-900 uppercase">Today Kaam</h3>
+              <Target className="w-4 h-4 text-theme-primary" />
+           </div>
+           <p className="text-xl font-black text-slate-900 leading-none">{completed}/{limit}</p>
+           <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full bg-theme-primary" style={{ width: `${taskProgress}%` }} />
+           </div>
+           <button onClick={() => navigate('/tasks')} className="w-full py-2 bg-theme-secondary text-theme-primary rounded-lg text-[8px] font-black uppercase shadow-sm">Open Terminal</button>
         </div>
       </div>
 
-      {/* Dynamic Global Filter */}
-      <div className="flex items-center justify-between bg-white px-5 py-2.5 rounded-2xl border border-pink-50 shadow-sm mx-1">
-         <div className="flex items-center space-x-3">
-            <BarChart3 className="w-4 h-4 text-slate-400" />
-            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Telemetry Filter:</span>
+      <DailyBonus />
+
+      <div className="mx-2">
+         <div className="flex items-center space-x-2 text-gray-400 mb-2">
+            <History className="w-3.5 h-3.5" />
+            <h3 className="text-[9px] font-black uppercase">Attendance History</h3>
          </div>
-         <div className="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
-            {['Daily', 'Weekly', 'Monthly'].map(f => (
-              <button 
-                key={f} onClick={() => setTimeFilter(f as any)}
-                className={`px-4 py-2 rounded-lg text-[9px] font-black uppercase transition-all ${timeFilter === f ? 'bg-white text-pink-600 shadow-sm border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
-              >
-                {f}
-              </button>
+         <div className="space-y-1.5">
+            {[
+              { day: 'Friday', date: '25 Oct', val: 'Rs. 5', status: 'Present' },
+              { day: 'Thursday', date: '24 Oct', val: 'Rs. 5', status: 'Present' },
+              { day: 'Wednesday', date: '23 Oct', val: 'Rs. 50', status: 'Milestone' },
+            ].map((at, i) => (
+              <div key={i} className="bg-white p-3 rounded-xl border border-gray-50 flex items-center justify-between opacity-70 scale-95 origin-left">
+                 <div>
+                    <p className="text-[10px] font-black text-slate-900 leading-none">{at.day}</p>
+                    <p className="text-[7px] text-gray-400 mt-0.5">{at.date}</p>
+                 </div>
+                 <div className="text-right">
+                    <p className="text-[10px] font-black text-emerald-600 leading-none">{at.val}</p>
+                    <p className="text-[6px] font-black text-slate-400 uppercase mt-0.5">{at.status}</p>
+                 </div>
+              </div>
             ))}
          </div>
       </div>
-
-      {/* Performance Grid - Dynamic Stats */}
-      <div className="grid grid-cols-3 gap-3 mx-1">
-         {[
-           { label: 'Cumulative Yield', val: `Rs. ${stats.profit}`, icon: BarChart3, color: 'text-rose-500', bg: 'bg-rose-50' },
-           { label: 'Payload Integrity', val: `${stats.tasks} Nodes`, icon: LayoutGrid, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-           { label: 'Affiliate Bonus', val: `Rs. ${stats.referrals * 150}`, icon: Share2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-         ].map((kpi, i) => (
-           <div key={i} className="bg-white p-4 rounded-[2rem] border border-pink-50 shadow-sm group hover:border-pink-300 transition-all hover:shadow-xl hover:shadow-pink-900/5">
-              <div className={`w-9 h-9 rounded-xl ${kpi.bg} ${kpi.color} flex items-center justify-center mb-4 shadow-inner group-hover:scale-90 transition-transform`}>
-                 <kpi.icon className="w-4.5 h-4.5" />
-              </div>
-              <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1.5">{kpi.label}</p>
-              <h4 className="text-[13px] font-black text-slate-900 leading-none">{kpi.val}</h4>
-           </div>
-         ))}
-      </div>
-
-      <DailyBonus />
     </div>
   );
 };
-
-const UserIcon = ({ className }: { className?: string }) => <Users className={className} />;
 
 export default Dashboard;

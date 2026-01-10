@@ -1,7 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { StatusBar } from '@capacitor/status-bar';
-import { Capacitor } from '@capacitor/core';
 
 // Layout & Critical Components
 import Header from './layout/Header';
@@ -43,9 +41,9 @@ const PlanRequests = lazy(() => import('./pages/admin/requests/PlanRequests'));
 const Trash = lazy(() => import('./pages/admin/Trash'));
 const ManageGuides = lazy(() => import('./pages/admin/ManageGuides'));
 const ManageMarketing = lazy(() => import('./pages/admin/ManageMarketing'));
-const SendAlert = lazy(() => import('./pages/admin/SendAlert'));
 const AuditHistory = lazy(() => import('./pages/admin/AuditHistory'));
 const WorkManager = lazy(() => import('./pages/admin/WorkManager'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 
 const MobileAppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useMobileBack();
@@ -87,7 +85,7 @@ const App: React.FC = () => {
   if (settings.maintenanceMode) return <Maintenance />;
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ErrorBoundary>
         <MobileAppWrapper>
           <Suspense fallback={<Preloader />}>
@@ -97,7 +95,7 @@ const App: React.FC = () => {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
-              {/* Protected User Routes */}
+              {/* User Routes */}
               <Route path="/dashboard" element={<UserRoute><UserLayout><Dashboard /></UserLayout></UserRoute>} />
               <Route path="/tasks" element={<UserRoute><UserLayout><DailyWork /></UserLayout></UserRoute>} />
               <Route path="/wallet" element={<UserRoute><UserLayout><WalletHub /></UserLayout></UserRoute>} />
@@ -108,7 +106,7 @@ const App: React.FC = () => {
               <Route path="/requests" element={<UserRoute><UserLayout><MyRequests /></UserLayout></UserRoute>} />
               <Route path="/support" element={<UserRoute><UserLayout><Support /></UserLayout></UserRoute>} />
 
-              {/* Protected Admin Routes */}
+              {/* Admin Routes */}
               <Route path="/admin" element={<AdminRoute><UserLayout><AdminDashboard /></UserLayout></AdminRoute>} />
               <Route path="/admin/users" element={<AdminRoute><UserLayout><UserManager /></UserLayout></AdminRoute>} />
               <Route path="/admin/plans" element={<AdminRoute><UserLayout><ManagePlans /></UserLayout></AdminRoute>} />
@@ -121,9 +119,9 @@ const App: React.FC = () => {
               <Route path="/admin/trash" element={<AdminRoute><UserLayout><Trash /></UserLayout></AdminRoute>} />
               <Route path="/admin/guides" element={<AdminRoute><UserLayout><ManageGuides /></UserLayout></AdminRoute>} />
               <Route path="/admin/marketing" element={<AdminRoute><UserLayout><ManageMarketing /></UserLayout></AdminRoute>} />
-              <Route path="/admin/alerts" element={<AdminRoute><UserLayout><SendAlert /></UserLayout></AdminRoute>} />
               <Route path="/admin/audit" element={<AdminRoute><UserLayout><AuditHistory /></UserLayout></AdminRoute>} />
               <Route path="/admin/work" element={<AdminRoute><UserLayout><WorkManager /></UserLayout></AdminRoute>} />
+              <Route path="/admin/reports" element={<AdminRoute><UserLayout><AdminReports /></UserLayout></AdminRoute>} />
 
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

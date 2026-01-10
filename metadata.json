@@ -3,6 +3,7 @@
   "description": "A premium, high-performance task earning web application built with React, Tailwind CSS, and Framer Motion, featuring a rose-pink aesthetic and seamless user experience.",
   "requestFramePermissions": [
     "camera",
-    "microphone"
+    "microphone",
+    "geolocation"
   ]
 }

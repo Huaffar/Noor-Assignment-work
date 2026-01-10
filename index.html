@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Noor Official | Pakistan's Premium Task Earning Network</title>
-    <meta name="description" content="Earn daily PKR rewards by completing simple handwriting and digital assignments.">
+    <title>Noor Official | Pakistan's Trusted Earning Hub</title>
+    <meta name="description" content="Earn daily PKR rewards by completing simple work assignments.">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,17 +16,12 @@
         theme: {
           extend: {
             colors: {
-              pink: {
-                50: '#fff1f2',
-                100: '#fce7f3',
-                200: '#fbcfe8',
-                300: '#f9a8d4',
-                400: '#f472b6',
-                500: '#ec4899',
-                600: '#db2777',
-              },
-              slate: {
-                950: '#020617',
+              theme: {
+                primary: 'var(--theme-primary)',
+                secondary: 'var(--theme-secondary)',
+                bg: 'var(--theme-bg)',
+                text: 'var(--theme-text)',
+                card: 'var(--theme-card)',
               }
             },
             fontFamily: {
@@ -44,40 +39,54 @@
           font-display: swap;
         }
         :root {
-          --theme-primary: #f472b6;
-          --theme-bg: #fcfcfd;
+          --theme-primary: #0ea5e9;
+          --theme-secondary: #f0f9ff;
+          --theme-bg: #f8fafc;
           --theme-text: #0f172a;
+          --theme-card: #ffffff;
+          --theme-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+          --card-radius: 1rem; /* Shrunk from 2rem */
+          --card-shadow: 0 4px 12px -2px rgba(0,0,0,0.05); /* Lighter shadow */
+          --card-border: 1px;
+          --card-opacity: 1;
+          --card-blur: 0px;
         }
         body { 
           font-family: 'Plus Jakarta Sans', sans-serif; 
           background-color: var(--theme-bg); 
-          color: #0f172a;
+          color: var(--theme-text);
+          font-size: 13px; /* Smaller base font */
+          transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
           -webkit-tap-highlight-color: transparent;
         }
-        
-        /* Data Background Grid Pattern */
+        .themed-card {
+          background: var(--theme-card);
+          opacity: var(--card-opacity);
+          backdrop-filter: blur(var(--card-blur));
+          color: var(--theme-text);
+          border: var(--card-border) solid rgba(0,0,0,0.06);
+          border-radius: var(--card-radius);
+          box-shadow: var(--card-shadow);
+        }
+        .themed-gradient {
+          background: var(--theme-gradient);
+        }
         .bg-data-grid {
           background-image: 
-            radial-gradient(circle at 2px 2px, rgba(244, 114, 182, 0.05) 1px, transparent 0);
+            radial-gradient(circle at 1px 1px, var(--theme-primary) 0.05, transparent 0);
           background-size: 24px 24px;
+          opacity: 0.2;
         }
-        
         .font-urdu {
           font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
-          line-height: 2.2;
+          line-height: 2.0;
           direction: rtl;
           text-align: right;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .pink-glass {
-          background: rgba(255, 255, 255, 0.8);
+        .themed-glass {
+          background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(244, 114, 182, 0.1);
-        }
-        
-        /* Premium Receipt Cut */
-        .receipt-cut {
-          clip-path: polygon(0 0, 100% 0, 100% 95%, 98% 93%, 96% 95%, 94% 93%, 92% 95%, 90% 93%, 88% 95%, 86% 93%, 84% 95%, 82% 93%, 80% 95%, 78% 93%, 76% 95%, 74% 93%, 72% 95%, 70% 93%, 68% 95%, 66% 93%, 64% 95%, 62% 93%, 60% 95%, 58% 93%, 56% 95%, 54% 93%, 52% 95%, 50% 93%, 48% 95%, 46% 93%, 44% 95%, 42% 93%, 40% 95%, 38% 93%, 36% 95%, 34% 93%, 32% 95%, 30% 93%, 28% 95%, 26% 93%, 24% 95%, 22% 93%, 20% 95%, 18% 93%, 16% 95%, 14% 93%, 12% 95%, 10% 93%, 8% 95%, 6% 93%, 4% 95%, 2% 93%, 0 95%);
         }
     </style>
 <script type="importmap">
@@ -102,7 +111,7 @@
 }
 </script>
 </head>
-<body class="antialiased selection:bg-pink-100 selection:text-pink-600 bg-data-grid">
+<body class="antialiased selection:bg-sky-100 selection:text-sky-600">
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
 </body>
