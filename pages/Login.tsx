@@ -34,7 +34,7 @@ const Login: React.FC = () => {
       const user = await login(email, password);
       navigate(user.role === 'admin' ? '/admin' : '/dashboard', { replace: true });
     } catch (err) {
-      alert("Login Failed: Please check your credentials.");
+      alert("Login Failed: Please check your email and password.");
     } finally {
       setLoading(false);
     }
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
 
       <motion.div 
         initial={{ scale: 0.98, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-        className="w-full max-w-[320px] themed-card p-7 sm:p-8 rounded-[3rem] shadow-2xl relative z-10 overflow-hidden border border-theme-primary/10"
+        className="w-full max-w-[340px] themed-card p-8 rounded-[3rem] shadow-2xl relative z-10 overflow-hidden border border-theme-primary/10"
       >
         <div className="absolute top-0 left-0 w-full h-1 themed-gradient" />
         
@@ -78,8 +78,8 @@ const Login: React.FC = () => {
           <div className="w-14 h-14 themed-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
             <CloudLightning className="text-white w-7 h-7 fill-white" />
           </div>
-          <h2 className="text-2xl font-black text-theme-text tracking-tighter uppercase leading-none">Login Portal</h2>
-          <p className="text-[9px] text-gray-400 mt-3 font-bold uppercase tracking-widest leading-none">Enter your details below</p>
+          <h2 className="text-2xl font-black text-theme-text tracking-tighter uppercase leading-none">Member Login</h2>
+          <p className="text-[9px] text-gray-400 mt-3 font-bold uppercase tracking-widest leading-none">Enter your email and password</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -87,7 +87,7 @@ const Login: React.FC = () => {
             <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
             <div className="relative group">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300 group-focus-within:text-theme-primary transition-colors" />
-              <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-3 pl-11 pr-3 text-xs font-bold text-theme-text outline-none focus:border-theme-primary transition-all" placeholder="user@email.com" />
+              <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-theme-bg border border-gray-100 rounded-xl py-3 pl-11 pr-3 text-xs font-bold text-theme-text outline-none focus:border-theme-primary transition-all" placeholder="your@email.com" />
             </div>
           </div>
 
@@ -111,8 +111,8 @@ const Login: React.FC = () => {
         </form>
 
         {settings.modules.demoLogin && (
-          <div className="mt-10 pt-6 border-t border-gray-50">
-            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-center mb-5">Quick Access Accounts</p>
+          <div className="mt-8 pt-6 border-t border-gray-50">
+            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest text-center mb-5">Quick Access</p>
             <div className="grid grid-cols-2 gap-3">
                <button 
                 onClick={() => handleQuickAccess('user')} 
@@ -143,7 +143,7 @@ const Login: React.FC = () => {
 
       <div className="mt-8 flex items-center space-x-3 opacity-30 z-10 grayscale">
         <ShieldCheck className="w-4 h-4 text-theme-text" />
-        <span className="text-[9px] font-black text-theme-text uppercase tracking-widest">Verified Security Protocol</span>
+        <span className="text-[9px] font-black text-theme-text uppercase tracking-widest">Secured by SSL Protocol</span>
       </div>
     </div>
   );

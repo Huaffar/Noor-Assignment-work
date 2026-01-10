@@ -85,7 +85,16 @@ const App: React.FC = () => {
   if (settings.maintenanceMode) return <Maintenance />;
 
   return (
-    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <Router 
+      future={{ 
+        v7_startTransition: true, 
+        v7_relativeSplatPath: true,
+        v7_fetcherPersist: true,
+        v7_normalizeFormMethod: true,
+        v7_partialHydration: true,
+        v7_skipActionErrorRevalidation: true
+      }}
+    >
       <ErrorBoundary>
         <MobileAppWrapper>
           <Suspense fallback={<Preloader />}>
@@ -113,7 +122,7 @@ const App: React.FC = () => {
               <Route path="/admin/plan-requests" element={<AdminRoute><UserLayout><PlanRequests /></UserLayout></AdminRoute>} />
               <Route path="/admin/withdrawals" element={<AdminRoute><UserLayout><ManageWithdrawals /></UserLayout></AdminRoute>} />
               <Route path="/admin/reviews" element={<AdminRoute><UserLayout><ManageTasks /></UserLayout></AdminRoute>} />
-              <Route path="/admin/kyc" element={<AdminRoute><UserLayout><KYCRequests /></UserLayout></AdminRoute>} />
+              <Route path="/admin/kyc" element={<AdminRoute><UserRoute><UserLayout><KYCRequests /></UserLayout></UserRoute></AdminRoute>} />
               <Route path="/admin/finance" element={<AdminRoute><UserLayout><PaymentMethods /></UserLayout></AdminRoute>} />
               <Route path="/admin/settings" element={<AdminRoute><UserLayout><AdminSettings /></UserLayout></AdminRoute>} />
               <Route path="/admin/trash" element={<AdminRoute><UserLayout><Trash /></UserLayout></AdminRoute>} />
