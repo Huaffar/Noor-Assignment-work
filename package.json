@@ -1,31 +1,38 @@
+
 {
-  "name": "noor-official---task-earning-platform",
+  "name": "noor-official-platform",
+  "version": "4.5.1",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "framer-motion": "^11.11.17",
+    "lucide-react": "^0.463.0",
+    "recharts": "2.13.3",
+    "canvas-confetti": "^1.9.3",
+    "html2canvas": "^1.4.1",
+    "react-router-dom": "^6.28.0",
+    "react-easy-crop": "^5.1.0"
+  },
+  "overrides": {
+    "recharts": {
+      "react": "$react",
+      "react-dom": "$react-dom"
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.0.0",
+    "postcss": "^8.0.0",
+    "tailwindcss": "^3.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
-  },
-  "dependencies": {
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "lucide-react": "0.463.0",
-    "react-router-dom": "6.28.0",
-    "framer-motion": "11.11.17",
-    "recharts": "2.13.3",
-    "canvas-confetti": "1.9.3",
-    "html2canvas": "1.4.1",
-    "react-easy-crop": "5.1.0",
-    "@capacitor/status-bar": "^8.0.0",
-    "@capacitor/core": "^8.0.0",
-    "@capacitor/app": "^8.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
   }
 }

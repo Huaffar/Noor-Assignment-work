@@ -13,15 +13,12 @@ interface State {
 /**
  * Standard Platform Error Boundary.
  */
-// Fix: Explicitly extending React.Component and using a constructor to resolve "Property 'props' does not exist" error
+// Fix: Explicitly extend React.Component to resolve inherited property access issues for this.props and this.state
 class ErrorBoundary extends React.Component<Props, State> {
-  // Fix: Explicitly initialize state in constructor for better type compatibility
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false
-    };
-  }
+  // Fix: Explicitly declare state as a class property and initialize it
+  public state: State = {
+    hasError: false
+  };
 
   public static getDerivedStateFromError(_: Error): State {
     return { hasError: true };
@@ -32,7 +29,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public render(): ReactNode {
-    // Fix: Accessing props and state inherited from the React.Component base class
+    // Fix: Accessing children and hasError from correctly inherited React.Component members
     const { children } = this.props;
     const { hasError } = this.state;
 
