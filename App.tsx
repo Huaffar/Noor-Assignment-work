@@ -1,5 +1,5 @@
 import React, { useEffect, useState, lazy, Suspense } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 // Layout & Critical Components
 import Header from './layout/Header';
@@ -12,13 +12,16 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { useAuth } from './context/AuthContext';
 import { useSystem } from './context/SystemContext';
 import { useMobileBack } from './hooks/useMobileBack';
+import { useNotifications } from './hooks/useNotifications';
 import { AdminRoute, UserRoute } from './components/RouteGuards';
+
+// Direct Imports for Auth Stability
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 // Lazy Loaded Pages
 const Landing = lazy(() => import('./pages/Landing'));
 const Dashboard = lazy(() => import('./pages/user/Dashboard'));
-const Login = lazy(() => import('./pages/Login'));
-const Register = lazy(() => import('./pages/Register'));
 const DailyWork = lazy(() => import('./pages/user/DailyWork'));
 const WalletHub = lazy(() => import('./pages/user/WalletHub'));
 const Withdraw = lazy(() => import('./pages/user/Withdraw')); 
@@ -38,19 +41,29 @@ const UserManager = lazy(() => import('./pages/admin/UserManager'));
 const ManagePlans = lazy(() => import('./pages/admin/ManagePlans'));
 const ManageTasks = lazy(() => import('./pages/admin/ManageTasks')); 
 const KYCRequests = lazy(() => import('./pages/admin/KYCRequests'));
-const ManageWithdrawals = lazy(() => import('./pages/admin/ManageWithdrawals')); 
 const PaymentMethods = lazy(() => import('./pages/admin/PaymentMethods'));
-const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const PlanRequests = lazy(() => import('./pages/admin/requests/PlanRequests'));
 const Trash = lazy(() => import('./pages/admin/Trash'));
-const ManageGuides = lazy(() => import('./pages/admin/ManageGuides'));
-const ManageMarketing = lazy(() => import('./pages/admin/ManageMarketing'));
 const AuditHistory = lazy(() => import('./pages/admin/AuditHistory'));
 const WorkManager = lazy(() => import('./pages/admin/WorkManager'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
+const ManageWithdrawals = lazy(() => import('./pages/admin/ManageWithdrawals'));
 
-const MobileAppWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// New Settings Portals
+const GeneralSettings = lazy(() => import('./pages/admin/settings/GeneralSettings'));
+const SeoSettings = lazy(() => import('./pages/admin/settings/SeoSettings'));
+const ConfigSettings = lazy(() => import('./pages/admin/settings/ConfigSettings'));
+const AdvancedSettings = lazy(() => import('./pages/admin/settings/AdvancedSettings'));
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+};
+
+const SystemIntegrityWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   useMobileBack();
+  useNotifications(); 
   const { user, isAuthenticated } = useAuth();
   const [showSurvey, setShowSurvey] = useState(false);
 
@@ -76,9 +89,7 @@ const PublicLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   return (
     <div className="flex flex-col min-h-screen">
       <Header isAuthenticated={isAuthenticated} user={user} onLogout={logout} />
-      <main className="flex-grow pt-14">
-        {children}
-      </main>
+      <main className="flex-grow pt-14 sm:pt-16">{children}</main>
       <Footer />
     </div>
   );
@@ -89,21 +100,12 @@ const App: React.FC = () => {
   if (settings.maintenanceMode) return <Maintenance />;
 
   return (
-    <Router 
-      future={{ 
-        v7_startTransition: true, 
-        v7_relativeSplatPath: true,
-        v7_fetcherPersist: true,
-        v7_normalizeFormMethod: true,
-        v7_partialHydration: true,
-        v7_skipActionErrorRevalidation: true
-      }}
-    >
+    <Router>
+      <ScrollToTop />
       <ErrorBoundary>
-        <MobileAppWrapper>
+        <SystemIntegrityWrapper>
           <Suspense fallback={<Preloader />}>
             <Routes>
-              {/* Public Routes */}
               <Route path="/" element={<PublicLayout><Landing /></PublicLayout>} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -112,7 +114,6 @@ const App: React.FC = () => {
               <Route path="/privacy" element={<PublicLayout><Privacy /></PublicLayout>} />
               <Route path="/terms" element={<PublicLayout><Terms /></PublicLayout>} />
 
-              {/* User Routes */}
               <Route path="/dashboard" element={<UserRoute><UserLayout><Dashboard /></UserLayout></UserRoute>} />
               <Route path="/tasks" element={<UserRoute><UserLayout><DailyWork /></UserLayout></UserRoute>} />
               <Route path="/wallet" element={<UserRoute><UserLayout><WalletHub /></UserLayout></UserRoute>} />
@@ -123,7 +124,7 @@ const App: React.FC = () => {
               <Route path="/requests" element={<UserRoute><UserLayout><MyRequests /></UserLayout></UserRoute>} />
               <Route path="/support" element={<UserRoute><UserLayout><Support /></UserLayout></UserRoute>} />
 
-              {/* Admin Routes */}
+              {/* Admin Logic Gates */}
               <Route path="/admin" element={<AdminRoute><UserLayout><AdminDashboard /></UserLayout></AdminRoute>} />
               <Route path="/admin/users" element={<AdminRoute><UserLayout><UserManager /></UserLayout></AdminRoute>} />
               <Route path="/admin/plans" element={<AdminRoute><UserLayout><ManagePlans /></UserLayout></AdminRoute>} />
@@ -132,10 +133,11 @@ const App: React.FC = () => {
               <Route path="/admin/reviews" element={<AdminRoute><UserLayout><ManageTasks /></UserLayout></AdminRoute>} />
               <Route path="/admin/kyc" element={<AdminRoute><UserLayout><KYCRequests /></UserLayout></AdminRoute>} />
               <Route path="/admin/finance" element={<AdminRoute><UserLayout><PaymentMethods /></UserLayout></AdminRoute>} />
-              <Route path="/admin/settings" element={<AdminRoute><UserLayout><AdminSettings /></UserLayout></AdminRoute>} />
+              <Route path="/admin/settings/general" element={<AdminRoute><UserLayout><GeneralSettings /></UserLayout></AdminRoute>} />
+              <Route path="/admin/settings/seo" element={<AdminRoute><UserLayout><SeoSettings /></UserLayout></AdminRoute>} />
+              <Route path="/admin/settings/config" element={<AdminRoute><UserLayout><ConfigSettings /></UserLayout></AdminRoute>} />
+              <Route path="/admin/settings/advanced" element={<AdminRoute><UserLayout><AdvancedSettings /></UserLayout></AdminRoute>} />
               <Route path="/admin/trash" element={<AdminRoute><UserLayout><Trash /></UserLayout></AdminRoute>} />
-              <Route path="/admin/guides" element={<AdminRoute><UserLayout><ManageGuides /></UserLayout></AdminRoute>} />
-              <Route path="/admin/marketing" element={<AdminRoute><UserLayout><ManageMarketing /></UserLayout></AdminRoute>} />
               <Route path="/admin/audit" element={<AdminRoute><UserLayout><AuditHistory /></UserLayout></AdminRoute>} />
               <Route path="/admin/work" element={<AdminRoute><UserLayout><WorkManager /></UserLayout></AdminRoute>} />
               <Route path="/admin/reports" element={<AdminRoute><UserLayout><AdminReports /></UserLayout></AdminRoute>} />
@@ -143,7 +145,7 @@ const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
-        </MobileAppWrapper>
+        </SystemIntegrityWrapper>
       </ErrorBoundary>
     </Router>
   );

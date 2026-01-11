@@ -1,81 +1,78 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CloudLightning } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { CloudLightning, ShieldCheck, Globe } from 'lucide-react';
 
 const Preloader: React.FC = () => {
   return (
     <motion.div 
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed inset-0 z-[2000] bg-white flex flex-col items-center justify-center overflow-hidden"
+      transition={{ duration: 0.6, ease: "circOut" }}
+      className="fixed inset-0 z-[3000] bg-white flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Immersive Background Nodes */}
+      {/* Dynamic Background */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-theme-primary/5 rounded-full blur-[140px]" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-rose-500/5 rounded-full blur-[100px] -mr-48 -mt-48" />
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 90, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-theme-primary/5 rounded-full blur-[160px]" 
+        />
       </div>
 
-      <div className="relative flex flex-col items-center">
+      <div className="relative flex flex-col items-center max-w-sm w-full px-8">
         <div className="relative mb-12">
-          {/* Main Kinetic Spinner */}
           <motion.div
-            animate={{ 
-              rotate: 360,
-              scale: [1, 1.05, 1]
-            }}
-            transition={{ 
-              rotate: { duration: 1.5, repeat: Infinity, ease: "linear" },
-              scale: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-            }}
-            className="w-20 h-20 rounded-[2.5rem] border-2 border-theme-secondary border-t-theme-primary shadow-2xl shadow-theme-primary/10"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+            className="w-20 h-20 rounded-[2rem] border-[3px] border-gray-50 border-t-theme-primary shadow-2xl"
           />
           <div className="absolute inset-0 flex items-center justify-center">
              <CloudLightning className="w-8 h-8 text-theme-primary animate-pulse" />
           </div>
         </div>
         
-        <div className="text-center space-y-5">
-          <motion.h2 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-2xl font-black text-slate-900 uppercase tracking-[0.5em] leading-none"
-          >
-            Noor<span className="text-theme-primary">Official</span>
-          </motion.h2>
+        <div className="text-center space-y-6 w-full">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">
+              Noor<span className="text-theme-primary italic">Official</span>
+            </h2>
+            <div className="h-0.5 w-12 bg-theme-primary mx-auto rounded-full overflow-hidden">
+               <motion.div 
+                animate={{ x: [-48, 48] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+                className="h-full w-full bg-white/50"
+               />
+            </div>
+          </div>
           
-          <div className="flex flex-col items-center space-y-3">
-             <div className="flex items-center space-x-4">
-                <div className="h-[2px] w-8 bg-slate-100 rounded-full overflow-hidden">
-                   <motion.div 
-                    animate={{ x: [-32, 32] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="h-full w-full bg-theme-primary"
-                   />
-                </div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Syncing Kernel</span>
-                <div className="h-[2px] w-8 bg-slate-100 rounded-full overflow-hidden">
-                   <motion.div 
-                    animate={{ x: [32, -32] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="h-full w-full bg-theme-primary"
-                   />
-                </div>
+          <div className="space-y-3">
+             <div className="flex items-center justify-center space-x-3 text-slate-400">
+                <Globe className="w-3.5 h-3.5" />
+                <span className="text-[10px] font-black uppercase tracking-[0.3em]">Connecting to Server</span>
              </div>
              
-             <p className="text-[7px] font-bold text-slate-300 uppercase tracking-[0.8em] animate-pulse">Initializing Personnel Hub 4.5</p>
+             {/* Tech Progress Bar */}
+             <div className="h-1 w-full bg-gray-100 rounded-full overflow-hidden shadow-inner">
+                <motion.div 
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="h-full themed-gradient"
+                />
+             </div>
           </div>
         </div>
       </div>
 
-      {/* Security Meta */}
-      <div className="absolute bottom-12 flex flex-col items-center space-y-4">
-         <div className="flex items-center space-x-3 opacity-20">
-            <div className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-            <div className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
-            <div className="w-1.5 h-1.5 bg-slate-900 rounded-full" />
+      <div className="absolute bottom-12 flex flex-col items-center space-y-3 opacity-40">
+         <div className="flex items-center space-x-2 text-emerald-600">
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-[9px] font-black uppercase tracking-widest">End-to-End Encrypted</span>
          </div>
-         <p className="text-[8px] font-black text-slate-950 uppercase tracking-[0.6em] opacity-30">Distributed Ledger System OK</p>
+         <p className="text-[8px] font-bold text-slate-400 uppercase tracking-[0.5em]">System Version 4.5.8</p>
       </div>
     </motion.div>
   );

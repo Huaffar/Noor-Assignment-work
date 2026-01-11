@@ -3,147 +3,111 @@ import { motion } from 'framer-motion';
 import { 
   UserPlus, 
   Briefcase, 
+  ShieldCheck, 
   Wallet, 
-  ShieldCheck,
+  Lightbulb, 
   ArrowRight,
-  BookOpen,
-  HelpCircle,
-  Smartphone,
-  CheckCircle2,
-  AlertCircle,
-  Lightbulb,
   Zap,
-  MousePointer2
+  Info
 } from 'lucide-react';
 import { useSystem } from '../../context/SystemContext';
 
 const Instructions: React.FC = () => {
   const { settings } = useSystem();
 
-  const guides = [
+  const steps = [
     {
       icon: UserPlus,
-      titleEn: "01. Create Node",
-      titleUr: "مرحلہ 1: اپنا اکاؤنٹ بنائیں",
-      descEn: "Initialize your identity with an active WhatsApp number. This is your communication link.",
-      descUr: "اپنے واٹس ایپ نمبر کے ساتھ سائن اپ کریں۔ یہی آپ کا پلیٹ فارم سے رابطے کا ذریعہ ہوگا۔",
-      color: "bg-blue-50 text-blue-600 border-blue-100"
+      title: "Step 1: Registration",
+      urdu: "پہلا مرحلہ: اکاؤنٹ بنانا",
+      desc: "Register with your active WhatsApp number.",
+      color: "text-blue-500",
+      bg: "bg-blue-50"
     },
     {
       icon: Briefcase,
-      titleEn: "02. Select Earning Tier",
-      titleUr: "مرحلہ 2: پلان کا انتخاب کریں",
-      descEn: "Choose a revenue node (Standard, Gold, or Diamond) to unlock high-yield daily tasks.",
-      descUr: "اپنی گنجائش کے مطابق ایک پلان منتخب کریں تاکہ آپ روزانہ کے کام شروع کر سکیں۔",
-      color: "bg-rose-50 text-rose-600 border-rose-100"
+      title: "Step 2: Choose Plan",
+      urdu: "دوسرا مرحلہ: پلان کا انتخاب",
+      desc: "Select a salary tier to unlock daily tasks.",
+      color: "text-rose-500",
+      bg: "bg-rose-50"
     },
     {
       icon: ShieldCheck,
-      titleEn: "03. Payload Execution",
-      titleUr: "مرحلہ 3: اسائنمنٹ مکمل کریں",
-      descEn: "Write or type tasks with 100% precision. Low-quality captures will result in verification failure.",
-      descUr: "دیے گئے کام کو مکمل توجہ سے لکھیں یا ٹائپ کریں۔ غلطی کی صورت میں ادائیگی روک دی جائے گی۔",
-      color: "bg-emerald-50 text-emerald-600 border-emerald-100"
+      title: "Step 3: Complete Work",
+      urdu: "تیسرا مرحلہ: کام کی تکمیل",
+      desc: "Write assignments clearly and upload photos.",
+      color: "text-emerald-500",
+      bg: "bg-emerald-50"
     },
     {
       icon: Wallet,
-      titleEn: "04. Capital Withdrawal",
-      titleUr: "مرحلہ 4: رقم وصول کریں",
-      descEn: "Once audit is complete, initialize withdrawal to your mobile wallet. Processing is instant.",
-      descUr: "کام کی تصدیق کے بعد اپنی رقم ایزی پیسہ یا جاز کیش میں فوری طور پر نکلوا لیں۔",
-      color: "bg-amber-50 text-amber-600 border-amber-100"
+      title: "Step 4: Get Paid",
+      urdu: "چوتھا مرحلہ: رقم نکالنا",
+      desc: "Withdraw funds to EasyPaisa or JazzCash.",
+      color: "text-amber-500",
+      bg: "bg-amber-50"
     }
   ];
 
   return (
-    <div className="max-w-4xl mx-auto pb-24 px-2 space-y-12 scale-[0.98] origin-top">
-      <div className="text-center space-y-5">
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-6 pb-24 scale-[0.98] origin-top">
+      <div className="text-center space-y-4">
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
-          className="w-20 h-20 bg-slate-950 rounded-[2.5rem] flex items-center justify-center text-rose-500 mx-auto shadow-2xl mb-6 border border-slate-800"
+          initial={{ rotate: -10, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-rose-100"
         >
-           <Lightbulb className="w-10 h-10 animate-pulse" />
+          <Lightbulb className="w-6 h-6 text-rose-600 animate-pulse" />
         </motion.div>
-        <h1 className="text-4xl font-black text-gray-900 tracking-tighter uppercase leading-none">Learning Center</h1>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Official Platform Onboarding Protocol</p>
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">How It Works</h1>
+          <p className="text-[7px] text-gray-400 font-bold uppercase tracking-[0.4em] mt-2">Professional Earning Steps</p>
+        </div>
       </div>
 
-      {/* Timeline Guide */}
-      <div className="space-y-4">
-        {guides.map((item, i) => (
+      <div className="space-y-3">
+        {steps.map((step, i) => (
           <motion.div 
             key={i}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-[2.5rem] p-6 sm:p-10 border border-gray-100 shadow-sm relative overflow-hidden group hover:shadow-2xl transition-all"
+            className="bg-white p-5 rounded-[1.8rem] border border-gray-100 shadow-sm flex items-start space-x-4 relative overflow-hidden"
           >
-             <div className="absolute -right-4 -top-4 text-slate-50 font-black text-9xl pointer-events-none group-hover:text-rose-50 transition-colors">0{i+1}</div>
-             <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-8">
-                <div className={`w-20 h-20 rounded-3xl flex items-center justify-center ${item.color} shadow-inner shrink-0 group-hover:scale-110 transition-transform duration-500`}>
-                   <item.icon className="w-10 h-10" />
+             <div className={`w-10 h-10 rounded-xl ${step.bg} ${step.color} flex items-center justify-center shrink-0 shadow-inner`}>
+                <step.icon className="w-5 h-5" />
+             </div>
+             <div className="flex-1 min-w-0">
+                <div className="border-b border-gray-50 pb-2 mb-2">
+                   <h3 className="text-[11px] font-black text-slate-900 uppercase">{step.title}</h3>
+                   <p className="text-[9px] text-gray-400 font-medium">{step.desc}</p>
                 </div>
-                
-                <div className="flex-1 space-y-6">
-                   <div className="border-b border-gray-50 pb-4">
-                      <h3 className="text-lg font-black text-slate-900 uppercase mb-2 flex items-center">
-                        {item.titleEn}
-                      </h3>
-                      <p className="text-[12px] text-slate-500 leading-relaxed font-medium">{item.descEn}</p>
-                   </div>
-                   
-                   <div className="text-right">
-                      <h3 className="font-urdu text-3xl font-black text-rose-600 mb-3 leading-[1.8]">{item.titleUr}</h3>
-                      <p className="font-urdu text-2xl text-slate-600 leading-[2.4]">{item.descUr}</p>
-                   </div>
+                <div className="text-right">
+                   <h4 className="font-urdu text-lg text-rose-600 font-bold mb-1">{step.urdu}</h4>
+                   <p className="font-urdu text-[13px] text-slate-500 leading-relaxed" dir="rtl">
+                     {i === 0 ? "اپنا واٹس ایپ نمبر استعمال کریں تاکہ سسٹم آپ سے جڑا رہے۔" : 
+                      i === 1 ? "اپنی گنجائش کے مطابق پیکج منتخب کریں تاکہ کام شروع ہو سکے۔" :
+                      i === 2 ? "دیے گئے اسائنمنٹ کو مکمل توجہ سے لکھیں اور فوٹو اپلوڈ کریں۔" :
+                      "کام کی منظوری کے بعد اپنی رقم ایزی پیسہ یا جاز کیش میں حاصل کریں۔"}
+                   </p>
                 </div>
              </div>
           </motion.div>
         ))}
       </div>
 
-      {/* Live Help Card */}
-      <div className="bg-slate-950 p-12 rounded-[4rem] text-white relative overflow-hidden shadow-2xl border border-slate-800 mx-2">
-         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-theme-primary/5 rounded-full blur-[120px] -mr-64 -mt-64" />
-         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-12">
-            <div className="space-y-6 max-w-xl text-center lg:text-left">
-               <div className="inline-flex items-center space-x-2 bg-rose-600/10 px-4 py-2 rounded-full border border-rose-600/20">
-                  <Zap className="w-4 h-4 text-rose-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-rose-500">Fast-Track Onboarding</span>
-               </div>
-               <h2 className="text-3xl font-black uppercase tracking-tight leading-tight">Need Real-Time Assistance?</h2>
-               <p className="text-sm text-slate-400 font-medium uppercase tracking-widest leading-loose">
-                 Our support engineers are available 24/7 in Urdu and English to guide you through the node initialization process.
-               </p>
-               <div className="flex flex-wrap justify-center lg:justify-start items-center gap-4">
-                  <div className="flex items-center space-x-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                     <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                     <span className="text-[9px] font-black uppercase tracking-widest">Secure Sync Node</span>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
-                     <Smartphone className="w-4 h-4 text-rose-500" />
-                     <span className="text-[9px] font-black uppercase tracking-widest">Pakistan HQ</span>
-                  </div>
-               </div>
-            </div>
+      <div className="bg-slate-950 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
+         <div className="relative z-10 text-center space-y-4">
+            <h3 className="text-lg font-black uppercase tracking-tight">Need Support?</h3>
+            <p className="text-[8px] text-slate-500 font-bold uppercase tracking-[0.3em]">24/7 Response Guaranteed</p>
             <button 
-               onClick={() => window.open(`https://wa.me/${settings.supportWhatsApp}`, '_blank')}
-               className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-[0_20px_50px_rgba(255,255,255,0.1)] hover:bg-rose-600 hover:text-white transition-all active:scale-95 flex items-center group"
+              onClick={() => window.open(`https://wa.me/${settings.supportWhatsApp}`, '_blank')}
+              className="w-full py-4 bg-white text-slate-950 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl flex items-center justify-center active:scale-95 transition-all"
             >
-               Connect to Hub <ArrowRight className="w-5 h-5 ml-3 group-hover:translate-x-1 transition-transform" />
+               WhatsApp Support <ArrowRight className="w-4 h-4 ml-2" />
             </button>
          </div>
-      </div>
-      
-      {/* Footer Assurance */}
-      <div className="flex flex-col items-center justify-center space-y-4 pt-10">
-         <div className="flex space-x-4 opacity-30 grayscale">
-            <CheckCircle2 className="w-6 h-6" />
-            <ShieldCheck className="w-6 h-6" />
-            <BookOpen className="w-6 h-6" />
-         </div>
-         <span className="text-[10px] font-black text-gray-300 uppercase tracking-[0.6em]">Protocol Instruction Complete</span>
       </div>
     </div>
   );

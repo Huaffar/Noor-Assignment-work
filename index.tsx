@@ -1,49 +1,35 @@
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { useNotifications } from './hooks/useNotifications';
 import { AuthProvider } from './context/AuthContext';
 import { SystemProvider } from './context/SystemContext';
 
-const AppContainer = () => {
-  useNotifications();
-  return <App />;
-};
-
 const mount = () => {
   const rootElement = document.getElementById('root');
-  if (!rootElement) {
-    console.error("Could not find root element to mount to");
-    return;
-  }
+  if (!rootElement) return;
 
   try {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
       <React.StrictMode>
-        {/* Fixed: Wrapped AppContainer in Providers so useNotifications can access AuthContext and SystemContext */}
         <SystemProvider>
           <AuthProvider>
-            <AppContainer />
+            <App />
           </AuthProvider>
         </SystemProvider>
       </React.StrictMode>
     );
   } catch (err) {
-    console.error("Critical rendering error:", err);
+    console.error("Initialization Panic:", err);
     rootElement.innerHTML = `
-      <div style="padding: 20px; font-family: sans-serif; text-align: center;">
-        <h2 style="color: #e11d48;">System Initialization Error</h2>
-        <p>There was a problem loading the platform. Please refresh the page.</p>
-        <button onclick="window.location.reload()" style="background: #e11d48; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Refresh Now</button>
-      </div>
-    `;
+      <div style="height:100vh;display:flex;align-items:center;justify-content:center;background:#fff5f6;font-family:sans-serif;">
+        <div style="text-align:center;padding:40px;background:white;border-radius:32px;box-shadow:0 20px 50px rgba(0,0,0,0.05);">
+          <h2 style="color:#e11d48;font-weight:900;">SYSTEM BLOCKED</h2>
+          <p style="color:#64748b;margin:20px 0;">Kernel initialization failed. Please refresh.</p>
+          <button onclick="window.location.reload()" style="background:#e11d48;color:white;border:none;padding:12px 24px;border-radius:12px;font-weight:800;cursor:pointer;">REBOOT HUB</button>
+        </div>
+      </div>`;
   }
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mount);
-} else {
-  mount();
-}
+mount();

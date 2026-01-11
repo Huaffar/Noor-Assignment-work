@@ -14,7 +14,7 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, user, onLogout }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 sky-glass">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-3 group">
           <div className="w-10 h-10 rounded-2xl flex items-center justify-center bg-theme-primary shadow-xl shadow-theme-primary/20 transition-transform duration-500 group-hover:rotate-12 group-hover:scale-105">
@@ -24,14 +24,14 @@ const Header: React.FC<HeaderProps> = ({ isAuthenticated, user, onLogout }) => {
             <span className="text-xl font-black tracking-tighter text-slate-900 leading-none">
               NOOR<span className="text-theme-primary italic ml-0.5">OFFCL</span>
             </span>
-            <span className="text-[8px] font-black tracking-[0.3em] text-slate-400 uppercase leading-none mt-1">Verified Node</span>
+            <span className="text-[8px] font-black tracking-[0.3em] text-slate-400 uppercase leading-none mt-1">Official Center</span>
           </div>
         </Link>
 
         <nav className="flex items-center space-x-3">
           {isAuthenticated ? (
             <>
-              <div className="hidden sm:flex items-center px-4 py-2 rounded-2xl bg-white border border-theme-primary/10 shadow-sm">
+              <div className="hidden sm:flex items-center px-4 py-2 rounded-2xl bg-slate-50 border border-gray-100 shadow-inner">
                 <Wallet className="w-4 h-4 mr-3 text-theme-primary" />
                 <span className="text-[11px] font-black text-slate-900">Rs. {user?.balance.toLocaleString()}</span>
               </div>

@@ -7,12 +7,16 @@ import {
   FileCheck, 
   LayoutDashboard,
   Clock,
-  CreditCard,
-  Briefcase,
   TrendingUp,
-  UserPlus,
-  Calendar,
-  ArrowRight
+  Filter,
+  ArrowUpRight,
+  Activity,
+  ShieldCheck,
+  Zap,
+  ArrowRight,
+  Target,
+  Rocket,
+  ShieldAlert
 } from 'lucide-react';
 import { 
   ResponsiveContainer,
@@ -21,10 +25,13 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid
+  CartesianGrid,
+  BarChart,
+  Bar
 } from 'recharts';
 import { getAdminDashboardStats, getAuditAnalytics, getPlanRequests } from '../../api/controllers/adminController';
 import { useSystem } from '../../context/SystemContext';
+import Preloader from '../../components/Preloader';
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -32,140 +39,148 @@ const AdminDashboard: React.FC = () => {
   const [stats, setStats] = useState<any>(null);
   const [pendingPlans, setPendingPlans] = useState(0);
   const [pendingWork, setPendingWork] = useState(0);
-  const [timeRange, setTimeRange] = useState<'Today' | 'Yesterday' | 'Monthly' | 'Select Wise'>('Today');
+  const [timeRange, setTimeRange] = useState<'Today' | 'Yesterday' | 'Monthly'>('Today');
 
   const theme = settings.themes.find(t => t.id === settings.activeThemeId) || settings.themes[0];
 
   useEffect(() => {
-    const syncNodeMetrics = async () => {
-      const [baseStats, requests, analytics] = await Promise.all([
-        getAdminDashboardStats(),
-        getPlanRequests(),
-        getAuditAnalytics()
-      ]);
-      
-      setStats(baseStats);
-      setPendingPlans(requests.filter(r => r.status === 'Pending').length);
-      setPendingWork(analytics.todayStats.pending);
+    const syncMetrics = async () => {
+      try {
+        const [baseStats, requests, analytics] = await Promise.all([
+          getAdminDashboardStats(),
+          getPlanRequests(),
+          getAuditAnalytics()
+        ]);
+        setStats(baseStats);
+        setPendingPlans(requests.filter(r => r.status === 'Pending').length);
+        setPendingWork(analytics.todayStats.pending);
+      } catch (e) {
+        console.error("Dashboard Sync Error", e);
+      }
     };
-    
-    syncNodeMetrics();
+    syncMetrics();
   }, []);
 
   const filteredData = useMemo(() => {
     if (!stats) return null;
-    let multiplier = 1;
-    switch(timeRange) {
-      case 'Yesterday': multiplier = 0.95; break;
-      case 'Monthly': multiplier = 30; break;
-      case 'Select Wise': multiplier = 7; break;
-      default: multiplier = 1;
-    }
-    
+    let multiplier = timeRange === 'Monthly' ? 30 : timeRange === 'Yesterday' ? 0.95 : 1;
     return {
       users: stats.totalUsers,
       earning: Math.floor((stats.totalEarning / 30) * multiplier),
       payouts: Math.floor(stats.todayPayouts * multiplier),
-      nodes: stats.activeNodes,
       chart: stats.growthData.map((d: any) => ({
         ...d,
-        revenue: Math.floor(d.revenue * (multiplier / (timeRange === 'Monthly' ? 5 : 1)))
+        revenue: Math.floor(d.revenue * (multiplier / (timeRange === 'Monthly' ? 5 : 1))),
+        load: Math.floor(d.revenue * 1.5)
       }))
     };
   }, [stats, timeRange]);
 
-  if (!stats) return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-3">
-      <div className="w-10 h-10 border-2 border-theme-secondary border-t-theme-primary rounded-full animate-spin" />
-      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Loading Manager...</p>
-    </div>
-  );
+  if (!stats) return <Preloader />;
 
   const kpiData = [
-    { label: 'Total Members', value: filteredData?.users.toLocaleString(), icon: Users, color: '#f472b6', bg: 'bg-pink-50', link: '/admin/users' },
-    { label: 'New Signups', value: timeRange === 'Today' ? '+14' : '+12', icon: UserPlus, color: '#0ea5e9', bg: 'bg-sky-50', link: '/admin/users' },
-    { label: 'Plan Requests', value: pendingPlans.toLocaleString(), icon: Clock, color: '#6366f1', bg: 'bg-indigo-50', link: '/admin/plan-requests' },
-    { label: 'Pending Review', value: pendingWork.toLocaleString(), icon: FileCheck, color: '#f59e0b', bg: 'bg-amber-50', link: '/admin/reviews' },
-    { label: 'Total Revenue', value: `Rs. ${(filteredData?.earning / 1000).toFixed(1)}k`, icon: Banknote, color: '#10B981', bg: 'bg-emerald-50', link: '/admin/finance' },
-    { label: 'Total Paid Out', value: `Rs. ${filteredData?.payouts.toLocaleString()}`, icon: CreditCard, color: '#e11d48', bg: 'bg-rose-50', link: '/admin/withdrawals' },
-    { label: 'Active Jobs', value: '48 Tasks', icon: Briefcase, color: '#8b5cf6', bg: 'bg-violet-50', link: '/admin/work' },
-    { label: 'System Health', value: '96.4%', icon: TrendingUp, color: '#14b8a6', bg: 'bg-teal-50', link: '/admin/reviews' }
+    { label: 'Total Members', value: filteredData?.users.toLocaleString(), icon: Users, bg: 'bg-blue-50', color: '#3b82f6', link: '/admin/users' },
+    { label: 'Tier Sales', value: `Rs. ${(filteredData?.earning / 1000).toFixed(1)}k`, icon: Banknote, bg: 'bg-emerald-50', color: '#10B981', link: '/admin/finance' },
+    { label: 'Audit Queue', value: (pendingPlans + pendingWork).toString(), icon: ShieldAlert, bg: 'bg-rose-50', color: '#f43f5e', link: '/admin/reviews' },
+    { label: 'Network Uptime', value: '99.9%', icon: Activity, bg: 'bg-indigo-50', color: '#6366f1', link: '/admin/reports' },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-4 pb-20 px-1">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 themed-card p-4 rounded-xl shadow-sm border border-gray-100 mx-1">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-slate-900 text-white">
-            <LayoutDashboard className="w-5 h-5 text-theme-primary" />
+    <div className="max-w-7xl mx-auto space-y-4 pb-20 px-1 scale-[0.98] lg:scale-100 origin-top">
+      {/* Admin Header */}
+      <div className="bg-slate-950 p-6 rounded-[2.5rem] text-white shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 mx-1 border border-white/5 relative overflow-hidden">
+        <div className="bg-data-grid absolute inset-0 opacity-10" />
+        <div className="flex items-center space-x-5 relative z-10">
+          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center shadow-2xl">
+            <LayoutDashboard className="w-7 h-7 text-theme-primary animate-pulse" />
           </div>
           <div>
-            <h1 className="text-sm font-black text-slate-900 uppercase">Admin Dashboard</h1>
-            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-1">Status: {timeRange}</p>
+            <h1 className="text-xl font-black uppercase tracking-tight leading-none">Control Center</h1>
+            <p className="text-[9px] text-slate-500 font-bold uppercase tracking-[0.4em] mt-2">Platform Management v4.5 • {timeRange} View</p>
           </div>
         </div>
 
-        <div className="flex bg-gray-50 p-1 rounded-lg border border-gray-100 overflow-x-auto no-scrollbar">
-          {['Today', 'Yesterday', 'Monthly', 'Select Wise'].map(r => (
-            <button key={r} onClick={() => setTimeRange(r as any)} className={`px-4 py-1.5 rounded-md text-[8px] font-black uppercase transition-all whitespace-nowrap ${timeRange === r ? 'bg-slate-950 text-white shadow-md' : 'text-gray-400'}`}>{r}</button>
+        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 relative z-10">
+          {['Today', 'Yesterday', 'Monthly'].map(r => (
+            <button key={r} onClick={() => setTimeRange(r as any)} className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase transition-all whitespace-nowrap ${timeRange === r ? 'bg-white text-slate-950 shadow-xl' : 'text-slate-500 hover:text-white'}`}>{r}</button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 px-1">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 px-1">
         {kpiData.map((item, idx) => (
-          <motion.div key={idx} layout onClick={() => navigate(item.link)} className="bg-white p-3 rounded-2xl relative overflow-hidden group cursor-pointer active:scale-95 shadow-sm border border-gray-50">
-            <div className={`w-7 h-7 rounded-lg flex items-center justify-center mb-2 shadow-inner ${item.bg}`} style={{ color: item.color }}><item.icon className="w-3.5 h-3.5" /></div>
-            <p className="text-[7px] font-black text-gray-400 uppercase mb-1 leading-none">{item.label}</p>
-            <h3 className="text-sm font-black text-slate-900 leading-none">{item.value}</h3>
+          <motion.div 
+            key={idx} onClick={() => navigate(item.link)} 
+            whileHover={{ y: -3 }}
+            className="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm cursor-pointer active:scale-95 group transition-all"
+          >
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 shadow-inner ${item.bg}`} style={{ color: item.color }}><item.icon className="w-5 h-5" /></div>
+            <div className="space-y-0.5">
+               <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+               <h3 className="text-xl font-black text-slate-900 tracking-tighter">{item.value}</h3>
+            </div>
           </motion.div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 px-1">
-        <div className="lg:col-span-8 themed-card p-5 rounded-2xl shadow-sm">
-          <h3 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-6">Income Report</h3>
-          <div className="h-[240px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={filteredData?.chart}>
-                <defs><linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={theme.primary} stopOpacity={0.1}/><stop offset="95%" stopColor={theme.primary} stopOpacity={0}/></linearGradient></defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 8, fontWeight: 800 }} />
-                <YAxis hide />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', fontSize: '9px', fontWeight: 900, backgroundColor: '#0f172a', color: '#fff' }} />
-                <Area type="monotone" dataKey="revenue" stroke={theme.primary} strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+        <div className="lg:col-span-8 space-y-4">
+           <div className="bg-white p-8 rounded-[3rem] border border-gray-100 shadow-sm">
+              <div className="flex items-center justify-between mb-10">
+                 <div className="flex items-center space-x-3">
+                    <TrendingUp className="w-5 h-5 text-theme-primary" />
+                    <h3 className="text-[11px] font-black text-slate-900 uppercase tracking-[0.2em]">Revenue Flow Analytics</h3>
+                 </div>
+                 <div className="text-[9px] font-black text-emerald-500 bg-emerald-50 px-3 py-1.5 rounded-xl uppercase">+18.4% Growth</div>
+              </div>
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={filteredData?.chart}>
+                    <defs>
+                      <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={theme.primary} stopOpacity={0.15}/><stop offset="95%" stopColor={theme.primary} stopOpacity={0}/></linearGradient>
+                      <linearGradient id="colorLoad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/><stop offset="95%" stopColor="#6366f1" stopOpacity={0}/></linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }} dy={10} />
+                    <YAxis hide />
+                    <Tooltip contentStyle={{ borderRadius: '20px', border: 'none', fontWeight: 900, backgroundColor: '#0f172a', color: '#fff', fontSize: '11px' }} />
+                    <Area type="monotone" dataKey="revenue" stroke={theme.primary} strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
+                    <Area type="monotone" dataKey="load" stroke="#6366f1" strokeWidth={2} strokeDasharray="5 5" fillOpacity={1} fill="url(#colorLoad)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+           </div>
         </div>
 
-        <div className="lg:col-span-4 space-y-3">
-           <Link to="/admin/reports" className="bg-slate-950 p-6 rounded-2xl block text-white shadow-2xl relative overflow-hidden group">
-              <TrendingUp className="w-6 h-6 text-theme-primary mb-4" />
-              <h4 className="text-lg font-black uppercase leading-tight">Advanced Reports</h4>
-              <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest mt-2">See full payment history</p>
-           </Link>
-
-           <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-              <h3 className="text-[9px] font-black text-slate-900 uppercase border-b border-gray-50 pb-2">Recent Activity</h3>
-              <div className="space-y-3">
-                 {[
-                   { user: 'Zaid K.', action: 'Withdrawal', val: 'Rs. 4500' },
-                   { user: 'Sara M.', action: 'Plan Buy', val: 'Gold' },
-                   { user: 'Ali R.', action: 'Audit', val: 'Paid' },
-                 ].map((act, i) => (
-                   <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                         <div className="w-6 h-6 rounded-lg bg-gray-100 flex items-center justify-center font-black text-[8px] text-gray-400">{act.user[0]}</div>
+        <div className="lg:col-span-4 space-y-4">
+           <div className="bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden h-full flex flex-col justify-between">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-theme-primary/10 rounded-full blur-3xl" />
+              <div className="relative z-10">
+                 <History className="w-8 h-8 text-theme-primary mb-6" />
+                 <h4 className="text-2xl font-black uppercase leading-tight tracking-tighter">System Activity <br/>History</h4>
+                 <div className="mt-8 space-y-5">
+                    {[
+                      { user: 'Omar K.', type: 'Disbursal', val: '4,500', status: 'OK' },
+                      { user: 'Sana A.', type: 'Tier Up', val: 'Gold', status: 'OK' },
+                      { user: 'Zaid M.', type: 'Work Audit', val: 'Approved', status: 'OK' }
+                    ].map((h, i) => (
+                      <div key={i} className="flex items-center justify-between border-b border-white/5 pb-3 last:border-0">
                          <div>
-                            <p className="text-[9px] font-black text-slate-900 leading-none">{act.user}</p>
-                            <p className="text-[7px] font-bold text-gray-400 uppercase mt-0.5">{act.action}</p>
+                            <p className="text-[10px] font-black text-white uppercase leading-none mb-1">{h.user}</p>
+                            <p className="text-[7px] font-bold text-slate-500 uppercase tracking-widest">{h.type}</p>
+                         </div>
+                         <div className="text-right">
+                            <p className="text-[10px] font-black text-theme-primary leading-none mb-1">{h.val}</p>
+                            <p className="text-[6px] font-black text-emerald-500 uppercase">{h.status}</p>
                          </div>
                       </div>
-                      <span className="text-[9px] font-black text-slate-700">{act.val}</span>
-                   </div>
-                 ))}
+                    ))}
+                 </div>
               </div>
+              <Link to="/admin/audit" className="relative z-10 pt-8 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-theme-primary hover:text-white transition-colors">
+                 <span>System Logs</span>
+                 <ArrowRight className="w-5 h-5" />
+              </Link>
            </div>
         </div>
       </div>

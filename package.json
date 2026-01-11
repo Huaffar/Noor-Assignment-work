@@ -18,14 +18,8 @@
     "@capacitor/status-bar": "^6.0.0"
   },
   "overrides": {
-    "recharts": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    },
-    "react-easy-crop": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    }
+    "react": "$react",
+    "react-dom": "$react-dom"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",

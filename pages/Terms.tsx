@@ -1,53 +1,48 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Scale, AlertCircle, CheckCircle, Ban } from 'lucide-react';
+import { Scale, AlertCircle, CheckCircle, Ban, ShieldAlert } from 'lucide-react';
 
 const Terms: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12 pb-24">
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-6 pb-24 scale-[0.98] origin-top">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">Terms of Service</h1>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Node Participation Contract</p>
+        <motion.div 
+          initial={{ rotate: 10, opacity: 0 }}
+          animate={{ rotate: 0, opacity: 1 }}
+          className="w-12 h-12 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-slate-800"
+        >
+          <Scale className="w-6 h-6 text-theme-primary" />
+        </motion.div>
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Terms of Service</h1>
+          <p className="text-[7px] text-gray-400 font-bold uppercase tracking-[0.4em] mt-2">Platform Rules & Contract</p>
+        </div>
       </div>
 
-      <div className="themed-card p-10 space-y-8 shadow-2xl">
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <CheckCircle className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Worker Eligibility</h2>
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+        {[
+          { icon: CheckCircle, title: "Account Usage", desc: "One account per person. Multiple accounts lead to a permanent ban.", urdu: "ایک صارف صرف ایک اکاؤنٹ بنا سکتا ہے۔ خلاف ورزی پر پابندی لگائی جائے گی۔" },
+          { icon: AlertCircle, title: "Work Quality", desc: "Assignment work must be clear and original. Plagiarism is not paid.", urdu: "اسائنمنٹ کا کام صاف اور اصل ہونا چاہیے۔ نقل کرنے پر ادائیگی نہیں ہوگی۔" },
+          { icon: Ban, title: "Non-Refundable", desc: "Activation fees for plans are non-refundable after activation.", urdu: "پلان ایکٹو ہونے کے بعد فیس کسی بھی صورت میں واپس نہیں کی جائے گی۔" }
+        ].map((rule, i) => (
+          <div key={i} className="p-5 space-y-3">
+            <div className="flex items-center space-x-3">
+               <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <rule.icon className="w-4 h-4" />
+               </div>
+               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{rule.title}</h3>
+            </div>
+            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{rule.desc}</p>
+            <p className="font-urdu text-[15px] text-indigo-800 font-bold text-right" dir="rtl">{rule.urdu}</p>
           </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            Users must be Pakistani residents with a valid mobile wallet. One user is allowed only one node (account). Attempting to sync multiple nodes from a single IP will result in a global ban.
-          </p>
-          <div className="p-4 bg-rose-50 border-r-4 border-rose-500">
-            <p className="font-urdu text-2xl text-rose-800">ایک صارف صرف ایک اکاؤنٹ بنا سکتا ہے۔ ایک سے زیادہ اکاؤنٹ بنانے پر تمام اکاؤنٹس بلاک کر دیے جائیں گے۔</p>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <AlertCircle className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Payload Integrity</h2>
-          </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            Assignments must be 100% original. Submission of blurry, duplicate, or AI-generated handwriting will lead to reward deduction or node suspension without notice.
-          </p>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <Ban className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Refund Policy</h2>
-          </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            Plan activation fees are utilized for network maintenance and worker payouts. As such, once a revenue node is initialized, fees are strictly non-refundable.
-          </p>
-        </section>
+        ))}
       </div>
 
-      <div className="flex items-center justify-center space-x-4 opacity-30">
-        <Scale className="w-8 h-8" />
-        <p className="text-[10px] font-black uppercase tracking-widest">Governed by Pakistani Digital Laws</p>
+      <div className="bg-rose-50 border border-rose-100 p-5 rounded-2xl flex items-center space-x-3 mx-1">
+         <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0" />
+         <p className="text-[8px] font-bold text-rose-700 uppercase tracking-tighter">
+            Any attempt to cheat the system will result in immediate account termination without notice.
+         </p>
       </div>
     </div>
   );

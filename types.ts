@@ -4,6 +4,8 @@ export interface User {
   name: string;
   email: string;
   whatsapp: string;
+  phone?: string;    // Added for profile expansion
+  address?: string;  // Added for profile expansion
   balance: number;
   currency: string;
   completedTasks: number;
@@ -60,7 +62,7 @@ export interface Plan {
   price: number;
   dailyLimit: number;
   validityType: PlanValidity;
-  validityValue: number; // e.g., 30 for monthly, 1 for daily, 0 for lifetime
+  validityValue: number; 
   badgeColor: string;
   isRecommended?: boolean;
   isDeleted?: boolean;

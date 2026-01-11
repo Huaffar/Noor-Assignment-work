@@ -45,8 +45,8 @@
           --theme-text: #0f172a;
           --theme-card: #ffffff;
           --theme-gradient: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-          --card-radius: 1.5rem;
-          --card-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+          --card-radius: 1.25rem;
+          --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
           --card-border: 1px;
           --card-opacity: 1;
           --card-blur: 0px;
@@ -55,59 +55,53 @@
           font-family: 'Plus Jakarta Sans', sans-serif; 
           background-color: var(--theme-bg); 
           color: var(--theme-text);
-          font-size: 14px;
-          transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s ease;
+          font-size: 13px;
+          transition: background-color 0.3s ease, color 0.3s ease;
           -webkit-tap-highlight-color: transparent;
+          overflow-x: hidden;
         }
         .themed-card {
           background: var(--theme-card);
           opacity: var(--card-opacity);
           backdrop-filter: blur(var(--card-blur));
           color: var(--theme-text);
-          border: var(--card-border) solid rgba(0,0,0,0.06);
+          border: var(--card-border) solid rgba(0,0,0,0.04);
           border-radius: var(--card-radius);
           box-shadow: var(--card-shadow);
+          transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
-        .themed-gradient {
-          background: var(--theme-gradient);
-        }
+        .themed-card:active { transform: scale(0.98); }
+        .themed-gradient { background: var(--theme-gradient); }
         .bg-data-grid {
-          background-image: 
-            radial-gradient(circle at 1px 1px, var(--theme-primary) 0.05, transparent 0);
-          background-size: 24px 24px;
-          opacity: 0.2;
+          background-image: radial-gradient(circle at 1px 1px, var(--theme-primary) 0.05, transparent 0);
+          background-size: 20px 20px;
+          opacity: 0.15;
         }
         .font-urdu {
           font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", serif;
-          line-height: 2.0;
+          line-height: 1.8;
           direction: rtl;
           text-align: right;
         }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .sky-glass {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(14, 165, 233, 0.1);
+        .receipt-cut {
+          clip-path: polygon(0 0, 100% 0, 100% 95%, 98% 97%, 96% 95%, 94% 97%, 92% 95%, 90% 97%, 88% 95%, 86% 97%, 84% 95%, 82% 97%, 80% 95%, 78% 97%, 76% 95%, 74% 97%, 72% 95%, 70% 97%, 68% 95%, 66% 97%, 64% 95%, 62% 97%, 60% 95%, 58% 97%, 56% 95%, 54% 97%, 52% 95%, 50% 97%, 48% 95%, 46% 97%, 44% 95%, 42% 97%, 40% 95%, 38% 97%, 36% 95%, 34% 97%, 32% 95%, 30% 97%, 28% 95%, 26% 97%, 24% 95%, 22% 97%, 20% 95%, 18% 97%, 16% 95%, 14% 97%, 12% 95%, 10% 97%, 8% 95%, 6% 97%, 4% 95%, 2% 97%, 0 95%);
         }
     </style>
 <script type="importmap">
 {
   "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "lucide-react": "https://esm.sh/lucide-react@0.463.0?external=react",
-    "react-router-dom": "https://esm.sh/react-router-dom@6.28.0?external=react,react-dom",
-    "framer-motion": "https://esm.sh/framer-motion@11.11.17?external=react,react-dom",
-    "recharts": "https://esm.sh/recharts@2.13.3?external=react,react-dom",
-    "canvas-confetti": "https://esm.sh/canvas-confetti@1.9.3",
-    "html2canvas": "https://esm.sh/html2canvas@1.4.1",
-    "react-easy-crop": "https://esm.sh/react-easy-crop@5.1.0?external=react,react-dom",
-    "@capacitor/status-bar": "https://esm.sh/@capacitor/status-bar@^8.0.0",
-    "@capacitor/core": "https://esm.sh/@capacitor/core@^8.0.0",
-    "@capacitor/app": "https://esm.sh/@capacitor/app@^8.0.0",
+    "react": "https://esm.sh/react@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/"
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "framer-motion": "https://esm.sh/framer-motion@^12.25.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0",
+    "canvas-confetti": "https://esm.sh/canvas-confetti@^1.9.4",
+    "recharts": "https://esm.sh/recharts@2.13.3",
+    "html2canvas": "https://esm.sh/html2canvas@^1.4.1",
+    "@capacitor/app": "https://esm.sh/@capacitor/app@^8.0.0",
+    "react-easy-crop": "https://esm.sh/react-easy-crop@^5.5.6"
   }
 }
 </script>

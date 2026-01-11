@@ -1,2 +1,2 @@
-// This file is deprecated in favor of pages/user/Dashboard.tsx and has been cleared to avoid build errors.
+// Deprecated shell removed to prioritize pages/user/Dashboard.tsx
 export default () => null;

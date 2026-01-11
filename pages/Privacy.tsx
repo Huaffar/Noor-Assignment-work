@@ -1,53 +1,47 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShieldCheck, Eye, Lock, Server } from 'lucide-react';
+import { ShieldCheck, Eye, Lock, Server, Globe } from 'lucide-react';
 
 const Privacy: React.FC = () => {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12 space-y-12 pb-24">
+    <div className="max-w-xl mx-auto px-4 py-8 space-y-6 pb-24 scale-[0.98] origin-top">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-black text-gray-900 uppercase tracking-tighter">Privacy Shield</h1>
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Official Data Protection Protocol</p>
+        <motion.div 
+          initial={{ y: -10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="w-12 h-12 bg-slate-950 rounded-2xl flex items-center justify-center mx-auto shadow-xl border border-slate-800"
+        >
+          <ShieldCheck className="w-6 h-6 text-emerald-500" />
+        </motion.div>
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none">Privacy Policy</h1>
+          <p className="text-[7px] text-gray-400 font-bold uppercase tracking-[0.4em] mt-2">Data Protection v2.5</p>
+        </div>
       </div>
 
-      <div className="themed-card p-10 space-y-8 shadow-2xl">
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <Eye className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Information Collection</h2>
+      <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm overflow-hidden divide-y divide-gray-50">
+        {[
+          { icon: Eye, title: "Data Collection", desc: "We only collect necessary details like Name and WhatsApp.", urdu: "ہم صرف ضروری معلومات جیسے نام اور واٹس ایپ محفوظ کرتے ہیں۔" },
+          { icon: Lock, title: "Vault Protection", desc: "Your passwords and funds are stored in a secure vault.", urdu: "آپ کا ڈیٹا جدید ترین سیکیورٹی سسٹم کے تحت محفوظ رکھا جاتا ہے۔" },
+          { icon: Server, title: "Third Parties", desc: "We never share your personal data with any outside party.", urdu: "آپ کی معلومات کسی تیسرے فریق کو کبھی نہیں دی جائیں گی۔" }
+        ].map((sec, i) => (
+          <div key={i} className="p-5 space-y-3">
+            <div className="flex items-center space-x-3">
+               <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                  <sec.icon className="w-4 h-4" />
+               </div>
+               <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{sec.title}</h3>
+            </div>
+            <p className="text-[10px] text-slate-500 font-medium leading-relaxed">{sec.desc}</p>
+            <p className="font-urdu text-[15px] text-rose-800 font-bold text-right" dir="rtl">{sec.urdu}</p>
           </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            We collect only necessary worker metadata including your Legal Name, WhatsApp Number for communication, and Payment Wallet details for disbursing your earnings. We do not track personal browsing activity outside our portal.
-          </p>
-          <div className="p-4 bg-gray-50 border-r-4 border-theme-primary">
-            <p className="font-urdu text-2xl text-slate-700">ہم صرف آپ کا نام، واٹس ایپ نمبر اور والٹ کی تفصیلات محفوظ کرتے ہیں تاکہ آپ کو بروقت ادائیگی کی جا سکے۔</p>
-          </div>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <Lock className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Secure Nodes</h2>
-          </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            All user data is encrypted using AES-256 standards. Your financial information is strictly isolated and accessible only to the automated payout kernel during withdrawal requests.
-          </p>
-        </section>
-
-        <section className="space-y-4">
-          <div className="flex items-center space-x-3 text-theme-primary">
-            <Server className="w-6 h-6" />
-            <h2 className="text-xl font-black uppercase">Third Party Links</h2>
-          </div>
-          <p className="text-sm text-gray-600 leading-relaxed font-medium">
-            Noor Official never sells your information to advertising nodes. We only share transaction identifiers with EasyPaisa and JazzCash hubs to complete your payout synchronization.
-          </p>
-        </section>
+        ))}
       </div>
 
-      <div className="text-center opacity-30">
-        <ShieldCheck className="w-12 h-12 mx-auto mb-2" />
-        <p className="text-[8px] font-black uppercase tracking-widest">Last Synced: {new Date().toLocaleDateString()}</p>
+      <div className="bg-slate-50 border border-gray-100 p-5 rounded-2xl text-center">
+         <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">
+            Last Updated: {new Date().toLocaleDateString()} • Your data is 100% encrypted.
+         </p>
       </div>
     </div>
   );
